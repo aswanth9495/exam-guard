@@ -32,7 +32,7 @@ export default class Proctor {
     }
     // Append custom alert HTML to the DOM
     document.addEventListener('DOMContentLoaded', () => {
-      this.setupAlerts();
+      appendAlertHtml();
     });
   }
 
