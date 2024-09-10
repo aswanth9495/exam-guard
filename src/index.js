@@ -1,5 +1,7 @@
 import { dispatchCustomEvent } from './utils/events';
 import { appendAlertHtml, showViolationWarning } from './utils/alert';
+import detectTabSwitch from './utils/violations/tabSwitch';
+import { VIOLATIONS } from './utils/constants';
 
 import './assets/styles/alert.scss';
 
@@ -14,11 +16,12 @@ export default class Proctor {
     this.apiKey = apiKey;
     this.s3StoreConfig = s3StoreConfig;
     this.config = {
-      disableTabSwitch: {
+      [VIOLATIONS.tabSwitch]: {
+        name: VIOLATIONS.tabSwitch,
         enabled: true,
         showAlert: true,
         recordViolation: true,
-        ...config.disableTabSwitch,
+        ...config.tabSwitch,
       },
       ...config,
     };
@@ -27,34 +30,38 @@ export default class Proctor {
   }
 
   initialize() {
-    if (this.config.disableTabSwitch.enabled) {
-      document.addEventListener('visibilitychange', this.handleTabSwitch.bind(this));
+    if (this.config.tabSwitch.enabled) {
+      detectTabSwitch(this.handleViolation.bind(this));
     }
-    // Append custom alert HTML to the DOM
+
     document.addEventListener('DOMContentLoaded', () => {
       appendAlertHtml();
     });
   }
 
-  handleTabSwitch() {
-    if (document.hidden && this.config.disableTabSwitch.enabled) {
-      if (this.config.disableTabSwitch.showAlert) {
-        showViolationWarning('Warning', 'This is a warning for violation performed by the user');
-      }
-      if (this.config.disableTabSwitch.recordViolation) {
-        this.recordViolation('tabSwitch');
-      }
-    }
-  }
-
-  recordViolation(type, value = null) {
+  handleViolation(type, value = null) {
+    console.log(this.config[type]);
     const violation = {
-      type,
+      type: this.config[type].name,
       value,
       timestamp: `${new Date().toJSON().slice(0, 19).replace('T', ' ')} UTC`,
     };
-    this.violationEvents.push(violation);
+
+    if (this.config[type].showAlert) {
+      showViolationWarning(
+        'Warning',
+        `You performed a violation during the test. 
+         Repeating this action may result in disqualification and a failed test attempt.`,
+      );
+    }
+    if (this.config[type].recordViolation) {
+      this.recordViolation(violation);
+    }
     dispatchCustomEvent(type, violation);
+  }
+
+  recordViolation(violation) {
+    this.violationEvents.push(violation);
     this.sendEvent();
   }
 
