@@ -34,7 +34,7 @@ module.exports = {
       {
         test: /\.scss$/,
         use: [
-          MiniCssExtractPlugin.loader, // Extracts CSS into separate files
+          'style-loader', // Extracts CSS into separate files
           'css-loader', // Translates CSS into CommonJS
           'sass-loader', // Compiles Sass to CSS
         ],
@@ -42,11 +42,6 @@ module.exports = {
       },
     ],
   },
-  plugins: [
-    new MiniCssExtractPlugin({
-      filename: 'styles.css', // Output CSS file
-    }),
-  ],
   mode: 'production',
   devServer: {
     static: {
