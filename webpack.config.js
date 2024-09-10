@@ -2,7 +2,7 @@ const path = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 module.exports = {
-  entry: './index.js',
+  entry: './src/index.js',
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'proctor.js',
@@ -38,7 +38,7 @@ module.exports = {
           'css-loader', // Translates CSS into CommonJS
           'sass-loader', // Compiles Sass to CSS
         ],
-        include: path.resolve(__dirname, 'assets/styles'),
+        include: path.resolve(__dirname, 'src/assets/styles'),
       },
     ],
   },
@@ -54,6 +54,6 @@ module.exports = {
     },
     compress: true,
     port: 9000,
-    open: true,
+    open: false,
   },
 };

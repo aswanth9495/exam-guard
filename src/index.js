@@ -1,50 +1,7 @@
 import { dispatchCustomEvent } from './utils/events';
-import alertHtml from './templates/alert.html';
+import { appendAlertHtml, showViolationWarning } from './utils/alert';
+
 import './assets/styles/alert.scss';
-
-function closeModal() {
-  const modal = document.getElementById('warning-modal');
-  if (modal) {
-    modal.style.display = 'none';
-  }
-}
-
-function setupAlertUI() {
-  const closeButton = document.getElementById('warning-modal-close-btn');
-  const actionButton = document.getElementById('warning-modal-action');
-
-  if (closeButton) {
-    closeButton.addEventListener('click', closeModal);
-  }
-
-  if (actionButton) {
-    actionButton.addEventListener('click', closeModal);
-  }
-}
-
-function appendAlertHtml() {
-  const alertContainer = document.createElement('div');
-  alertContainer.innerHTML = alertHtml;
-  document.body.appendChild(alertContainer);
-
-  // Set up the UI (close button functionality)
-  setupAlertUI();
-}
-
-function showViolationWarning(heading, text) {
-  const modal = document.getElementById('warning-modal');
-  const modalHeading = document.getElementById('warning-modal-heading');
-  const modalText = document.getElementById('warning-modal-text');
-
-  if (modal && modalHeading && modalText) {
-    // Set new heading and text
-    modalHeading.textContent = heading;
-    modalText.textContent = text;
-
-    // Display the modal
-    modal.style.display = 'block';
-  }
-}
 
 export default class Proctor {
   constructor({
@@ -74,7 +31,9 @@ export default class Proctor {
       document.addEventListener('visibilitychange', this.handleTabSwitch.bind(this));
     }
     // Append custom alert HTML to the DOM
-    appendAlertHtml();
+    document.addEventListener('DOMContentLoaded', () => {
+      this.setupAlerts();
+    });
   }
 
   handleTabSwitch() {
