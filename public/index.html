@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Proctoring Library Test</title>
+</head>
+<body>
+  <h1>Proctoring Library Test</h1>
+
+  <!-- Include the Webpack bundle -->
+  <script src="proctor.js"></script>
+  <link rel="stylesheet" href="styles.css"> 
+
+  <script>
+    const proctor = new Proctor({
+      eventsUrl: 'https://example.com/events', // Replace with your actual events URL
+      config: {
+        disableTabSwitch: {
+          enabled: true,
+          showAlert: true,
+          recordViolation: true,
+        },
+      },
+      apiKey: 'your-api-key', // Replace with your actual API key
+      s3StoreConfig: {
+        // Add your S3 store configuration if needed
+      },
+    });
+
+    proctor.on('tabSwitch', (count, event) => {
+      console.log(`Tab Switch violation detected. Count: ${count}`);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,76 @@
+$warning-modal-font-color: white;
+$warning-modal-bg-color: #A42137;
+$warning-modal-icon-bg-color: #851A2D;
+$warning-modal-action-font-color: #A42137;
+$warning-modal-action-bg-color: white;
+
+html, body {
+  font-size: 10px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.warning-modal {
+  display: none;
+  padding: 1.6rem 2rem 2.4rem 2rem;
+  color: $warning-modal-font-color;
+  border-radius: 1.6rem;
+  background-color: $warning-modal-bg-color;
+  position: absolute;
+  z-index: 1000;
+  top: 2%;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 47rem;
+  font-size: 1.6rem;
+
+
+  &__close-btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 0.8rem 1.2rem;
+    border-radius: 50%;
+    background-color: $warning-modal-icon-bg-color;
+    display: flex;
+    transform: translate(25%, -25%);
+    cursor: pointer;
+  }
+
+  &__body {
+    display: flex;
+    align-items: start;
+    margin-bottom: 2.4rem;
+  }
+
+  &__icon-wrap {
+    background-color: $warning-modal-icon-bg-color;
+    padding: 2.6rem 1.1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 1.1rem;
+    height: 6.4rem;
+    width: 6.4rem;
+    margin-right: 1.5rem;
+  }
+
+  &__heading {
+    font-size: 2rem;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 3.2rem;
+  }
+
+  &__action {
+    cursor: pointer;
+    background-color: $warning-modal-action-bg-color;
+    color: $warning-modal-action-font-color;
+    text-align: center;
+    padding: 0.8rem 2.4rem;
+    border-radius: 0.4rem;
+    font-weight: 600;
+  }
+}
