@@ -1,17 +1,17 @@
 import html2canvas from 'html2canvas';
 import resizeImage from './image';
-import { DEFAULT_SCREENSHOT_RESIZE_OPTIONS } from './constants';
 
 // Capture Screenshot
 export function captureScreenshot({
   onScreenshotSuccess,
   onScreenshotFailure,
+  resizeDimensions,
 }) {
   html2canvas(document.body, { logging: false })
     .then((canvas) => {
       const imageSrc = canvas.toDataURL('image/png');
 
-      resizeImage(imageSrc, DEFAULT_SCREENSHOT_RESIZE_OPTIONS)
+      resizeImage(imageSrc, resizeDimensions)
         .then((blob) => {
           onScreenshotSuccess?.({ blob });
         })
@@ -28,9 +28,10 @@ function startScreenshotCapture({
   onScreenshotSuccess,
   onScreenshotFailure,
   frequency,
+  resizeDimensions,
 }) {
   setInterval(() => {
-    captureScreenshot({ onScreenshotSuccess, onScreenshotFailure });
+    captureScreenshot({ onScreenshotSuccess, onScreenshotFailure, resizeDimensions });
   }, frequency);
 }
 
@@ -40,6 +41,7 @@ export function setupScreenshot({
   onScreenshotSuccess,
   onScreenshotFailure,
   frequency,
+  resizeDimensions,
 }) {
   try {
     onScreenshotEnabled?.();
@@ -47,6 +49,7 @@ export function setupScreenshot({
       onScreenshotSuccess,
       onScreenshotFailure,
       frequency,
+      resizeDimensions,
     });
   } catch (error) {
     onScreenshotDisabled?.();

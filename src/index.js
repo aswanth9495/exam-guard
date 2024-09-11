@@ -1,9 +1,13 @@
 import { dispatchCustomEvent } from './utils/events';
 import { setupAlert, showViolationWarning } from './utils/alert';
 import { setupWebcam } from './utils/webcam';
-import { setupScreenshot } from './utils/screenShot';
+import { setupScreenshot } from './utils/screenshot';
 import detectTabSwitch from './utils/violations/tabSwitch';
-import { VIOLATIONS, SNAPSHOT_SCREENSHOT_FREQUENCY } from './utils/constants';
+import {
+  VIOLATIONS,
+  SNAPSHOT_SCREENSHOT_FREQUENCY,
+  DEFAULT_SCREENSHOT_RESIZE_OPTIONS,
+} from './utils/constants';
 
 import './assets/styles/alert.scss';
 
@@ -14,7 +18,7 @@ export default class Proctor {
     apiKey,
     s3StoreConfig,
     snapshotConfig,
-    screenShotConfig,
+    screenshotConfig,
     callbacks = {},
 
   }) {
@@ -37,10 +41,11 @@ export default class Proctor {
       optional: true,
       ...snapshotConfig,
     };
-    this.screenShotConfig = {
+    this.screenshotConfig = {
       enabled: true,
       frequency: SNAPSHOT_SCREENSHOT_FREQUENCY,
-      ...screenShotConfig,
+      resizeTo: DEFAULT_SCREENSHOT_RESIZE_OPTIONS,
+      ...screenshotConfig,
     };
     this.callbacks = {
       onWebcamDisabled: callbacks.onWebcamDisabled || (() => {}),
@@ -75,13 +80,14 @@ export default class Proctor {
         });
       }
 
-      if (this.screenShotConfig.enabled) {
+      if (this.screenshotConfig.enabled) {
         setupScreenshot({
-          onScreenshotEnabled: this.handleScreenShotEnabled.bind(this),
-          onScreenshotDisabled: this.handleScreenShotDisabled.bind(this),
-          onScreenshotFailure: this.handleScreenShotFailure.bind(this),
-          onScreenshotSuccess: this.handleScreenShotSuccess.bind(this),
-          frequency: this.screenShotConfig.frequency,
+          onScreenshotEnabled: this.handleScreenshotEnabled.bind(this),
+          onScreenshotDisabled: this.handleScreenshotDisabled.bind(this),
+          onScreenshotFailure: this.handleScreenshotFailure.bind(this),
+          onScreenshotSuccess: this.handleScreenshotSuccess.bind(this),
+          frequency: this.screenshotConfig.frequency,
+          resizeDimensions: this.screenshotConfig.resizeTo,
         });
       }
     });
@@ -92,7 +98,7 @@ export default class Proctor {
     this.callbacks.onWebcamDisabled();
   }
 
-  handleScreenShotDisabled() {
+  handleScreenshotDisabled() {
     // Show blocker
     this.callbacks.onScreenshotDisabled();
   }
@@ -102,7 +108,7 @@ export default class Proctor {
     this.callbacks.onWebcamEnabled();
   }
 
-  handleScreenShotEnabled() {
+  handleScreenshotEnabled() {
     // Disable blocker
     this.callbacks.onScreenshotEnabled();
   }
@@ -112,7 +118,7 @@ export default class Proctor {
     this.callbacks.onSnapshotSuccess();
   }
 
-  handleScreenShotSuccess() {
+  handleScreenshotSuccess() {
     this.callbacks.onScreenshotSuccess();
   }
 
@@ -120,7 +126,7 @@ export default class Proctor {
     this.callbacks.onSnapshotFailure();
   }
 
-  handleScreenShotFailure() {
+  handleScreenshotFailure() {
     this.callbacks.onScreenshotFailure();
   }
 
