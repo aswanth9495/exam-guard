@@ -1,6 +1,7 @@
 import { dispatchCustomEvent } from './utils/events';
 import { setupAlert, showViolationWarning } from './utils/alert';
 import { appendBlockerScreen, enforceFullScreen } from './utils/fullScreenBlocker';
+import { initializeModal } from './utils/instructionModal';
 import { setupWebcam } from './utils/webcam';
 import detectTabSwitch from './utils/violations/tabSwitch';
 import detectBrowserBlur from './utils/violations/browserBlur';
@@ -13,9 +14,11 @@ import { VIOLATIONS, DEFAULT_SNAPSHOT_FREQUENCY } from './utils/constants';
 
 import './assets/styles/alert.scss';
 import './assets/styles/fullScreenBlocker.scss';
+import './assets/styles/instructionModal.scss';
 
 export default class Proctor {
   constructor({
+    instructionModal = {},
     eventsUrl,
     config,
     apiKey,
@@ -24,6 +27,10 @@ export default class Proctor {
     callbacks = {},
 
   }) {
+    this.instructionModal = {
+      enabled: true,
+      ...instructionModal,
+    };
     this.eventsUrl = eventsUrl;
     this.apiKey = apiKey;
     this.s3StoreConfig = s3StoreConfig;
@@ -143,6 +150,9 @@ export default class Proctor {
     }
 
     document.addEventListener('DOMContentLoaded', () => {
+      if (this.instructionModal.enabled) {
+        initializeModal(this.instructionModal.configs);
+      }
       setupAlert();
       // Setup webcam if snapshots are enabled
       if (this.snapshotConfig.enabled) {
