@@ -15,17 +15,21 @@ export function appendInstructionsModal(configs) {
   }
 }
 
-export function showInstructionsModal() {
+export function showInstructionsModal(onContinueClick) {
   const instructionsOverlay = document.getElementById('instructions-overlay');
   const enterTestButton = document.getElementById('enter-test-btn');
   instructionsOverlay.style.display = 'block';
 
   enterTestButton.addEventListener('click', () => {
     instructionsOverlay.style.display = 'none';
+    onContinueClick?.();
   });
 }
 
-export function initializeModal(configs = DEFAULT_MODAL_CONFIG) {
-  appendInstructionsModal(configs);
-  showInstructionsModal();
+export function initializeInstructionsModal(
+  onContinueClick,
+  configs = DEFAULT_MODAL_CONFIG,
+) {
+  appendInstructionsModal(configs, onContinueClick);
+  showInstructionsModal(onContinueClick);
 }

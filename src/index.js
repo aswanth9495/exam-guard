@@ -6,8 +6,8 @@ import {
   VIOLATIONS,
 } from './utils/constants';
 import { dispatchViolationEvent } from './utils/events';
-import { appendBlockerScreen, enforceFullScreen } from './utils/fullScreenBlocker';
-import { initializeModal } from './utils/instructionModal';
+import { detectFullScreen, showFullScreenInitialMessage } from './utils/fullScreenBlocker';
+import { initializeInstructionsModal } from './utils/instructionModal';
 import { checkBandwidth } from './utils/network';
 import { setupScreenshot } from './utils/screenshot';
 import detectBrowserBlur from './utils/violations/browserBlur';
@@ -40,6 +40,7 @@ export default class Proctor {
     screenshotConfig = {},
     callbacks = {},
   }) {
+    this.initializeProctoring = this.initializeProctoring.bind(this);
     this.instructionModal = {
       enabled: true,
       ...instructionModal,
@@ -50,7 +51,7 @@ export default class Proctor {
       ...eventsConfig,
     };
     this.disqualificationConfig = {
-      enabled: false, // Enable when onDisqualify is added
+      enabled: true, // Enable when onDisqualify is added
       eventCountThreshold: 5, // Number of violations after which disqualification will occur
       alertHeading: 'Disqualification Alert',
       alertMessage: 'You have been disqualified after exceeding the allowed number of violations.',
@@ -80,7 +81,7 @@ export default class Proctor {
       },
       [VIOLATIONS.exitTab]: {
         name: VIOLATIONS.exitTab,
-        enabled: true,
+        enabled: false,
         showAlert: true,
         recordViolation: true,
         ...config.exitTab,
@@ -139,17 +140,17 @@ export default class Proctor {
       onScreenshotSuccess: callbacks.onScreenshotSuccess || (() => {}),
       onFullScreenEnabled: callbacks.onFullScreenEnabled || (() => {}),
       onFullScreenDisabled: callbacks.onFullScreenDisabled || (() => {}),
+      onCompatibilityCheckSuccess: callbacks.onCompatibilityCheckSuccess || (() => {}),
+      onCompatibilityChecFailure: callbacks.onCompatibilityChecFailure || (() => {}),
     };
     this.violationEvents = [];
     this.recordedViolationEvents = []; // Store events for batch sending
-    this.initialize();
   }
 
-  initialize() {
+  initializeProctoring() {
+    // console.log('%c⧭', 'color: #006dcc', 'ejeje');
     if (this.config.fullScreen.enabled) {
-      appendBlockerScreen();
-      enforceFullScreen({
-        onExitCallback: this.handleViolation.bind(this),
+      detectFullScreen({
         onFullScreenDisabled: this.handleFullScreenDisabled.bind(this),
         onFullScreenEnabled: this.handleFullScreenEnabled.bind(this),
       });
@@ -183,43 +184,47 @@ export default class Proctor {
       preventTextSelection();
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-      if (this.instructionModal.enabled) {
-        initializeModal(this.instructionModal.configs);
-      }
-      setupAlert();
-      // Setup webcam if snapshots are enabled
-      if (this.snapshotConfig.enabled) {
-        setupWebcam();
-        detectWebcam({
-          onWebcamEnabled: this.handleWebcamEnabled.bind(this),
-          onWebcamDisabled: this.handleWebcamDisabled.bind(this),
-          optional: this.snapshotConfig.optional,
-        });
-      }
+    setupAlert();
+    // Setup webcam if snapshots are enabled
+    if (this.snapshotConfig.enabled) {
+      setupWebcam();
+      detectWebcam({
+        onWebcamEnabled: this.handleWebcamEnabled.bind(this),
+        onWebcamDisabled: this.handleWebcamDisabled.bind(this),
+        optional: this.snapshotConfig.optional,
+      });
+    }
 
-      if (this.screenshotConfig.enabled) {
-        setupScreenshot({
-          onScreenshotEnabled: this.handleScreenshotEnabled.bind(this),
-          onScreenshotDisabled: this.handleScreenshotDisabled.bind(this),
-          onScreenshotFailure: this.handleScreenshotFailure.bind(this),
-          onScreenshotSuccess: this.handleScreenshotSuccess.bind(this),
-          frequency: this.screenshotConfig.frequency,
-          resizeDimensions: this.screenshotConfig.resizeTo,
-        });
-      }
-    });
+    if (this.screenshotConfig.enabled) {
+      setupScreenshot({
+        onScreenshotEnabled: this.handleScreenshotEnabled.bind(this),
+        onScreenshotDisabled: this.handleScreenshotDisabled.bind(this),
+        onScreenshotFailure: this.handleScreenshotFailure.bind(this),
+        onScreenshotSuccess: this.handleScreenshotSuccess.bind(this),
+        frequency: this.screenshotConfig.frequency,
+        resizeDimensions: this.screenshotConfig.resizeTo,
+      });
+    }
+
     // Listen to tab close or exit
     this.handleWindowUnload();
   }
 
-  runCompatibilityChecks() {
+  runCompatibilityChecks(onSuccess, onFailure) {
     const compatibilityChecks = {
       webcam: this.snapshotConfig.enabled,
       networkSpeed: this.snapshotConfig.enabled,
+      fullscreen: this.config[VIOLATIONS.fullScreen].enabled,
     };
 
-    console.log('Checking compatibility');
+    console.log('Checking compatibility', compatibilityChecks);
+
+    // Initialize object to store the result of passed checks
+    const passedChecks = {
+      webcam: false,
+      networkSpeed: false,
+      fullscreen: false,
+    };
 
     // Array to store all compatibility promises
     const compatibilityPromises = [];
@@ -227,12 +232,14 @@ export default class Proctor {
     // Webcam check
     if (compatibilityChecks.webcam) {
       const webcamCheck = new Promise((resolve, reject) => {
+        setupWebcam();
         detectWebcam({
           onWebcamDisabled: () => {
             // eslint-disable-next-line prefer-promise-reject-errors
             reject('webcam');
           },
           onWebcamEnabled: () => {
+            passedChecks.webcam = true; // Update passed checks
             resolve('webcam');
           },
         });
@@ -244,10 +251,11 @@ export default class Proctor {
     if (compatibilityChecks.networkSpeed) {
       const networkCheck = checkBandwidth()
         .then((isLowBandwidth) => {
-          if (!isLowBandwidth) {
+          if (isLowBandwidth) {
             // eslint-disable-next-line prefer-promise-reject-errors
             return Promise.reject('network_speed');
           }
+          passedChecks.networkSpeed = true; // Update passed checks
           return 'network_speed';
         })
         // eslint-disable-next-line prefer-promise-reject-errors
@@ -256,15 +264,41 @@ export default class Proctor {
       compatibilityPromises.push(networkCheck);
     }
 
+    // Full screen check
+    if (compatibilityChecks.fullscreen) {
+      showFullScreenInitialMessage();
+      const fullScreenCheck = new Promise((resolve, reject) => {
+        detectFullScreen({
+          onFullScreenEnabled: () => {
+            passedChecks.fullscreen = true; // Update passed checks
+            resolve('fullscreen');
+          },
+          onFullScreenDisabled: () => {
+            // eslint-disable-next-line prefer-promise-reject-errors
+            reject('fullscreen');
+          },
+        });
+      });
+      compatibilityPromises.push(fullScreenCheck);
+    }
+
     // Wait for all compatibility checks to complete
-    Promise.all(compatibilityPromises)
-      .then(() => {
-        // If all checks pass, run success callback
-        this.callbacks.onCompatibilityCheckSuccess();
+    Promise.allSettled(compatibilityPromises)
+      .then((results) => {
+        // If any check fails, handle failure and return the updated object
+        const failedCheck = results.find((result) => result.status === 'rejected');
+
+        if (failedCheck) {
+          initializeInstructionsModal(this.runCompatibilityChecks.bind(this, onSuccess, onFailure));
+          onFailure?.(failedCheck.reason, passedChecks);
+        } else {
+          onSuccess?.(passedChecks);
+        }
       })
       .catch((failedCheck) => {
+        initializeInstructionsModal(this.runCompatibilityChecks.bind(this, onSuccess, onFailure));
         // Handle any failure in individual checks
-        this.callbacks.onCompatibilityCheckFailure(failedCheck);
+        onFailure?.(failedCheck, passedChecks);
       });
   }
 
@@ -318,6 +352,7 @@ export default class Proctor {
   }
 
   handleViolation(type, value = null) {
+    console.log('%c⧭', 'color: #40fff2', 'violation handled');
     const violation = {
       type: this.config[type].name,
       value,
@@ -330,11 +365,13 @@ export default class Proctor {
         `You performed a violation during the test. 
          Repeating this action may result in disqualification 
          and a failed test attempt.`,
+        true,
       );
     }
     if (this.config[type].recordViolation) {
       this.recordViolation(violation);
     }
+
     dispatchViolationEvent(type, violation);
 
     if (this.disqualificationConfig.enabled
@@ -384,6 +421,12 @@ export default class Proctor {
     // Send events when the user tries to exit or close the window/tab
     window.addEventListener('beforeunload', () => {
       this.sendEvents();
+    });
+  }
+
+  showInstructionsModal() {
+    initializeInstructionsModal({
+      ...this.instructionModal,
     });
   }
 

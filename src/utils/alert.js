@@ -29,17 +29,21 @@ export function setupAlert() {
   setupAlertUI();
 }
 
-export function showViolationWarning(heading, text) {
+export function showViolationWarning(heading, text, hideAction = false) {
   const modal = document.getElementById('warning-modal');
   const modalHeading = document.getElementById('warning-modal-heading');
   const modalText = document.getElementById('warning-modal-text');
+  const modalAction = document.getElementById('warning-modal-action');
 
-  if (modal && modalHeading && modalText) {
+  if (modal && modalHeading && modalText && modalAction) {
     // Set new heading and text
     modalHeading.textContent = heading;
     modalText.textContent = text;
 
     // Display the modal
     modal.style.display = 'block';
+    if (hideAction) {
+      modalAction.style.display = 'none';
+    }
   }
 }

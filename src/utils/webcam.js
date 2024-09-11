@@ -59,7 +59,6 @@ export function detectWebcam({
   onWebcamDisabled,
   optional,
 }) {
-  console.log('%c⧭', 'color: #0088cc', 'hello');
   navigator.mediaDevices.getUserMedia({ video: true })
     .then((stream) => {
       const videoElement = getVideoElement();

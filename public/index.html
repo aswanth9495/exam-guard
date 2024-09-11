@@ -6,7 +6,7 @@
   <title>Proctoring Library Test</title>
 </head>
 <body>
-  <h1>Proctoring Library Test</h1>
+  <h1>Proctoringss Library Test</h1>
   <!-- Image element to render the captured snapshot -->
   <div>
     <h2>Captured Snapshot:</h2>
@@ -50,8 +50,10 @@
       }
     });
 
-    proctor.on('tabSwitch', (count, event) => {
-      console.log(`Tab Switch violation detected. Count: ${count}`);
+    proctor.runCompatibilityChecks(() => {
+      proctor.initializeProctoring();
+    }, () => {
+      // Can show any additional modal
     });
   </script>
 </body>
