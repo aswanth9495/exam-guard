@@ -1,7 +1,8 @@
 import { dispatchCustomEvent } from './utils/events';
-import { appendAlertHtml, showViolationWarning } from './utils/alert';
+import { setupAlert, showViolationWarning } from './utils/alert';
+import { setupWebcam } from './utils/webcam';
 import detectTabSwitch from './utils/violations/tabSwitch';
-import { VIOLATIONS } from './utils/constants';
+import { VIOLATIONS, DEFAULT_SNAPSHOT_FREQUENCY } from './utils/constants';
 
 import './assets/styles/alert.scss';
 
@@ -11,6 +12,9 @@ export default class Proctor {
     config,
     apiKey,
     s3StoreConfig,
+    snapshotConfig,
+    callbacks = {},
+
   }) {
     this.eventsUrl = eventsUrl;
     this.apiKey = apiKey;
@@ -25,6 +29,18 @@ export default class Proctor {
       },
       ...config,
     };
+    this.snapshotConfig = {
+      enabled: true,
+      frequency: DEFAULT_SNAPSHOT_FREQUENCY, // 5s by default
+      optional: true,
+      ...snapshotConfig,
+    };
+    this.callbacks = {
+      onWebcamDisabled: callbacks.onWebcamDisabled || (() => {}),
+      onWebcamEnabled: callbacks.onWebcamEnabled || (() => {}),
+      onSnapshotSuccess: callbacks.onSnapshotSuccess || (() => {}),
+      onSnapshotFailure: callbacks.onSnapshotFailure || (() => {}),
+    };
     this.violationEvents = [];
     this.initialize();
   }
@@ -35,8 +51,38 @@ export default class Proctor {
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-      appendAlertHtml();
+      setupAlert();
+      // Setup webcam if snapshots are enabled
+      if (this.snapshotConfig.enabled) {
+        setupWebcam({
+          onWebcamEnabled: this.handleWebcamEnabled.bind(this),
+          onWebcamDisabled: this.handleWebcamDisabled.bind(this),
+          onSnapshotSucccess: this.handleSnapshotSuccess.bind(this),
+          onSnapshotFailure: this.handleSnapshotFailure.bind(this),
+          optional: this.snapshotConfig.optional,
+          frequency: this.snapshotConfig.frequency,
+        });
+      }
     });
+  }
+
+  handleWebcamDisabled() {
+    // Show blocker
+    this.callbacks.onWebcamDisabled();
+  }
+
+  handleWebcamEnabled() {
+    // Disable blocker
+    this.callbacks.onWebcamEnabled();
+  }
+
+  handleSnapshotSuccess() {
+    // Send data to s3
+    this.callbacks.onSnapshotSuccess();
+  }
+
+  handleSnapshotFailure() {
+    this.callbacks.onSnapshotFailure();
   }
 
   handleViolation(type, value = null) {
@@ -51,7 +97,8 @@ export default class Proctor {
       showViolationWarning(
         'Warning',
         `You performed a violation during the test. 
-         Repeating this action may result in disqualification and a failed test attempt.`,
+         Repeating this action may result in disqualification 
+         and a failed test attempt.`,
       );
     }
     if (this.config[type].recordViolation) {
