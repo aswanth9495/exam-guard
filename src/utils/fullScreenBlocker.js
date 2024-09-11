@@ -23,9 +23,12 @@ export function isFullScreen() {
 
 // Set up the fullscreen blocker UI
 function setupFullScreenBlocker() {
-  const con = document.createElement('div');
-  con.innerHTML = blockerTemplate;
-  document.body.appendChild(con);
+  const fullScreenBlocker = document.getElementById('fullscreenBlocker');
+  if (!fullScreenBlocker) {
+    const con = document.createElement('div');
+    con.innerHTML = blockerTemplate;
+    document.body.appendChild(con);
+  }
 }
 
 export function addFullscreenKeyboardListener() {
@@ -42,14 +45,13 @@ export function addFullscreenKeyboardListener() {
 // Shows the initial fullscreen message
 export function showFullScreenInitialMessage() {
   if (isFullScreen()) return;
+  setupFullScreenBlocker();
   const fullScreenBlocker = document.getElementById('fullscreenBlocker');
-  if (!fullScreenBlocker) {
-    setupFullScreenBlocker();
-  }
   const enterFullScreenMessage = document.getElementById('fullscreen-initial-message');
   const exitFullScreenMessage = document.getElementById('fullscreen-default-message');
 
   if (enterFullScreenMessage && exitFullScreenMessage) {
+    fullScreenBlocker.style.display = 'flex';
     enterFullScreenMessage.style.display = 'flex';
     exitFullScreenMessage.style.display = 'none';
   }
@@ -58,6 +60,7 @@ export function showFullScreenInitialMessage() {
 
 // Shows the default fullscreen message with countdown
 export function showFullScreenDefaultMessage({ onExitCallback }) {
+  if (isFullScreen()) return;
   const fullScreenBlocker = document.getElementById('fullscreenBlocker');
   if (!fullScreenBlocker) {
     setupFullScreenBlocker();
@@ -69,9 +72,10 @@ export function showFullScreenDefaultMessage({ onExitCallback }) {
   let timerCount = 10;
   let countdownInterval = null;
 
-  if (fullScreenBlocker && enterFullScreenMessage && exitFullScreenMessage) {
-    enterFullScreenMessage.style.display = 'flex';
-    exitFullScreenMessage.style.display = 'none';
+  if (enterFullScreenMessage && exitFullScreenMessage) {
+    fullScreenBlocker.style.display = 'flex';
+    enterFullScreenMessage.style.display = 'none';
+    exitFullScreenMessage.style.display = 'flex';
     countdownInterval = setInterval(() => {
       timerCountElement.textContent = timerCount;
 

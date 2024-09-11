@@ -6,7 +6,7 @@ import {
   VIOLATIONS,
 } from './utils/constants';
 import { dispatchViolationEvent } from './utils/events';
-import { detectFullScreen, showFullScreenInitialMessage } from './utils/fullScreenBlocker';
+import { detectFullScreen, showFullScreenDefaultMessage, showFullScreenInitialMessage } from './utils/fullScreenBlocker';
 import { initializeInstructionsModal } from './utils/instructionModal';
 import { checkBandwidth } from './utils/network';
 import { setupScreenshot } from './utils/screenshot';
@@ -148,7 +148,6 @@ export default class Proctor {
   }
 
   initializeProctoring() {
-    // console.log('%c⧭', 'color: #006dcc', 'ejeje');
     if (this.config.fullScreen.enabled) {
       detectFullScreen({
         onFullScreenDisabled: this.handleFullScreenDisabled.bind(this),
@@ -216,8 +215,6 @@ export default class Proctor {
       networkSpeed: this.snapshotConfig.enabled,
       fullscreen: this.config[VIOLATIONS.fullScreen].enabled,
     };
-
-    console.log('Checking compatibility', compatibilityChecks);
 
     // Initialize object to store the result of passed checks
     const passedChecks = {
@@ -340,6 +337,10 @@ export default class Proctor {
   }
 
   handleFullScreenDisabled() {
+    console.log('%c⧭', 'color: #f27999', 'close');
+    showFullScreenDefaultMessage({
+      onExitCallback: () => {},
+    });
     this.callbacks.onFullScreenDisabled();
   }
 
