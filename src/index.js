@@ -290,17 +290,15 @@ export default class Proctor {
   }
 
   handleScreenshotEnabled() {
-    // Disable blocker
     this.callbacks.onScreenshotEnabled();
   }
 
-  handleSnapshotSuccess() {
-    // Send data to s3
-    this.callbacks.onSnapshotSuccess();
+  handleSnapshotSuccess({ blob }) {
+    this.callbacks.onSnapshotSuccess({ blob });
   }
 
-  handleScreenshotSuccess() {
-    this.callbacks.onScreenshotSuccess();
+  handleScreenshotSuccess({ blob }) {
+    this.callbacks.onScreenshotSuccess({ blob });
   }
 
   handleSnapshotFailure() {
@@ -320,7 +318,6 @@ export default class Proctor {
   }
 
   handleViolation(type, value = null) {
-    console.log(this.config[type]);
     const violation = {
       type: this.config[type].name,
       value,
@@ -370,10 +367,6 @@ export default class Proctor {
     const payload = {
       events: this.recordedViolationEvents,
     };
-
-    console.log('%c⧭', 'color: #e50000', 'Events being sent to backend:');
-
-    console.log('%c⧭', 'color: #733d00', 'Payload:', payload);
     fetch(this.eventsConfig.url, {
       method: 'POST',
       headers: {
@@ -382,7 +375,9 @@ export default class Proctor {
       body: JSON.stringify(payload),
     }).then(() => {
       this.recordedViolationEvents = [];
-    }).catch((error) => console.error('Failed to send event:', error));
+    }).catch((error) => {
+      console.error('Failed to send event:', error);
+    });
   }
 
   handleWindowUnload() {

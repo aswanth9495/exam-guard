@@ -12,6 +12,10 @@
     <h2>Captured Snapshot:</h2>
     <img id="snapshot" alt="Snapshot will appear here" style="max-width: 100%; height: auto;" />
   </div>
+  <div>
+    <h2>Captured Screenshot:</h2>
+    <img id="screenshot" alt="Screenshot will appear here" style="max-width: 100%; height: auto;" />
+  </div>
 
   <!-- Include the Webpack bundle -->
   <script src="proctor.js"></script>
@@ -33,6 +37,14 @@
             // Create a URL for the blob and set it as the src of the image element
             const imageUrl = URL.createObjectURL(blob);
             snapshotImg.src = imageUrl;
+          }
+        },
+        onScreenshotSuccess: ({ blob }) => {
+          const screenshotImg = document.getElementById('screenshot');
+          if (screenshotImg) {
+            // Create a URL for the blob and set it as the src of the image element
+            const imageUrl = URL.createObjectURL(blob);
+            screenshotImg.src = imageUrl;
           }
         }
       }
