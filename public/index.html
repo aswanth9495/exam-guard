@@ -7,6 +7,11 @@
 </head>
 <body>
   <h1>Proctoring Library Test</h1>
+  <!-- Image element to render the captured snapshot -->
+  <div>
+    <h2>Captured Snapshot:</h2>
+    <img id="snapshot" alt="Snapshot will appear here" style="max-width: 100%; height: auto;" />
+  </div>
 
   <!-- Include the Webpack bundle -->
   <script src="proctor.js"></script>
@@ -21,10 +26,16 @@
           recordViolation: true,
         },
       },
-      apiKey: 'your-api-key', // Replace with your actual API key
-      s3StoreConfig: {
-        // Add your S3 store configuration if needed
-      },
+      callbacks: {
+        onSnapshotSuccess: ({ blob }) => {
+          const snapshotImg = document.getElementById('snapshot');
+          if (snapshotImg) {
+            // Create a URL for the blob and set it as the src of the image element
+            const imageUrl = URL.createObjectURL(blob);
+            snapshotImg.src = imageUrl;
+          }
+        }
+      }
     });
 
     proctor.on('tabSwitch', (count, event) => {

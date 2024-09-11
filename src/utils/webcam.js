@@ -1,12 +1,19 @@
 import webcamHtml from '../templates/webcam.html';
+import webcamBlocker from '../templates/webcam_blocker.html';
 import resizeImage from './image';
 import { DEFAULT_SNAPSHOT_RESIZE_OPTIONS } from './constants';
 
+export function getVideoElement() {
+  const videoElement = document.getElementById('webcam');
+  return videoElement;
+}
+
 export function captureSnapshot({
-  videoElement,
-  onSnapshotSucccess,
+  onSnapshotSuccess,
   onSnapshotFailure,
 }) {
+  const videoElement = getVideoElement();
+
   if (videoElement) {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
@@ -19,35 +26,24 @@ export function captureSnapshot({
     // Resize image using ImageUtils
     resizeImage(imageSrc, DEFAULT_SNAPSHOT_RESIZE_OPTIONS)
       .then((blob) => {
-        onSnapshotSucccess?.({ blob });
+        onSnapshotSuccess?.({ blob });
       })
-      .catch((err) => {
-        onSnapshotFailure?.({ err });
+      .catch((error) => {
+        onSnapshotFailure?.({ error });
       });
   }
 }
 
 // Start taking Snapshots at regular intervals
-function startSnapshotCapture({
-  videoElement, onSnapshotSucccess, onSnapshotFailure, frequency,
+export function setupSnapshotCapture({
+  onSnapshotSuccess, onSnapshotFailure, frequency,
 }) {
   setInterval(() => {
-    captureSnapshot({ videoElement, onSnapshotSucccess, onSnapshotFailure });
+    captureSnapshot({ onSnapshotSuccess, onSnapshotFailure });
   }, frequency);
 }
 
-// Capture snapshot logic without using refs
-
-// eslint-disable-next-line import/prefer-default-export
-export function setupWebcam({
-  onWebcamEnabled,
-  onWebcamDisabled,
-  onSnapshotSucccess,
-  onSnapshotFailure,
-  optional,
-  frequency,
-}) {
-  console.log('%c⧭', 'color: #00a3cc', 'hello');
+export function setupWebcam() {
   const webcamContainer = document.createElement('div');
   document.body.appendChild(webcamContainer);
 
@@ -55,20 +51,41 @@ export function setupWebcam({
   const webcamElement = document.createElement('div');
   webcamElement.innerHTML = webcamHtml;
   webcamContainer.appendChild(webcamElement);
+}
+
+// Detect webcam and set up the stream
+export function detectWebcam({
+  onWebcamEnabled,
+  onWebcamDisabled,
+  optional,
+}) {
+  console.log('%c⧭', 'color: #0088cc', 'hello');
   navigator.mediaDevices.getUserMedia({ video: true })
     .then((stream) => {
-      const videoElement = document.getElementById('webcam');
-      videoElement.srcObject = stream;
-      onWebcamEnabled?.();
-      startSnapshotCapture({
-        videoElement, onSnapshotSucccess, onSnapshotFailure, frequency,
-      });
+      const videoElement = getVideoElement();
+      if (videoElement) {
+        videoElement.srcObject = stream;
+        onWebcamEnabled?.({ videoElement });
+      }
     })
     .catch((error) => {
       if (optional) {
-        if (error.name !== 'NotFoundError') onWebcamDisabled?.();
+        if (error.name !== 'NotFoundError') onWebcamDisabled?.({ error });
       } else {
-        onWebcamDisabled?.();
+        onWebcamDisabled?.({ error });
       }
     });
+}
+
+export function showWebcamBlocker() {
+  const webcamBlockerContainer = document.createElement('div');
+  webcamBlockerContainer.innerHTML = webcamBlocker;
+  document.body.appendChild(webcamBlockerContainer);
+}
+
+export function disableWebcamBlocker() {
+  const webcamBlockerEl = document.getElementById('webcam-blocker');
+  if (webcamBlockerEl) {
+    webcamBlockerEl.remove();
+  }
 }
