@@ -19,7 +19,7 @@ html, body {
   border-radius: 1.6rem;
   background-color: $warning-modal-bg-color;
   position: absolute;
-  z-index: 1000;
+  z-index: 99999;
   top: 2%;
   left: 50%;
   transform: translateX(-50%);

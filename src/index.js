@@ -1,23 +1,42 @@
-import { dispatchViolationEvent } from './utils/events';
 import { setupAlert, showViolationWarning } from './utils/alert';
-import {
-  detectWebcam, setupSnapshotCapture, showWebcamBlocker, disableWebcamBlocker, setupWebcam,
-} from './utils/webcam';
+import { DEFAULT_SNAPSHOT_FREQUENCY, MAX_EVENTS_BEFORE_SEND, VIOLATIONS } from './utils/constants';
+import { dispatchViolationEvent } from './utils/events';
+import { appendBlockerScreen, enforceFullScreen } from './utils/fullScreenBlocker';
+import { initializeModal } from './utils/instructionModal';
 import { checkBandwidth } from './utils/network';
+import detectBrowserBlur from './utils/violations/browserBlur';
+import detectCopyPasteCut from './utils/violations/copyPasteCut';
+import detectExitTab from './utils/violations/exitTab';
+import detectRestrictedKeyEvents from './utils/violations/restrictedKeyEvent';
+import detectRightClickDisabled from './utils/violations/rightClick';
 import detectTabSwitch from './utils/violations/tabSwitch';
-import { VIOLATIONS, DEFAULT_SNAPSHOT_FREQUENCY, MAX_EVENTS_BEFORE_SEND } from './utils/constants';
+import preventTextSelection from './utils/violations/textSelection';
+import {
+  detectWebcam,
+  disableWebcamBlocker,
+  setupSnapshotCapture,
+  setupWebcam,
+  showWebcamBlocker,
+} from './utils/webcam';
 
 import './assets/styles/alert.scss';
+import './assets/styles/fullScreenBlocker.scss';
+import './assets/styles/instructionModal.scss';
 import './assets/styles/webcam-blocker.scss';
 
 export default class Proctor {
   constructor({
+    instructionModal = {},
     eventsConfig = {},
     disqualificationConfig = {},
     config = {},
     snapshotConfig = {},
     callbacks = {},
   }) {
+    this.instructionModal = {
+      enabled: true,
+      ...instructionModal,
+    };
     this.eventsConfig = {
       url: null,
       maxEventsBeforeSend: MAX_EVENTS_BEFORE_SEND,
@@ -38,6 +57,55 @@ export default class Proctor {
         recordViolation: true,
         ...config.tabSwitch,
       },
+      [VIOLATIONS.browserBlur]: {
+        name: VIOLATIONS.browserBlur,
+        enabled: true,
+        showAlert: true,
+        recordViolation: true,
+        ...config.browserBlur,
+      },
+      [VIOLATIONS.rightClick]: {
+        name: VIOLATIONS.rightClick,
+        enabled: true,
+        showAlert: true,
+        recordViolation: true,
+        ...config.rightClick,
+      },
+      [VIOLATIONS.exitTab]: {
+        name: VIOLATIONS.exitTab,
+        enabled: true,
+        showAlert: true,
+        recordViolation: true,
+        ...config.exitTab,
+      },
+      [VIOLATIONS.copyPasteCut]: {
+        name: VIOLATIONS.copyPasteCut,
+        enabled: true,
+        showAlert: true,
+        recordViolation: true,
+        ...config.copyPasteCut,
+      },
+      [VIOLATIONS.restrictedKeyEvent]: {
+        name: VIOLATIONS.restrictedKeyEvent,
+        enabled: true,
+        showAlert: true,
+        recordViolation: true,
+        ...config.restrictedKeyEvent,
+      },
+      [VIOLATIONS.textSelection]: {
+        name: VIOLATIONS.textSelection,
+        enabled: true,
+        showAlert: true,
+        recordViolation: true,
+        ...config.textSelection,
+      },
+      [VIOLATIONS.fullScreen]: {
+        name: VIOLATIONS.fullScreen,
+        enabled: true,
+        showAlert: true,
+        recordViolation: true,
+        ...config.fullScreen,
+      },
       ...config,
     };
     this.snapshotConfig = {
@@ -52,6 +120,8 @@ export default class Proctor {
       onWebcamEnabled: callbacks.onWebcamEnabled || (() => {}),
       onSnapshotSuccess: callbacks.onSnapshotSuccess || (() => {}),
       onSnapshotFailure: callbacks.onSnapshotFailure || (() => {}),
+      onFullScreenEnabled: callbacks.onFullScreenEnabled || (() => {}),
+      onFullScreenDisabled: callbacks.onFullScreenDisabled || (() => {}),
     };
     this.violationEvents = [];
     this.recordedViolationEvents = []; // Store events for batch sending
@@ -59,11 +129,47 @@ export default class Proctor {
   }
 
   initialize() {
+    if (this.config.fullScreen.enabled) {
+      appendBlockerScreen();
+      enforceFullScreen({
+        onExitCallback: this.handleViolation.bind(this),
+        onFullScreenDisabled: this.handleFullScreenDisabled.bind(this),
+        onFullScreenEnabled: this.handleFullScreenEnabled.bind(this),
+      });
+    }
+
     if (this.config.tabSwitch.enabled) {
       detectTabSwitch(this.handleViolation.bind(this));
     }
 
+    if (this.config.browserBlur.enabled) {
+      detectBrowserBlur(this.handleViolation.bind(this));
+    }
+
+    if (this.config.rightClick.enabled) {
+      detectRightClickDisabled(this.handleViolation.bind(this));
+    }
+
+    if (this.config.exitTab.enabled) {
+      detectExitTab(this.handleViolation.bind(this));
+    }
+
+    if (this.config.copyPasteCut.enabled) {
+      detectCopyPasteCut(this.handleViolation.bind(this));
+    }
+
+    if (this.config.restrictedKeyEvent.enabled) {
+      detectRestrictedKeyEvents(this.handleViolation.bind(this));
+    }
+
+    if (this.config.textSelection.enabled) {
+      preventTextSelection();
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
+      if (this.instructionModal.enabled) {
+        initializeModal(this.instructionModal.configs);
+      }
       setupAlert();
       // Setup webcam if snapshots are enabled
       if (this.snapshotConfig.enabled) {
@@ -156,6 +262,14 @@ export default class Proctor {
 
   handleSnapshotFailure({ err }) {
     this.callbacks.onSnapshotFailure(err);
+  }
+
+  handleFullScreenDisabled() {
+    this.callbacks.onFullScreenDisabled();
+  }
+
+  handleFullScreenEnabled() {
+    this.callbacks.onFullScreenEnabled();
   }
 
   handleViolation(type, value = null) {
