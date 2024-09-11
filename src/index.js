@@ -1,9 +1,17 @@
 import { dispatchCustomEvent } from './utils/events';
 import { appendAlertHtml, showViolationWarning } from './utils/alert';
+import { appendBlockerScreen, enforceFullScreen } from './utils/fullScreenBlocker';
 import detectTabSwitch from './utils/violations/tabSwitch';
+import detectBrowserBlur from './utils/violations/browserBlur';
+import detectRightClickDisabled from './utils/violations/rightClick';
+import detectExitTab from './utils/violations/exitTab';
+import detectCopyPasteCut from './utils/violations/copyPasteCut';
+import detectRestrictedKeyEvents from './utils/violations/restrictedKeyEvent';
+import preventTextSelection from './utils/violations/textSelection';
 import { VIOLATIONS } from './utils/constants';
 
 import './assets/styles/alert.scss';
+import './assets/styles/fullScreenBlocker.scss';
 
 export default class Proctor {
   constructor({
@@ -23,6 +31,54 @@ export default class Proctor {
         recordViolation: true,
         ...config.tabSwitch,
       },
+      [VIOLATIONS.browserBlur]: {
+        name: VIOLATIONS.browserBlur,
+        enabled: true,
+        showAlert: true,
+        recordViolation: true,
+        ...config.browserBlur,
+      },
+      [VIOLATIONS.rightClick]: {
+        name: VIOLATIONS.rightClick,
+        enabled: true,
+        showAlert: true,
+        recordViolation: true,
+        ...config.rightClick,
+      },
+      [VIOLATIONS.exitTab]: {
+        name: VIOLATIONS.exitTab,
+        enabled: true,
+        showAlert: true,
+        recordViolation: true,
+        ...config.exitTab,
+      },
+      [VIOLATIONS.copyPasteCut]: {
+        name: VIOLATIONS.copyPasteCut,
+        enabled: true,
+        showAlert: true,
+        recordViolation: true,
+        ...config.copyPasteCut,
+      },
+      [VIOLATIONS.restrictedKeyEvent]: {
+        name: VIOLATIONS.restrictedKeyEvent,
+        enabled: true,
+        showAlert: true,
+        recordViolation: true,
+        ...config.restrictedKeyEvent,
+      },
+      [VIOLATIONS.textSelection]: {
+        name: VIOLATIONS.textSelection,
+        enabled: true,
+        showAlert: true,
+        recordViolation: true,
+        ...config.textSelection,
+      },
+      [VIOLATIONS.fullScreen]: {
+        name: VIOLATIONS.fullScreen,
+        enabled: true,
+        recordViolation: true,
+        ...config.fullScreen,
+      },
       ...config,
     };
     this.violationEvents = [];
@@ -30,8 +86,37 @@ export default class Proctor {
   }
 
   initialize() {
+    appendBlockerScreen();
+    if (this.config.fullScreen.enabled) {
+      enforceFullScreen(this.handleViolation.bind(this));
+    }
+
     if (this.config.tabSwitch.enabled) {
       detectTabSwitch(this.handleViolation.bind(this));
+    }
+
+    if (this.config.browserBlur.enabled) {
+      detectBrowserBlur(this.handleViolation.bind(this));
+    }
+
+    if (this.config.rightClick.enabled) {
+      detectRightClickDisabled(this.handleViolation.bind(this));
+    }
+
+    if (this.config.exitTab.enabled) {
+      detectExitTab(this.handleViolation.bind(this));
+    }
+
+    if (this.config.copyPasteCut.enabled) {
+      detectCopyPasteCut(this.handleViolation.bind(this));
+    }
+
+    if (this.config.restrictedKeyEvent.enabled) {
+      detectRestrictedKeyEvents(this.handleViolation.bind(this));
+    }
+
+    if (this.config.textSelection.enabled) {
+      preventTextSelection();
     }
 
     document.addEventListener('DOMContentLoaded', () => {
