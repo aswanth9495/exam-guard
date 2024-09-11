@@ -57,6 +57,7 @@ export default class Proctor {
       alertMessage: 'You have been disqualified after exceeding the allowed number of violations.',
       ...disqualificationConfig,
     };
+    this.handleViolation = this.handleViolation.bind(this);
     this.config = {
       [VIOLATIONS.tabSwitch]: {
         name: VIOLATIONS.tabSwitch,
@@ -140,8 +141,6 @@ export default class Proctor {
       onScreenshotSuccess: callbacks.onScreenshotSuccess || (() => {}),
       onFullScreenEnabled: callbacks.onFullScreenEnabled || (() => {}),
       onFullScreenDisabled: callbacks.onFullScreenDisabled || (() => {}),
-      onCompatibilityCheckSuccess: callbacks.onCompatibilityCheckSuccess || (() => {}),
-      onCompatibilityChecFailure: callbacks.onCompatibilityChecFailure || (() => {}),
     };
     this.violationEvents = [];
     this.recordedViolationEvents = []; // Store events for batch sending
@@ -156,27 +155,27 @@ export default class Proctor {
     }
 
     if (this.config.tabSwitch.enabled) {
-      detectTabSwitch(this.handleViolation.bind(this));
+      detectTabSwitch(this.handleViolation);
     }
 
     if (this.config.browserBlur.enabled) {
-      detectBrowserBlur(this.handleViolation.bind(this));
+      detectBrowserBlur(this.handleViolation);
     }
 
     if (this.config.rightClick.enabled) {
-      detectRightClickDisabled(this.handleViolation.bind(this));
+      detectRightClickDisabled(this.handleViolation);
     }
 
     if (this.config.exitTab.enabled) {
-      detectExitTab(this.handleViolation.bind(this));
+      detectExitTab(this.handleViolation);
     }
 
     if (this.config.copyPasteCut.enabled) {
-      detectCopyPasteCut(this.handleViolation.bind(this));
+      detectCopyPasteCut(this.handleViolation);
     }
 
     if (this.config.restrictedKeyEvent.enabled) {
-      detectRestrictedKeyEvents(this.handleViolation.bind(this));
+      detectRestrictedKeyEvents(this.handleViolation);
     }
 
     if (this.config.textSelection.enabled) {
@@ -337,9 +336,11 @@ export default class Proctor {
   }
 
   handleFullScreenDisabled() {
-    console.log('%c⧭', 'color: #f27999', 'close');
     showFullScreenDefaultMessage({
-      onExitCallback: () => {},
+      onExitCallback: (type) => {
+        console.log('%c⧭', 'color: #86bf60', 'type', type);
+        this.handleViolation(type, null, true);
+      },
     });
     this.callbacks.onFullScreenDisabled();
   }
@@ -352,13 +353,14 @@ export default class Proctor {
     this.callbacks.onScreenshotFailure();
   }
 
-  handleViolation(type, value = null) {
-    console.log('%c⧭', 'color: #40fff2', 'violation handled');
+  handleViolation(type, value = null, forceDisqualify = false) {
     const violation = {
       type: this.config[type].name,
       value,
       timestamp: `${new Date().toJSON().slice(0, 19).replace('T', ' ')} UTC`,
     };
+
+    console.log('%c⧭', 'color: #ace2e6', 'inside violation');
 
     if (this.config[type].showAlert) {
       showViolationWarning(
@@ -375,8 +377,8 @@ export default class Proctor {
 
     dispatchViolationEvent(type, violation);
 
-    if (this.disqualificationConfig.enabled
-      && this.getTotalViolationsCount() >= this.disqualificationConfig.eventCountThreshold) {
+    if (forceDisqualify || (this.disqualificationConfig.enabled
+      && this.getTotalViolationsCount() >= this.disqualificationConfig.eventCountThreshold)) {
       this.sendEvents(); // To send any events before disqualifying the user
       // Show disqualification warning before calling the disqualified callback
       showViolationWarning(

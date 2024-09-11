@@ -2,6 +2,8 @@ import instructionModalTemplate from '../templates/instructionModal.html';
 import { DEFAULT_MODAL_CONFIG } from './constants';
 
 export function appendInstructionsModal(configs) {
+  const instructionsOverlay = document.getElementById('instructions-overlay');
+  if (instructionsOverlay) return;
   const modalContainer = document.createElement('div');
   modalContainer.innerHTML = instructionModalTemplate;
   document.body.appendChild(modalContainer);
@@ -30,6 +32,6 @@ export function initializeInstructionsModal(
   onContinueClick,
   configs = DEFAULT_MODAL_CONFIG,
 ) {
-  appendInstructionsModal(configs, onContinueClick);
+  appendInstructionsModal(configs);
   showInstructionsModal(onContinueClick);
 }
