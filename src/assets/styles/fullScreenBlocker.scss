@@ -6,11 +6,12 @@ $fullscreen-blocker-icon-border-color: #0080FF;
 $warning-modal-icon-bg-color: #851A2D;
 
 .fullscreen-blocker {
+  display: none;
   width: 100%;
   height: 100vh;
   position: fixed;
   background-color: #ffffff !important;
-  z-index: 20000;
+  z-index: 1000;
   display: block;
   text-align: center;
   position: fixed;
@@ -18,11 +19,11 @@ $warning-modal-icon-bg-color: #851A2D;
   left: 0;
 
   &__content {
+    display: none;
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    display: flex;
     flex-direction: column;
     align-items: center;
     width: 100%;

@@ -49,5 +49,12 @@ module.exports = {
     compress: true,
     port: 9000,
     open: false,
+    client: {
+      overlay: {
+        errors: false,
+        warnings: false,
+        runtimeErrors: false,
+      },
+    },
   },
 };

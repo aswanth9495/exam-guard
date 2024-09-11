@@ -1,14 +1,67 @@
 import { VIOLATIONS } from './constants';
 import blockerTemplate from '../templates/fullScreenBlocker.html';
 
-export function appendBlockerScreen() {
+export function requestFullScreen() {
+  const docElm = document.documentElement;
+  if (docElm.requestFullscreen) {
+    docElm.requestFullscreen();
+  } else if (docElm.mozRequestFullScreen) {
+    docElm.mozRequestFullScreen();
+  } else if (docElm.webkitRequestFullScreen) {
+    docElm.webkitRequestFullScreen();
+  } else if (docElm.msRequestFullscreen) {
+    docElm.msRequestFullscreen();
+  }
+}
+
+export function isFullScreen() {
+  return document.fullscreenElement
+    || document.webkitFullscreenElement
+    || document.mozFullScreenElement
+    || document.msFullscreenElement;
+}
+
+// Set up the fullscreen blocker UI
+function setupFullScreenBlocker() {
   const con = document.createElement('div');
   con.innerHTML = blockerTemplate;
   document.body.appendChild(con);
 }
 
-export function enforceFullScreen({ onExitCallback, onFullScreenEnabled, onFullScreenDisabled }) {
+export function addFullscreenKeyboardListener() {
+  document.addEventListener('keydown', (event) => {
+    if (!isFullScreen() && (event.key === 'Enter' || event.key === 'Return')) {
+      requestFullScreen();
+      const fullScreenBlocker = document.getElementById('fullscreenBlocker');
+
+      fullScreenBlocker.style.display = 'none';
+    }
+  });
+}
+
+// Shows the initial fullscreen message
+export function showFullScreenInitialMessage() {
+  if (isFullScreen()) return;
   const fullScreenBlocker = document.getElementById('fullscreenBlocker');
+  if (!fullScreenBlocker) {
+    setupFullScreenBlocker();
+  }
+  const enterFullScreenMessage = document.getElementById('fullscreen-initial-message');
+  const exitFullScreenMessage = document.getElementById('fullscreen-default-message');
+
+  if (enterFullScreenMessage && exitFullScreenMessage) {
+    enterFullScreenMessage.style.display = 'flex';
+    exitFullScreenMessage.style.display = 'none';
+  }
+  addFullscreenKeyboardListener();
+}
+
+// Shows the default fullscreen message with countdown
+export function showFullScreenDefaultMessage({ onExitCallback }) {
+  const fullScreenBlocker = document.getElementById('fullscreenBlocker');
+  if (!fullScreenBlocker) {
+    setupFullScreenBlocker();
+  }
   const enterFullScreenMessage = document.getElementById('fullscreen-initial-message');
   const exitFullScreenMessage = document.getElementById('fullscreen-default-message');
   const timerCountElement = document.getElementById('fullscreen-blocker-timer-count');
@@ -16,32 +69,9 @@ export function enforceFullScreen({ onExitCallback, onFullScreenEnabled, onFullS
   let timerCount = 10;
   let countdownInterval = null;
 
-  function isFullScreen() {
-    return document.fullscreenElement
-    || document.webkitFullscreenElement
-    || document.mozFullScreenElement
-    || document.msFullscreenElement;
-  }
-
-  function requestFullScreen() {
-    const docElm = document.documentElement;
-    if (docElm.requestFullscreen) {
-      docElm.requestFullscreen();
-    } else if (docElm.mozRequestFullScreen) {
-      docElm.mozRequestFullScreen();
-    } else if (docElm.webkitRequestFullScreen) {
-      docElm.webkitRequestFullScreen();
-    } else if (docElm.msRequestFullscreen) {
-      docElm.msRequestFullscreen();
-    }
-  }
-
-  function startDisqualificationCountdown() {
-    timerCount = 10;
-    exitFullScreenMessage.classList.remove('fullscreen-blocker__content--hidden');
-    enterFullScreenMessage.classList.add('fullscreen-blocker__content--hidden');
-    fullScreenBlocker.style.display = 'block';
-
+  if (fullScreenBlocker && enterFullScreenMessage && exitFullScreenMessage) {
+    enterFullScreenMessage.style.display = 'flex';
+    exitFullScreenMessage.style.display = 'none';
     countdownInterval = setInterval(() => {
       timerCountElement.textContent = timerCount;
 
@@ -57,22 +87,21 @@ export function enforceFullScreen({ onExitCallback, onFullScreenEnabled, onFullS
       timerCount -= 1;
     }, 1000);
   }
+  addFullscreenKeyboardListener();
+}
 
-  function stopDisqualificationCountdown() {
-    clearInterval(countdownInterval);
-    enterFullScreenMessage.classList.remove('fullscreen-blocker__content--hidden');
-    exitFullScreenMessage.classList.add('fullscreen-blocker__content--hidden');
-    fullScreenBlocker.style.display = 'none';
+// Detect fullscreen state changes and call appropriate callbacks
+export function detectFullScreen({ onFullScreenEnabled, onFullScreenDisabled }) {
+  if (!isFullScreen()) {
+    onFullScreenDisabled();
+  } else {
+    onFullScreenEnabled();
   }
 
   function handleFullScreenChange() {
     if (!isFullScreen()) {
-      fullScreenBlocker.style.display = 'block';
-      startDisqualificationCountdown();
       onFullScreenDisabled();
     } else {
-      fullScreenBlocker.style.display = 'none';
-      stopDisqualificationCountdown();
       onFullScreenEnabled();
     }
   }
@@ -81,10 +110,4 @@ export function enforceFullScreen({ onExitCallback, onFullScreenEnabled, onFullS
   document.addEventListener('webkitfullscreenchange', handleFullScreenChange);
   document.addEventListener('mozfullscreenchange', handleFullScreenChange);
   document.addEventListener('MSFullscreenChange', handleFullScreenChange);
-
-  document.addEventListener('keydown', (event) => {
-    if (event.key === 'Enter' || event.key === 'Return') {
-      requestFullScreen();
-    }
-  });
 }
