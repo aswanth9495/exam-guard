@@ -1,9 +1,15 @@
 import { setupAlert, showViolationWarning } from './utils/alert';
-import { DEFAULT_SNAPSHOT_FREQUENCY, MAX_EVENTS_BEFORE_SEND, VIOLATIONS } from './utils/constants';
+import {
+  DEFAULT_SCREENSHOT_RESIZE_OPTIONS,
+  MAX_EVENTS_BEFORE_SEND,
+  SNAPSHOT_SCREENSHOT_FREQUENCY,
+  VIOLATIONS,
+} from './utils/constants';
 import { dispatchViolationEvent } from './utils/events';
 import { appendBlockerScreen, enforceFullScreen } from './utils/fullScreenBlocker';
 import { initializeModal } from './utils/instructionModal';
 import { checkBandwidth } from './utils/network';
+import { setupScreenshot } from './utils/screenshot';
 import detectBrowserBlur from './utils/violations/browserBlur';
 import detectCopyPasteCut from './utils/violations/copyPasteCut';
 import detectExitTab from './utils/violations/exitTab';
@@ -31,6 +37,7 @@ export default class Proctor {
     disqualificationConfig = {},
     config = {},
     snapshotConfig = {},
+    screenshotConfig = {},
     callbacks = {},
   }) {
     this.instructionModal = {
@@ -110,9 +117,15 @@ export default class Proctor {
     };
     this.snapshotConfig = {
       enabled: true,
-      frequency: DEFAULT_SNAPSHOT_FREQUENCY, // 5s by default
-      optional: false,
+      frequency: SNAPSHOT_SCREENSHOT_FREQUENCY, // 5s by default
+      optional: true,
       ...snapshotConfig,
+    };
+    this.screenshotConfig = {
+      enabled: true,
+      frequency: SNAPSHOT_SCREENSHOT_FREQUENCY,
+      resizeTo: DEFAULT_SCREENSHOT_RESIZE_OPTIONS,
+      ...screenshotConfig,
     };
     this.callbacks = {
       onDisqualified: callbacks.onDisqualified || (() => {}),
@@ -120,6 +133,10 @@ export default class Proctor {
       onWebcamEnabled: callbacks.onWebcamEnabled || (() => {}),
       onSnapshotSuccess: callbacks.onSnapshotSuccess || (() => {}),
       onSnapshotFailure: callbacks.onSnapshotFailure || (() => {}),
+      onScreenshotDisabled: callbacks.onScreenshotDisabled || (() => {}),
+      onScreenshotEnabled: callbacks.onScreenshotEnabled || (() => {}),
+      onScreenshotFailure: callbacks.onScreenshotFailure || (() => {}),
+      onScreenshotSuccess: callbacks.onScreenshotSuccess || (() => {}),
       onFullScreenEnabled: callbacks.onFullScreenEnabled || (() => {}),
       onFullScreenDisabled: callbacks.onFullScreenDisabled || (() => {}),
     };
@@ -178,6 +195,17 @@ export default class Proctor {
           onWebcamEnabled: this.handleWebcamEnabled.bind(this),
           onWebcamDisabled: this.handleWebcamDisabled.bind(this),
           optional: this.snapshotConfig.optional,
+        });
+      }
+
+      if (this.screenshotConfig.enabled) {
+        setupScreenshot({
+          onScreenshotEnabled: this.handleScreenshotEnabled.bind(this),
+          onScreenshotDisabled: this.handleScreenshotDisabled.bind(this),
+          onScreenshotFailure: this.handleScreenshotFailure.bind(this),
+          onScreenshotSuccess: this.handleScreenshotSuccess.bind(this),
+          frequency: this.screenshotConfig.frequency,
+          resizeDimensions: this.screenshotConfig.resizeTo,
         });
       }
     });
@@ -245,6 +273,11 @@ export default class Proctor {
     this.callbacks.onWebcamDisabled({ error });
   }
 
+  handleScreenshotDisabled() {
+    // Show blocker
+    this.callbacks.onScreenshotDisabled();
+  }
+
   handleWebcamEnabled() {
     disableWebcamBlocker();
     setupSnapshotCapture({
@@ -256,12 +289,20 @@ export default class Proctor {
     this.callbacks.onWebcamEnabled();
   }
 
+  handleScreenshotEnabled() {
+    this.callbacks.onScreenshotEnabled();
+  }
+
   handleSnapshotSuccess({ blob }) {
     this.callbacks.onSnapshotSuccess({ blob });
   }
 
-  handleSnapshotFailure({ err }) {
-    this.callbacks.onSnapshotFailure(err);
+  handleScreenshotSuccess({ blob }) {
+    this.callbacks.onScreenshotSuccess({ blob });
+  }
+
+  handleSnapshotFailure() {
+    this.callbacks.onSnapshotFailure();
   }
 
   handleFullScreenDisabled() {
@@ -272,8 +313,11 @@ export default class Proctor {
     this.callbacks.onFullScreenEnabled();
   }
 
+  handleScreenshotFailure() {
+    this.callbacks.onScreenshotFailure();
+  }
+
   handleViolation(type, value = null) {
-    console.log(this.config[type]);
     const violation = {
       type: this.config[type].name,
       value,
@@ -323,10 +367,6 @@ export default class Proctor {
     const payload = {
       events: this.recordedViolationEvents,
     };
-
-    console.log('%c⧭', 'color: #e50000', 'Events being sent to backend:');
-
-    console.log('%c⧭', 'color: #733d00', 'Payload:', payload);
     fetch(this.eventsConfig.url, {
       method: 'POST',
       headers: {
@@ -335,7 +375,9 @@ export default class Proctor {
       body: JSON.stringify(payload),
     }).then(() => {
       this.recordedViolationEvents = [];
-    }).catch((error) => console.error('Failed to send event:', error));
+    }).catch((error) => {
+      console.error('Failed to send event:', error);
+    });
   }
 
   handleWindowUnload() {
