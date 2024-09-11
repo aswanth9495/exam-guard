@@ -80,7 +80,7 @@ export default class Proctor {
           onScreenshotEnabled: this.handleScreenShotEnabled.bind(this),
           onScreenshotDisabled: this.handleScreenShotDisabled.bind(this),
           onScreenshotFailure: this.handleScreenShotFailure.bind(this),
-          onScreenshotSuccess: ((data) => console.log('screenshot captured', data)),
+          onScreenshotSuccess: this.handleScreenShotSuccess.bind(this),
           frequency: this.screenShotConfig.frequency,
         });
       }
