@@ -15,3 +15,4 @@ export const DEFAULT_MODAL_CONFIG = {
   buttonText: 'Enter Test',
   headingText: 'Before You Begin: Important Rules',
 };
+export const MAX_EVENTS_BEFORE_SEND = 5;

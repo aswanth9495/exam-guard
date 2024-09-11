@@ -14,5 +14,6 @@ module.exports = {
   rules: {
     // Define or override rules here
     'no-console': 'off', // Example: Allow console statements
+    'import/prefer-default-export': 'off',
   },
 };
