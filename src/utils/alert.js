@@ -20,7 +20,7 @@ export function setupAlertUI() {
   }
 }
 
-export function appendAlertHtml() {
+export function setupAlert() {
   const alertContainer = document.createElement('div');
   alertContainer.innerHTML = alertHtml;
   document.body.appendChild(alertContainer);

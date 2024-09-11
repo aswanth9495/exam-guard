@@ -1,6 +1,7 @@
 import { dispatchCustomEvent } from './utils/events';
-import { appendAlertHtml, showViolationWarning } from './utils/alert';
+import { setupAlert, showViolationWarning } from './utils/alert';
 import { appendBlockerScreen, enforceFullScreen } from './utils/fullScreenBlocker';
+import { setupWebcam } from './utils/webcam';
 import detectTabSwitch from './utils/violations/tabSwitch';
 import detectBrowserBlur from './utils/violations/browserBlur';
 import detectRightClickDisabled from './utils/violations/rightClick';
@@ -8,7 +9,7 @@ import detectExitTab from './utils/violations/exitTab';
 import detectCopyPasteCut from './utils/violations/copyPasteCut';
 import detectRestrictedKeyEvents from './utils/violations/restrictedKeyEvent';
 import preventTextSelection from './utils/violations/textSelection';
-import { VIOLATIONS } from './utils/constants';
+import { VIOLATIONS, DEFAULT_SNAPSHOT_FREQUENCY } from './utils/constants';
 
 import './assets/styles/alert.scss';
 import './assets/styles/fullScreenBlocker.scss';
@@ -19,6 +20,9 @@ export default class Proctor {
     config,
     apiKey,
     s3StoreConfig,
+    snapshotConfig,
+    callbacks = {},
+
   }) {
     this.eventsUrl = eventsUrl;
     this.apiKey = apiKey;
@@ -76,19 +80,38 @@ export default class Proctor {
       [VIOLATIONS.fullScreen]: {
         name: VIOLATIONS.fullScreen,
         enabled: true,
+        showAlert: true,
         recordViolation: true,
         ...config.fullScreen,
       },
       ...config,
+    };
+    this.snapshotConfig = {
+      enabled: true,
+      frequency: DEFAULT_SNAPSHOT_FREQUENCY, // 5s by default
+      optional: true,
+      ...snapshotConfig,
+    };
+    this.callbacks = {
+      onWebcamDisabled: callbacks.onWebcamDisabled || (() => {}),
+      onWebcamEnabled: callbacks.onWebcamEnabled || (() => {}),
+      onSnapshotSuccess: callbacks.onSnapshotSuccess || (() => {}),
+      onSnapshotFailure: callbacks.onSnapshotFailure || (() => {}),
+      onFullScreenEnabled: callbacks.onFullScreenEnabled || (() => {}),
+      onFullScreenDisabled: callbacks.onFullScreenDisabled || (() => {}),
     };
     this.violationEvents = [];
     this.initialize();
   }
 
   initialize() {
-    appendBlockerScreen();
     if (this.config.fullScreen.enabled) {
-      enforceFullScreen(this.handleViolation.bind(this));
+      appendBlockerScreen();
+      enforceFullScreen({
+        onExitCallback: this.handleViolation.bind(this),
+        onFullScreenDisabled: this.handleFullScreenDisabled.bind(this),
+        onFullScreenEnabled: this.handleFullScreenEnabled.bind(this),
+      });
     }
 
     if (this.config.tabSwitch.enabled) {
@@ -120,8 +143,46 @@ export default class Proctor {
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-      appendAlertHtml();
+      setupAlert();
+      // Setup webcam if snapshots are enabled
+      if (this.snapshotConfig.enabled) {
+        setupWebcam({
+          onWebcamEnabled: this.handleWebcamEnabled.bind(this),
+          onWebcamDisabled: this.handleWebcamDisabled.bind(this),
+          onSnapshotSucccess: this.handleSnapshotSuccess.bind(this),
+          onSnapshotFailure: this.handleSnapshotFailure.bind(this),
+          optional: this.snapshotConfig.optional,
+          frequency: this.snapshotConfig.frequency,
+        });
+      }
     });
+  }
+
+  handleWebcamDisabled() {
+    // Show blocker
+    this.callbacks.onWebcamDisabled();
+  }
+
+  handleWebcamEnabled() {
+    // Disable blocker
+    this.callbacks.onWebcamEnabled();
+  }
+
+  handleSnapshotSuccess() {
+    // Send data to s3
+    this.callbacks.onSnapshotSuccess();
+  }
+
+  handleSnapshotFailure() {
+    this.callbacks.onSnapshotFailure();
+  }
+
+  handleFullScreenDisabled() {
+    this.callbacks.onFullScreenDisabled();
+  }
+
+  handleFullScreenEnabled() {
+    this.callbacks.onFullScreenEnabled();
   }
 
   handleViolation(type, value = null) {
@@ -136,7 +197,8 @@ export default class Proctor {
       showViolationWarning(
         'Warning',
         `You performed a violation during the test. 
-         Repeating this action may result in disqualification and a failed test attempt.`,
+         Repeating this action may result in disqualification 
+         and a failed test attempt.`,
       );
     }
     if (this.config[type].recordViolation) {

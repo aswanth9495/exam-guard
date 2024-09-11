@@ -7,7 +7,7 @@ export function appendBlockerScreen() {
   document.body.appendChild(con);
 }
 
-export function enforceFullScreen(onExitCallback) {
+export function enforceFullScreen({ onExitCallback, onFullScreenEnabled, onFullScreenDisabled }) {
   const fullScreenBlocker = document.getElementById('fullscreenBlocker');
   const enterFullScreenMessage = document.getElementById('fullscreen-initial-message');
   const exitFullScreenMessage = document.getElementById('fullscreen-default-message');
@@ -69,9 +69,11 @@ export function enforceFullScreen(onExitCallback) {
     if (!isFullScreen()) {
       fullScreenBlocker.style.display = 'block';
       startDisqualificationCountdown();
+      onFullScreenDisabled();
     } else {
       fullScreenBlocker.style.display = 'none';
       stopDisqualificationCountdown();
+      onFullScreenEnabled();
     }
   }
 
