@@ -449,20 +449,24 @@ export default class Proctor {
     dispatchViolationEvent(type, violation);
     dispatchGenericViolationEvent(violation);
 
-    if (forceDisqualify || (this.disqualificationConfig.enabled
-      && this.getTotalViolationsCount() >= this.disqualificationConfig.eventCountThreshold)) {
+    if (forceDisqualify
+      || (this.getTotalViolationsCount() >= this.disqualificationConfig.eventCountThreshold)) {
       this.disqualifyUser();
     }
   }
 
   disqualifyUser() {
+    if (!this.disqualificationConfig.enabled) return;
+
     this.sendEvents(); // To send any events before disqualifying the user
     // Show disqualification warning before calling the disqualified callback
-    showViolationWarning(
-      this.disqualificationConfig.alertHeading,
-      this.disqualificationConfig.alertMessage,
-      true,
-    );
+    if (this.disqualificationConfig.showAlert) {
+      showViolationWarning(
+        this.disqualificationConfig.alertHeading,
+        this.disqualificationConfig.alertMessage,
+        true,
+      );
+    }
     this.callbacks.onDisqualified(); // Trigger disqualification callback
   }
 
