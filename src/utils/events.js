@@ -7,7 +7,7 @@ function dispatchViolationEvent(type, eventDetails) {
 
 function dispatchGenericViolationEvent(eventDetails) {
   const event = new CustomEvent('violation', {
-    details: eventDetails,
+    detail: eventDetails,
   });
   document.dispatchEvent(event);
 }

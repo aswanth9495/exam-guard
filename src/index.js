@@ -21,10 +21,8 @@ import detectTabSwitch from './utils/violations/tabSwitch';
 import preventTextSelection from './utils/violations/textSelection';
 import {
   detectWebcam,
-  disableWebcamBlocker,
   setupSnapshotCapture,
   setupWebcam,
-  showWebcamBlocker,
 } from './utils/webcam';
 
 import './assets/styles/alert.scss';
@@ -42,6 +40,7 @@ export default class Proctor {
     screenshotConfig = {},
     compatibilityCheckConfig = {},
     callbacks = {},
+    enableAllAlerts = false,
   }) {
     this.instructionModal = {
       enabled: true,
@@ -52,9 +51,10 @@ export default class Proctor {
       maxEventsBeforeSend: MAX_EVENTS_BEFORE_SEND,
       ...eventsConfig,
     };
+
     this.compatibilityCheckConfig = {
-      enable: true,
-      showAlert: true,
+      enable: false,
+      showAlert: enableAllAlerts,
       frequency: 5000,
       disqualficationTimeout: 15000,
       ...compatibilityCheckConfig,
@@ -62,7 +62,7 @@ export default class Proctor {
     this.disqualificationConfig = {
       enabled: false, // Enable when onDisqualify is added
       eventCountThreshold: 5, // Number of violations after which disqualification will occur
-      showAlert: false,
+      showAlert: enableAllAlerts,
       alertHeading: 'Disqualification Alert',
       alertMessage: 'You have been disqualified after exceeding the allowed number of violations.',
       ...disqualificationConfig,
@@ -72,57 +72,65 @@ export default class Proctor {
       [VIOLATIONS.tabSwitch]: {
         name: VIOLATIONS.tabSwitch,
         enabled: true,
-        showAlert: true,
+        showAlert: enableAllAlerts,
         recordViolation: true,
+        disqualify: true,
         ...config.tabSwitch,
       },
       [VIOLATIONS.browserBlur]: {
         name: VIOLATIONS.browserBlur,
         enabled: true,
-        showAlert: true,
+        showAlert: enableAllAlerts,
         recordViolation: true,
+        disqualify: true,
         ...config.browserBlur,
       },
       [VIOLATIONS.rightClick]: {
         name: VIOLATIONS.rightClick,
         enabled: true,
-        showAlert: true,
+        showAlert: enableAllAlerts,
         recordViolation: true,
+        disqualify: true,
         ...config.rightClick,
       },
       [VIOLATIONS.exitTab]: {
         name: VIOLATIONS.exitTab,
         enabled: false,
-        showAlert: true,
+        showAlert: enableAllAlerts,
         recordViolation: true,
+        disqualify: true,
         ...config.exitTab,
       },
       [VIOLATIONS.copyPasteCut]: {
         name: VIOLATIONS.copyPasteCut,
         enabled: true,
-        showAlert: true,
+        showAlert: enableAllAlerts,
         recordViolation: true,
+        disqualify: true,
         ...config.copyPasteCut,
       },
       [VIOLATIONS.restrictedKeyEvent]: {
         name: VIOLATIONS.restrictedKeyEvent,
         enabled: true,
-        showAlert: true,
+        showAlert: enableAllAlerts,
         recordViolation: true,
+        disqualify: true,
         ...config.restrictedKeyEvent,
       },
       [VIOLATIONS.textSelection]: {
         name: VIOLATIONS.textSelection,
         enabled: true,
-        showAlert: true,
+        showAlert: enableAllAlerts,
         recordViolation: true,
+        disqualify: true,
         ...config.textSelection,
       },
       [VIOLATIONS.fullScreen]: {
         name: VIOLATIONS.fullScreen,
         enabled: true,
-        showAlert: true,
+        showAlert: enableAllAlerts,
         recordViolation: true,
+        disqualify: true,
         ...config.fullScreen,
       },
       ...config,
@@ -252,19 +260,19 @@ export default class Proctor {
       this.failedCompatibilityChecks = false;
     }
     this.callbacks.onCompatibilityCheckSuccess({ passedChecks });
-    console.log('Compatibility checks passed:', passedChecks);
+    // console.log('Compatibility checks passed:', passedChecks);
   }
 
   handleCompatibilityFailure(failedCheck, passedChecks) {
     // Set the failed state and start the 15-second countdown for disqualification
     if (!this.failedCompatibilityChecks) {
-      console.log('Compatibility check failed. User will be disqualified in 15 seconds:', passedChecks);
       this.failedCompatibilityChecks = true;
 
-      // Start a 15-second timeout for disqualification
-      this.disqualificationTimeout = setTimeout(() => {
-        this.disqualifyUser();
-      }, this.compatibilityCheckConfig.disqualficationTimeout); // 15 seconds
+      if (this.disqualificationConfig.enabled) {
+        this.disqualificationTimeout = setTimeout(() => {
+          this.disqualifyUser();
+        }, this.compatibilityCheckConfig.disqualficationTimeout);
+      }
       this.callbacks.onCompatibilityCheckFail({ failedCheck, passedChecks });
     }
   }
@@ -376,7 +384,6 @@ export default class Proctor {
   }
 
   handleWebcamDisabled({ error }) {
-    showWebcamBlocker();
     this.callbacks.onWebcamDisabled({ error });
   }
 
@@ -386,7 +393,6 @@ export default class Proctor {
   }
 
   handleWebcamEnabled() {
-    disableWebcamBlocker();
     setupSnapshotCapture({
       onSnapshotSuccess: this.handleSnapshotSuccess.bind(this),
       onSnapshotFailure: this.handleSnapshotFailure.bind(this),
@@ -450,7 +456,8 @@ export default class Proctor {
     dispatchGenericViolationEvent(violation);
 
     if (forceDisqualify
-      || (this.getTotalViolationsCount() >= this.disqualificationConfig.eventCountThreshold)) {
+      || (this.getViolationsCountForDisqualify()
+      >= this.disqualificationConfig.eventCountThreshold)) {
       this.disqualifyUser();
     }
   }
@@ -531,6 +538,10 @@ export default class Proctor {
 
   getAllViolations() {
     return this.violationEvents;
+  }
+
+  getViolationsCountForDisqualify() {
+    return this.violationEvents.filter((violation) => violation.disqualify === true).length;
   }
 
   _cleanup() {

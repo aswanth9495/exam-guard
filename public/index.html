@@ -50,19 +50,10 @@
       }
     });
 
-    proctor.on('violation', (count, event) => {
-      console.log('%c⧭', 'color: #ffa640', 'Violation detected', count, event, proctor.getAllViolations());
+    proctor.on('violation', (violations, event) => {
+      console.log('%c⧭', 'color: #ffa640', 'Violation detected', violations, event.detail.type);
     });
-
-    proctor.on('rightClick', (count, event) => {
-      console.log('%c⧭', 'color: #ffa640', 'Right click', count, event, proctor.getAllViolations());
-    });
-  
-    proctor.runCompatibilityChecks(() => {
-      proctor.initializeProctoring();
-    }, () => {
-
-    });
+    proctor.initializeProctoring();
   </script>
 </body>
 </html>
