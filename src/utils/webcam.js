@@ -44,6 +44,8 @@ export function setupSnapshotCapture({
 }
 
 export function setupWebcam() {
+  const webcamEl = document.getElementById('webcam-wrapper');
+  if (webcamEl) return;
   const webcamContainer = document.createElement('div');
   document.body.appendChild(webcamContainer);
 
