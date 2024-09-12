@@ -1,8 +1,11 @@
 {
-  "name": "y",
+  "name": "exam-guard",
   "version": "1.0.0",
   "description": "AI proctoring tool",
-  "main": "index.js",
+  "main": "dist/proctor.js",
+  "files": [
+    "dist/"
+  ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint .",

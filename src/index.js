@@ -32,7 +32,6 @@ import './assets/styles/webcam-blocker.scss';
 
 export default class Proctor {
   constructor({
-    instructionModal = {},
     eventsConfig = {},
     disqualificationConfig = {},
     config = {},
@@ -42,10 +41,6 @@ export default class Proctor {
     callbacks = {},
     enableAllAlerts = false,
   }) {
-    this.instructionModal = {
-      enabled: true,
-      ...instructionModal,
-    };
     this.eventsConfig = {
       url: null,
       maxEventsBeforeSend: MAX_EVENTS_BEFORE_SEND,
