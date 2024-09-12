@@ -116,5 +116,4 @@ export function detectFullScreen({ onFullScreenEnabled, onFullScreenDisabled }) 
   document.addEventListener('webkitfullscreenchange', handleFullScreenChange);
   document.addEventListener('mozfullscreenchange', handleFullScreenChange);
   document.addEventListener('MSFullscreenChange', handleFullScreenChange);
-  addFullscreenKeyboardListener();
 }

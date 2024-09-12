@@ -15,5 +15,6 @@ module.exports = {
     // Define or override rules here
     'no-console': 'off', // Example: Allow console statements
     'import/prefer-default-export': 'off',
+    'no-underscore-dangle': 'off',
   },
 };

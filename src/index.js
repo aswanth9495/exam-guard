@@ -5,8 +5,10 @@ import {
   SNAPSHOT_SCREENSHOT_FREQUENCY,
   VIOLATIONS,
 } from './utils/constants';
-import { dispatchViolationEvent } from './utils/events';
-import { detectFullScreen } from './utils/fullScreenBlocker';
+import { dispatchGenericViolationEvent, dispatchViolationEvent } from './utils/events';
+import {
+  addFullscreenKeyboardListener, detectFullScreen, isFullScreen, requestFullScreen,
+} from './utils/fullScreenBlocker';
 import { initializeInstructionsModal } from './utils/instructionModal';
 import { checkBandwidth } from './utils/network';
 import { setupScreenshot } from './utils/screenshot';
@@ -41,7 +43,6 @@ export default class Proctor {
     compatibilityCheckConfig = {},
     callbacks = {},
   }) {
-    this.initializeProctoring = this.initializeProctoring.bind(this);
     this.instructionModal = {
       enabled: true,
       ...instructionModal,
@@ -54,17 +55,19 @@ export default class Proctor {
     this.compatibilityCheckConfig = {
       enable: true,
       showAlert: true,
+      frequency: 5000,
+      disqualficationTimeout: 15000,
       ...compatibilityCheckConfig,
     };
     this.disqualificationConfig = {
-      enabled: true, // Enable when onDisqualify is added
+      enabled: false, // Enable when onDisqualify is added
       eventCountThreshold: 5, // Number of violations after which disqualification will occur
+      showAlert: false,
       alertHeading: 'Disqualification Alert',
       alertMessage: 'You have been disqualified after exceeding the allowed number of violations.',
       ...disqualificationConfig,
     };
     this.proctoringInitialised = false;
-    this.handleViolation = this.handleViolation.bind(this);
     this.config = {
       [VIOLATIONS.tabSwitch]: {
         name: VIOLATIONS.tabSwitch,
@@ -156,6 +159,9 @@ export default class Proctor {
     this.failedCompatibilityChecks = false; // To track if checks have failed
     this.compatibilityCheckInterval = null;
     this.disqualificationTimeout = null;
+    this.initializeProctoring = this.initializeProctoring.bind(this);
+
+    addFullscreenKeyboardListener();
   }
 
   initializeProctoring() {
@@ -168,27 +174,27 @@ export default class Proctor {
     }
 
     if (this.config.tabSwitch.enabled) {
-      detectTabSwitch(this.handleViolation);
+      detectTabSwitch(this.handleViolation.bind(this));
     }
 
     if (this.config.browserBlur.enabled) {
-      detectBrowserBlur(this.handleViolation);
+      detectBrowserBlur(this.handleViolation.bind(this));
     }
 
     if (this.config.rightClick.enabled) {
-      detectRightClickDisabled(this.handleViolation);
+      detectRightClickDisabled(this.handleViolation.bind(this));
     }
 
     if (this.config.exitTab.enabled) {
-      detectExitTab(this.handleViolation);
+      detectExitTab(this.handleViolation.bind(this));
     }
 
     if (this.config.copyPasteCut.enabled) {
-      detectCopyPasteCut(this.handleViolation);
+      detectCopyPasteCut(this.handleViolation.bind(this));
     }
 
     if (this.config.restrictedKeyEvent.enabled) {
-      detectRestrictedKeyEvents(this.handleViolation);
+      detectRestrictedKeyEvents(this.handleViolation.bind(this));
     }
 
     if (this.config.textSelection.enabled) {
@@ -230,13 +236,13 @@ export default class Proctor {
       this.handleCompatibilityFailure.bind(this),
     );
 
-    // Set an interval to run the check every 20 seconds
+    // Set an interval to run the check
     this.compatibilityCheckInterval = setInterval(() => {
       this.runCompatibilityChecks(
         this.handleCompatibilitySuccess.bind(this),
         this.handleCompatibilityFailure.bind(this),
       );
-    }, 5000); // 20 seconds
+    }, this.compatibilityCheckConfig.frequency);
   }
 
   handleCompatibilitySuccess(passedChecks) {
@@ -258,7 +264,7 @@ export default class Proctor {
       // Start a 15-second timeout for disqualification
       this.disqualificationTimeout = setTimeout(() => {
         this.disqualifyUser();
-      }, 15000); // 15 seconds
+      }, this.compatibilityCheckConfig.disqualficationTimeout); // 15 seconds
       this.callbacks.onCompatibilityCheckFail({ failedCheck, passedChecks });
     }
   }
@@ -327,18 +333,14 @@ export default class Proctor {
 
     // Full screen check
     if (compatibilityChecks.fullscreen) {
-      // showFullScreenInitialMessage();
       const fullScreenCheck = new Promise((resolve, reject) => {
-        detectFullScreen({
-          onFullScreenEnabled: () => {
-            passedChecks.fullscreen = true; // Update passed checks
-            resolve('fullscreen');
-          },
-          onFullScreenDisabled: () => {
-            // eslint-disable-next-line prefer-promise-reject-errors
-            reject('fullscreen');
-          },
-        });
+        if (!isFullScreen()) {
+          // eslint-disable-next-line prefer-promise-reject-errors
+          reject('fullscreen');
+        } else {
+          passedChecks.fullscreen = true; // Update passed checks
+          resolve('fullscreen');
+        }
       });
       compatibilityPromises.push(fullScreenCheck);
     }
@@ -349,7 +351,6 @@ export default class Proctor {
         // If any check fails, handle failure and return the updated object
         const failedCheck = results.find((result) => result.status === 'rejected');
 
-        // console.log('%c⧭', 'color: #00bf00', failedCheck);
         if (failedCheck) {
           if (this.compatibilityCheckConfig.showAlert) {
             initializeInstructionsModal(
@@ -446,6 +447,7 @@ export default class Proctor {
     }
 
     dispatchViolationEvent(type, violation);
+    dispatchGenericViolationEvent(violation);
 
     if (forceDisqualify || (this.disqualificationConfig.enabled
       && this.getTotalViolationsCount() >= this.disqualificationConfig.eventCountThreshold)) {
@@ -482,6 +484,7 @@ export default class Proctor {
     const payload = {
       events: this.recordedViolationEvents,
     };
+
     fetch(this.eventsConfig.url, {
       method: 'POST',
       headers: {
@@ -497,19 +500,20 @@ export default class Proctor {
 
   handleWindowUnload() {
     // Send events when the user tries to exit or close the window/tab
-    window.addEventListener('beforeunload', this.cleanup.bind(this));
-    window.addEventListener('unload', this.cleanup.bind(this));
+    window.addEventListener('beforeunload', this._cleanup.bind(this));
+    window.addEventListener('unload', this._cleanup.bind(this));
   }
 
-  showInstructionsModal() {
-    initializeInstructionsModal({
-      ...this.instructionModal,
-    });
+  // eslint-disable-next-line class-methods-use-this
+  enableFullScreen() {
+    if (!isFullScreen()) {
+      requestFullScreen();
+    }
   }
 
   on(violationType, callback) {
     document.addEventListener(violationType, (event) => {
-      callback(this.getTotalViolationsCountByType(violationType), event);
+      callback(this.violationEvents, event);
     });
   }
 
@@ -521,7 +525,11 @@ export default class Proctor {
     return this.violationEvents.length;
   }
 
-  cleanup() {
+  getAllViolations() {
+    return this.violationEvents;
+  }
+
+  _cleanup() {
     this.sendEvents();
     this.stopCompatibilityChecks();
   }
