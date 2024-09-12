@@ -50,11 +50,11 @@
         }
       }
     });
+    proctor.initializeProctoring();
 
     proctor.on('violation', (violations, event) => {
       console.log('%c⧭', 'color: #ffa640', 'Violation detected', violations, event.detail.type);
     });
-    proctor.initializeProctoring();
   </script>
 </body>
 </html>
