@@ -6,7 +6,7 @@ import {
   VIOLATIONS,
 } from './utils/constants';
 import { dispatchViolationEvent } from './utils/events';
-import { detectFullScreen, showFullScreenDefaultMessage, showFullScreenInitialMessage } from './utils/fullScreenBlocker';
+import { detectFullScreen, showFullScreenInitialMessage } from './utils/fullScreenBlocker';
 import { initializeInstructionsModal } from './utils/instructionModal';
 import { checkBandwidth } from './utils/network';
 import { setupScreenshot } from './utils/screenshot';
@@ -38,6 +38,7 @@ export default class Proctor {
     config = {},
     snapshotConfig = {},
     screenshotConfig = {},
+    compatibilityCheckConfig = {},
     callbacks = {},
   }) {
     this.initializeProctoring = this.initializeProctoring.bind(this);
@@ -50,6 +51,11 @@ export default class Proctor {
       maxEventsBeforeSend: MAX_EVENTS_BEFORE_SEND,
       ...eventsConfig,
     };
+    this.compatibilityCheckConfig = {
+      enable: true,
+      showAlert: true,
+      ...compatibilityCheckConfig,
+    };
     this.disqualificationConfig = {
       enabled: true, // Enable when onDisqualify is added
       eventCountThreshold: 5, // Number of violations after which disqualification will occur
@@ -57,6 +63,7 @@ export default class Proctor {
       alertMessage: 'You have been disqualified after exceeding the allowed number of violations.',
       ...disqualificationConfig,
     };
+    this.proctoringInitialised = false;
     this.handleViolation = this.handleViolation.bind(this);
     this.config = {
       [VIOLATIONS.tabSwitch]: {
@@ -120,7 +127,7 @@ export default class Proctor {
     this.snapshotConfig = {
       enabled: true,
       frequency: SNAPSHOT_SCREENSHOT_FREQUENCY, // 5s by default
-      optional: true,
+      optional: false,
       ...snapshotConfig,
     };
     this.screenshotConfig = {
@@ -141,12 +148,18 @@ export default class Proctor {
       onScreenshotSuccess: callbacks.onScreenshotSuccess || (() => {}),
       onFullScreenEnabled: callbacks.onFullScreenEnabled || (() => {}),
       onFullScreenDisabled: callbacks.onFullScreenDisabled || (() => {}),
+      onCompatibilityCheckSuccess: callbacks.onCompatibilityCheckSuccess || (() => {}),
+      onCompatibilityCheckFail: callbacks.onCompatibilityCheckFail || (() => {}),
     };
     this.violationEvents = [];
     this.recordedViolationEvents = []; // Store events for batch sending
+    this.failedCompatibilityChecks = false; // To track if checks have failed
+    this.compatibilityCheckInterval = null;
+    this.disqualificationTimeout = null;
   }
 
   initializeProctoring() {
+    this.proctoringInitialised = true;
     if (this.config.fullScreen.enabled) {
       detectFullScreen({
         onFullScreenDisabled: this.handleFullScreenDisabled.bind(this),
@@ -206,6 +219,57 @@ export default class Proctor {
 
     // Listen to tab close or exit
     this.handleWindowUnload();
+    this.startCompatibilityChecks();
+  }
+
+  startCompatibilityChecks() {
+    // Run the first check immediately
+    this.runCompatibilityChecks(
+      this.handleCompatibilitySuccess.bind(this),
+      this.handleCompatibilityFailure.bind(this),
+    );
+
+    // Set an interval to run the check every 20 seconds
+    this.compatibilityCheckInterval = setInterval(() => {
+      this.runCompatibilityChecks(
+        this.handleCompatibilitySuccess.bind(this),
+        this.handleCompatibilityFailure.bind(this),
+      );
+    }, 5000); // 20 seconds
+  }
+
+  handleCompatibilitySuccess(passedChecks) {
+    // Clear any previous disqualification timer if checks pass
+    if (this.failedCompatibilityChecks) {
+      clearTimeout(this.disqualificationTimeout);
+      this.failedCompatibilityChecks = false;
+    }
+    this.callbacks.onCompatibilityCheckSuccess({ passedChecks });
+    console.log('Compatibility checks passed:', passedChecks);
+  }
+
+  handleCompatibilityFailure(failedCheck, passedChecks) {
+    // Set the failed state and start the 15-second countdown for disqualification
+    if (!this.failedCompatibilityChecks) {
+      console.log('Compatibility check failed. User will be disqualified in 15 seconds:', passedChecks);
+      this.failedCompatibilityChecks = true;
+
+      // Start a 15-second timeout for disqualification
+      this.disqualificationTimeout = setTimeout(() => {
+        this.disqualifyUser();
+      }, 15000); // 15 seconds
+      this.callbacks.onCompatibilityCheckFail({ failedCheck, passedChecks });
+    }
+  }
+
+  stopCompatibilityChecks() {
+    if (this.compatibilityCheckInterval) {
+      clearInterval(this.compatibilityCheckInterval);
+    }
+
+    if (this.disqualificationTimeout) {
+      clearTimeout(this.disqualificationTimeout);
+    }
   }
 
   runCompatibilityChecks(onSuccess, onFailure) {
@@ -262,7 +326,7 @@ export default class Proctor {
 
     // Full screen check
     if (compatibilityChecks.fullscreen) {
-      showFullScreenInitialMessage();
+      // showFullScreenInitialMessage();
       const fullScreenCheck = new Promise((resolve, reject) => {
         detectFullScreen({
           onFullScreenEnabled: () => {
@@ -284,10 +348,19 @@ export default class Proctor {
         // If any check fails, handle failure and return the updated object
         const failedCheck = results.find((result) => result.status === 'rejected');
 
+        // console.log('%c⧭', 'color: #00bf00', failedCheck);
         if (failedCheck) {
-          initializeInstructionsModal(this.runCompatibilityChecks.bind(this, onSuccess, onFailure));
+          initializeInstructionsModal(
+            this.runCompatibilityChecks.bind(this, onSuccess, onFailure),
+            this.proctoringInitialised,
+          );
+
           onFailure?.(failedCheck.reason, passedChecks);
         } else {
+          if (this.disqualificationTimeout) {
+            clearTimeout(this.disqualificationTimeout);
+          }
+          this.failedCompatibilityChecks = false;
           onSuccess?.(passedChecks);
         }
       })
@@ -336,12 +409,7 @@ export default class Proctor {
   }
 
   handleFullScreenDisabled() {
-    showFullScreenDefaultMessage({
-      onExitCallback: (type) => {
-        console.log('%c⧭', 'color: #86bf60', 'type', type);
-        this.handleViolation(type, null, true);
-      },
-    });
+    this.handleViolation(VIOLATIONS.fullScreen);
     this.callbacks.onFullScreenDisabled();
   }
 
@@ -360,15 +428,13 @@ export default class Proctor {
       timestamp: `${new Date().toJSON().slice(0, 19).replace('T', ' ')} UTC`,
     };
 
-    console.log('%c⧭', 'color: #ace2e6', 'inside violation');
-
     if (this.config[type].showAlert) {
       showViolationWarning(
         'Warning',
         `You performed a violation during the test. 
          Repeating this action may result in disqualification 
          and a failed test attempt.`,
-        true,
+        false,
       );
     }
     if (this.config[type].recordViolation) {
@@ -379,14 +445,19 @@ export default class Proctor {
 
     if (forceDisqualify || (this.disqualificationConfig.enabled
       && this.getTotalViolationsCount() >= this.disqualificationConfig.eventCountThreshold)) {
-      this.sendEvents(); // To send any events before disqualifying the user
-      // Show disqualification warning before calling the disqualified callback
-      showViolationWarning(
-        this.disqualificationConfig.alertHeading,
-        this.disqualificationConfig.alertMessage,
-      );
-      this.callbacks.onDisqualified(); // Trigger disqualification callback
+      this.disqualifyUser();
     }
+  }
+
+  disqualifyUser() {
+    this.sendEvents(); // To send any events before disqualifying the user
+    // Show disqualification warning before calling the disqualified callback
+    showViolationWarning(
+      this.disqualificationConfig.alertHeading,
+      this.disqualificationConfig.alertMessage,
+      true,
+    );
+    this.callbacks.onDisqualified(); // Trigger disqualification callback
   }
 
   recordViolation(violation) {
@@ -422,9 +493,8 @@ export default class Proctor {
 
   handleWindowUnload() {
     // Send events when the user tries to exit or close the window/tab
-    window.addEventListener('beforeunload', () => {
-      this.sendEvents();
-    });
+    window.addEventListener('beforeunload', this.cleanup.bind(this));
+    window.addEventListener('unload', this.cleanup.bind(this));
   }
 
   showInstructionsModal() {
@@ -445,5 +515,10 @@ export default class Proctor {
 
   getTotalViolationsCount() {
     return this.violationEvents.length;
+  }
+
+  cleanup() {
+    this.sendEvents();
+    this.stopCompatibilityChecks();
   }
 }

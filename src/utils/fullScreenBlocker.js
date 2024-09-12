@@ -37,7 +37,9 @@ export function addFullscreenKeyboardListener() {
       requestFullScreen();
       const fullScreenBlocker = document.getElementById('fullscreenBlocker');
 
-      fullScreenBlocker.style.display = 'none';
+      if (fullScreenBlocker) {
+        fullScreenBlocker.style.display = 'none';
+      }
     }
   });
 }
@@ -114,4 +116,5 @@ export function detectFullScreen({ onFullScreenEnabled, onFullScreenDisabled }) 
   document.addEventListener('webkitfullscreenchange', handleFullScreenChange);
   document.addEventListener('mozfullscreenchange', handleFullScreenChange);
   document.addEventListener('MSFullscreenChange', handleFullScreenChange);
+  addFullscreenKeyboardListener();
 }

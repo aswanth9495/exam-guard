@@ -1,7 +1,13 @@
 import instructionModalTemplate from '../templates/instructionModal.html';
 import { DEFAULT_MODAL_CONFIG } from './constants';
 
-export function appendInstructionsModal(configs) {
+export function appendInstructionsModal(disqualifyUser, configs) {
+  const disqualifyNote = document.getElementById('instructions-modal-disqualify');
+  if (disqualifyNote && disqualifyUser) {
+    disqualifyNote.textContent = 'You will be disqualified in 15 secs if the above criterias are not met';
+
+    disqualifyNote.style.color = 'red';
+  }
   const instructionsOverlay = document.getElementById('instructions-overlay');
   if (instructionsOverlay) return;
   const modalContainer = document.createElement('div');
@@ -9,9 +15,11 @@ export function appendInstructionsModal(configs) {
   document.body.appendChild(modalContainer);
   const enterTestButton = document.getElementById('enter-test-btn');
   const modalHeading = document.querySelector('.instructions-modal__heading');
+
   if (configs.buttonText) {
     enterTestButton.textContent = configs.buttonText;
   }
+
   if (configs.headingText) {
     modalHeading.textContent = configs.headingText;
   }
@@ -30,8 +38,9 @@ export function showInstructionsModal(onContinueClick) {
 
 export function initializeInstructionsModal(
   onContinueClick,
+  disqualifyUser = false,
   configs = DEFAULT_MODAL_CONFIG,
 ) {
-  appendInstructionsModal(configs);
+  appendInstructionsModal(disqualifyUser, configs);
   showInstructionsModal(onContinueClick);
 }
