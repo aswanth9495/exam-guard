@@ -33,7 +33,6 @@ import './assets/styles/webcam-blocker.scss';
 export default class Proctor {
   constructor({
     baseUrl = null,
-    endpoint = null,
     instructionModal = {},
     eventsConfig = {},
     disqualificationConfig = {},
@@ -45,13 +44,13 @@ export default class Proctor {
     enableAllAlerts = false,
   }) {
     this.baseUrl = baseUrl;
-    this.endpoint = endpoint;
     this.instructionModal = {
       enabled: true,
       ...instructionModal,
     };
     this.eventsConfig = {
       maxEventsBeforeSend: MAX_EVENTS_BEFORE_SEND,
+      endpoint: eventsConfig.endpoint,
       ...eventsConfig,
     };
 
@@ -492,10 +491,10 @@ export default class Proctor {
   }
 
   sendEvents() {
-    if (!this.baseUrl || !this.endpoint) return;
+    if (!this.baseUrl || !this.eventsConfig.endpoint) return;
     if (this.recordedViolationEvents.length === 0) return;
 
-    const url = `${this.baseUrl}${this.endpoint}`;
+    const url = `${this.baseUrl}${this.eventsConfig.endpoint}`;
     const payload = {
       events: this.recordedViolationEvents,
     };
