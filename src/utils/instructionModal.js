@@ -1,7 +1,27 @@
 import instructionModalTemplate from '../templates/instructionModal.html';
 import { DEFAULT_MODAL_CONFIG } from './constants';
+import checkMarkImage from '../assets/images/checkMark.svg';
+import failureMark from '../assets/images/failMark.svg';
 
-export function appendInstructionsModal(disqualifyUser, configs) {
+function setIconsForChecks(passedChecks = {}) {
+  const camIcon = document.getElementById('webcam-check');
+  const fullscreenIcon = document.getElementById('fullscreen-check');
+  const networkIcon = document.getElementById('network-check');
+  camIcon.src = failureMark;
+  fullscreenIcon.src = failureMark;
+  networkIcon.src = failureMark;
+  if (passedChecks.webcam) {
+    camIcon.src = checkMarkImage;
+  }
+  if (passedChecks.fullscreen) {
+    fullscreenIcon.src = checkMarkImage;
+  }
+  if (passedChecks.networkSpeed) {
+    networkIcon.src = checkMarkImage;
+  }
+}
+
+export function appendInstructionsModal(disqualifyUser, configs, passedChecks) {
   const disqualifyNote = document.getElementById('instructions-modal-disqualify');
   if (disqualifyNote && disqualifyUser) {
     disqualifyNote.textContent = 'You will be disqualified in 15 secs if the above criterias are not met';
@@ -15,6 +35,7 @@ export function appendInstructionsModal(disqualifyUser, configs) {
   document.body.appendChild(modalContainer);
   const enterTestButton = document.getElementById('enter-test-btn');
   const modalHeading = document.querySelector('.instructions-modal__heading');
+  setIconsForChecks(passedChecks);
 
   if (configs.buttonText) {
     enterTestButton.textContent = configs.buttonText;
@@ -39,8 +60,9 @@ export function showInstructionsModal(onContinueClick) {
 export function initializeInstructionsModal(
   onContinueClick,
   disqualifyUser = false,
+  passedChecks = {},
   configs = DEFAULT_MODAL_CONFIG,
 ) {
-  appendInstructionsModal(disqualifyUser, configs);
+  appendInstructionsModal(disqualifyUser, configs, passedChecks);
   showInstructionsModal(onContinueClick);
 }

@@ -25,6 +25,14 @@ module.exports = {
           },
         },
       },
+      {
+        test: /\.svg$/,
+        use: [
+          {
+            loader: 'svg-url-loader',
+          },
+        ],
+      },
       // HTML Loader (for alert template)
       {
         test: /\.html$/,

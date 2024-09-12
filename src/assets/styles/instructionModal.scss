@@ -4,20 +4,24 @@ $instructions-modal-btn-bg-color:  #0080FF;
 $instructions-modal-btn-color:  #ffffff;
 
 .instructions-modal {
+  display: flex;
+  flex-direction: column;
   position: absolute;
   top: 50%;
+  gap: 2rem;
   left: 50%;
   transform: translate(-50%, -50%);
   background: $instructions-modal-bg-color;
   border-radius: 1.6rem;
   border: 0.1rem solid $instructions-modal-border-color;
   padding: 2.4rem 3.2rem;
-  max-width: 56rem;
+  height: 40rem;
 
 
   &__body {
     display: flex;
     flex-direction: column;
+    gap: 1rem;
   }
 
   &__heading {
@@ -41,7 +45,7 @@ $instructions-modal-btn-color:  #ffffff;
   &__warning {
     margin-top: 1.5rem;
     margin-bottom: 3.2rem;
-    font-size: 1.4rem;
+    font-size: 1.6rem;
   }
 
   &__actions {
@@ -50,12 +54,13 @@ $instructions-modal-btn-color:  #ffffff;
 
   &__action-btn {
     display: flex;
-    padding: 0.8rem 2.4rem;
+    padding: 1.8rem 3rem;
     justify-content: center;
     align-items: center;
     border-radius: 0.4rem;
     background: $instructions-modal-btn-bg-color;
     color: $instructions-modal-btn-color;
+    font-size: 1.6rem;
     cursor: pointer;
   }
 
@@ -63,10 +68,12 @@ $instructions-modal-btn-color:  #ffffff;
     margin-bottom: 1rem;
     display: flex;
     align-items: center;
-    font-size: 1.4rem;
+    font-size: 1.6rem;
   }
 
   &__point-icon {
     margin-right: 0.5rem;
+    height: 2rem;
+    width: 2rem;
   }
 }

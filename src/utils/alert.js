@@ -1,4 +1,5 @@
 import alertHtml from '../templates/alert.html';
+import warningIcon from '../assets/images/white-warning.svg';
 
 export function closeModal() {
   const modal = document.getElementById('warning-modal');
@@ -10,6 +11,8 @@ export function closeModal() {
 export function setupAlertUI() {
   const closeButton = document.getElementById('warning-modal-close-btn');
   const actionButton = document.getElementById('warning-modal-action');
+  const alertIcon = document.getElementById('warning-modal__warning-icon');
+  alertIcon.src = warningIcon;
 
   if (closeButton) {
     closeButton.addEventListener('click', closeModal);

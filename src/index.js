@@ -71,21 +71,21 @@ export default class Proctor {
     this.config = {
       [VIOLATIONS.tabSwitch]: {
         name: VIOLATIONS.tabSwitch,
-        enabled: true,
+        enabled: false,
         showAlert: true,
         recordViolation: true,
         ...config.tabSwitch,
       },
       [VIOLATIONS.browserBlur]: {
         name: VIOLATIONS.browserBlur,
-        enabled: true,
+        enabled: false,
         showAlert: true,
         recordViolation: true,
         ...config.browserBlur,
       },
       [VIOLATIONS.rightClick]: {
         name: VIOLATIONS.rightClick,
-        enabled: true,
+        enabled: false,
         showAlert: true,
         recordViolation: true,
         ...config.rightClick,
@@ -99,21 +99,21 @@ export default class Proctor {
       },
       [VIOLATIONS.copyPasteCut]: {
         name: VIOLATIONS.copyPasteCut,
-        enabled: true,
+        enabled: false,
         showAlert: true,
         recordViolation: true,
         ...config.copyPasteCut,
       },
       [VIOLATIONS.restrictedKeyEvent]: {
         name: VIOLATIONS.restrictedKeyEvent,
-        enabled: true,
+        enabled: false,
         showAlert: true,
         recordViolation: true,
         ...config.restrictedKeyEvent,
       },
       [VIOLATIONS.textSelection]: {
         name: VIOLATIONS.textSelection,
-        enabled: true,
+        enabled: false,
         showAlert: true,
         recordViolation: true,
         ...config.textSelection,
@@ -356,6 +356,7 @@ export default class Proctor {
             initializeInstructionsModal(
               this.runCompatibilityChecks.bind(this, onSuccess, onFailure),
               this.proctoringInitialised,
+              passedChecks,
             );
           }
 
