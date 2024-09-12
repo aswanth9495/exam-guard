@@ -6,7 +6,7 @@ import {
   VIOLATIONS,
 } from './utils/constants';
 import { dispatchViolationEvent } from './utils/events';
-import { detectFullScreen, showFullScreenInitialMessage } from './utils/fullScreenBlocker';
+import { detectFullScreen } from './utils/fullScreenBlocker';
 import { initializeInstructionsModal } from './utils/instructionModal';
 import { checkBandwidth } from './utils/network';
 import { setupScreenshot } from './utils/screenshot';
@@ -223,6 +223,7 @@ export default class Proctor {
   }
 
   startCompatibilityChecks() {
+    if (!this.compatibilityCheckConfig.enable) return;
     // Run the first check immediately
     this.runCompatibilityChecks(
       this.handleCompatibilitySuccess.bind(this),
@@ -350,10 +351,12 @@ export default class Proctor {
 
         // console.log('%c⧭', 'color: #00bf00', failedCheck);
         if (failedCheck) {
-          initializeInstructionsModal(
-            this.runCompatibilityChecks.bind(this, onSuccess, onFailure),
-            this.proctoringInitialised,
-          );
+          if (this.compatibilityCheckConfig.showAlert) {
+            initializeInstructionsModal(
+              this.runCompatibilityChecks.bind(this, onSuccess, onFailure),
+              this.proctoringInitialised,
+            );
+          }
 
           onFailure?.(failedCheck.reason, passedChecks);
         } else {
@@ -422,6 +425,7 @@ export default class Proctor {
   }
 
   handleViolation(type, value = null, forceDisqualify = false) {
+    if (!VIOLATIONS[type]) return;
     const violation = {
       type: this.config[type].name,
       value,
