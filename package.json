@@ -15,7 +15,6 @@
     "release:patch": "npm version patch -m \"Release patch version %s\" && git push origin main --tags",
     "release:minor": "npm version minor -m \"Release minor version %s\" && git push origin main --tags",
     "release:major": "npm version major -m \"Release major version %s\" && git push origin main --tags"
-
   },
   "repository": {
     "type": "git",
@@ -57,7 +56,6 @@
     "style-loader": "^4.0.0",
     "webpack": "^5.94.0",
     "webpack-cli": "^5.1.4",
-    "webpack-dev-server": "^5.1.0",
-    
+    "webpack-dev-server": "^5.1.0"
   }
 }
