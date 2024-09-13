@@ -1,6 +1,7 @@
 import { setupAlert, showViolationWarning } from './utils/alert';
 import {
   DEFAULT_SCREENSHOT_RESIZE_OPTIONS,
+  DEFAULT_SNAPSHOT_RESIZE_OPTIONS,
   MAX_EVENTS_BEFORE_SEND,
   SNAPSHOT_SCREENSHOT_FREQUENCY,
   VIOLATIONS,
@@ -140,6 +141,7 @@ export default class Proctor {
     this.snapshotConfig = {
       enabled: true,
       frequency: SNAPSHOT_SCREENSHOT_FREQUENCY, // 5s by default
+      resizeTo: DEFAULT_SNAPSHOT_RESIZE_OPTIONS,
       optional: false,
       ...snapshotConfig,
     };
@@ -399,6 +401,7 @@ export default class Proctor {
       onSnapshotSuccess: this.handleSnapshotSuccess.bind(this),
       onSnapshotFailure: this.handleSnapshotFailure.bind(this),
       frequency: this.snapshotConfig.frequency,
+      resizeDimensions: this.snapshotConfig.resizeTo,
     });
 
     this.callbacks.onWebcamEnabled();

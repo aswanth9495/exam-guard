@@ -1,7 +1,6 @@
 import webcamHtml from '../templates/webcam.html';
 import webcamBlocker from '../templates/webcam_blocker.html';
 import resizeImage from './image';
-import { DEFAULT_SNAPSHOT_RESIZE_OPTIONS } from './constants';
 
 export function getVideoElement() {
   const videoElement = document.getElementById('webcam');
@@ -11,6 +10,7 @@ export function getVideoElement() {
 export function captureSnapshot({
   onSnapshotSuccess,
   onSnapshotFailure,
+  resizeDimensions,
 }) {
   const videoElement = getVideoElement();
 
@@ -24,7 +24,7 @@ export function captureSnapshot({
     const imageSrc = canvas.toDataURL('image/png');
 
     // Resize image using ImageUtils
-    resizeImage(imageSrc, DEFAULT_SNAPSHOT_RESIZE_OPTIONS)
+    resizeImage(imageSrc, resizeDimensions)
       .then((blob) => {
         onSnapshotSuccess?.({ blob });
       })
@@ -36,10 +36,10 @@ export function captureSnapshot({
 
 // Start taking Snapshots at regular intervals
 export function setupSnapshotCapture({
-  onSnapshotSuccess, onSnapshotFailure, frequency,
+  onSnapshotSuccess, onSnapshotFailure, frequency, resizeDimensions,
 }) {
   setInterval(() => {
-    captureSnapshot({ onSnapshotSuccess, onSnapshotFailure });
+    captureSnapshot({ onSnapshotSuccess, onSnapshotFailure, resizeDimensions });
   }, frequency);
 }
 

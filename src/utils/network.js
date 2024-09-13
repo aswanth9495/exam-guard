@@ -7,7 +7,7 @@ export async function checkBandwidth() {
     const download = new Image();
     const startTime = (new Date()).getTime();
 
-    download.onload = function () {
+    download.onload = function onload() {
       const endTime = (new Date()).getTime();
       const duration = (endTime - startTime) / 1000;
       const imageSizeInBytes = download.width * download.height * 4;
