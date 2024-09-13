@@ -39,6 +39,7 @@ export default class Proctor {
     snapshotConfig = {},
     screenshotConfig = {},
     compatibilityCheckConfig = {},
+    s3Config = {},
     callbacks = {},
     enableAllAlerts = false,
   }) {
@@ -143,6 +144,14 @@ export default class Proctor {
       frequency: SNAPSHOT_SCREENSHOT_FREQUENCY,
       resizeTo: DEFAULT_SCREENSHOT_RESIZE_OPTIONS,
       ...screenshotConfig,
+    };
+    this.s3Config = {
+      enabled: false,
+      region: null,
+      bucket: null,
+      endpoint: null,
+      envVars: {},
+      ...s3Config,
     };
     this.callbacks = {
       onDisqualified: callbacks.onDisqualified || (() => {}),
