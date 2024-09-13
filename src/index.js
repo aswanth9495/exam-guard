@@ -494,7 +494,7 @@ export default class Proctor {
     if (!this.baseUrl || !this.eventsConfig.endpoint) return;
     if (this.recordedViolationEvents.length === 0) return;
 
-    const url = `${this.baseUrl}${this.eventsConfig.endpoint}`;
+    const url = new URL(this.eventsConfig.endpoint, this.baseUrl).toString();
     const payload = {
       events: this.recordedViolationEvents,
     };
