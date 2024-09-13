@@ -30,6 +30,7 @@ import './assets/styles/alert.scss';
 import './assets/styles/fullScreenBlocker.scss';
 import './assets/styles/instructionModal.scss';
 import './assets/styles/webcam-blocker.scss';
+import S3Store from './s3-Store';
 
 export default class Proctor {
   constructor({
@@ -235,6 +236,17 @@ export default class Proctor {
         frequency: this.screenshotConfig.frequency,
         resizeDimensions: this.screenshotConfig.resizeTo,
       });
+    }
+
+    if (this.s3Config.enabled && this.s3Config.endpoint && this.s3Config.bucket) {
+      this.s3Store = new S3Store(
+        this.s3Config.region,
+        this.s3Config.bucket,
+        this.s3Config.endpoint,
+        this.s3Config.envVars,
+      );
+    } else {
+      this.s3Store = null;
     }
 
     // Listen to tab close or exit
