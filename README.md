@@ -510,7 +510,7 @@ The proctoring library is designed to work across modern browsers. However, to e
     const proctor = new Proctor({
       eventsUrl: 'https://example.com/events', // Replace with your actual events URL
       config: {
-        disableTabSwitch: {
+        tabSwitch: {
           enabled: true,
           showAlert: true,
           recordViolation: true,
