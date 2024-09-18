@@ -11,6 +11,7 @@ module.exports = {
     ecmaVersion: 12,
     sourceType: 'module',
   },
+  ignorePatterns: ['dist/'],
   rules: {
     // Define or override rules here
     'no-console': 'off', // Example: Allow console statements

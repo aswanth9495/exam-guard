@@ -18,18 +18,19 @@
   </div>
 
   <!-- Include the Webpack bundle -->
-  <script src="proctor.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/exam-guard@latest/dist/proctor.js"></script>
 
   <script>
     const proctor = new Proctor({
       eventsUrl: 'https://example.com/events', // Replace with your actual events URL
       config: {
-        disableTabSwitch: {
+        tabSwitch: {
           enabled: true,
           showAlert: true,
           recordViolation: true,
         },
       },
+      enableAllAlerts: true,
       callbacks: {
         onSnapshotSuccess: ({ blob }) => {
           const snapshotImg = document.getElementById('snapshot');
@@ -49,19 +50,10 @@
         }
       }
     });
+    proctor.initializeProctoring();
 
-    proctor.on('violation', (count, event) => {
-      console.log('%c⧭', 'color: #ffa640', 'Violation detected', count, event, proctor.getAllViolations());
-    });
-
-    proctor.on('rightClick', (count, event) => {
-      console.log('%c⧭', 'color: #ffa640', 'Right click', count, event, proctor.getAllViolations());
-    });
-  
-    proctor.runCompatibilityChecks(() => {
-      proctor.initializeProctoring();
-    }, () => {
-
+    proctor.on('violation', (violations, event) => {
+      console.log('%c⧭', 'color: #ffa640', 'Violation detected', violations, event.detail.type);
     });
   </script>
 </body>
