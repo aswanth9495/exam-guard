@@ -14,7 +14,7 @@ export const DEFAULT_SNAPSHOT_RESIZE_OPTIONS = { width: 480, height: 360 };
 export const DEFAULT_SCREENSHOT_RESIZE_OPTIONS = { width: 480, height: 270 };
 export const DEFAULT_MODAL_CONFIG = {
   disqualify: false,
-  disqualficationTimeout: 15000,
+  disqualificationTimeout: 15000,
   buttonText: 'Continue',
   headingText: 'System Check: Configure Required Settings',
 };

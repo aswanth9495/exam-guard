@@ -295,7 +295,6 @@ export default class Proctor {
   }
 
   runCompatibilityChecks(onSuccess, onFailure) {
-    console.log('%c⧭', 'color: #99adcc', 'Running compatibility check');
     const compatibilityChecks = {
       webcam: this.snapshotConfig.enabled,
       networkSpeed: this.snapshotConfig.enabled,

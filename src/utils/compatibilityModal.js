@@ -48,7 +48,7 @@ export function setupCompatibilityCheckModal(onContinueClick, config = {}) {
   }
 
   if (timerCountElement) {
-    timerCountElement.dataset.timeout = modalConfig.disqualficationTimeout / 1000;
+    timerCountElement.dataset.timeout = modalConfig.disqualificationTimeout / 1000;
   }
 
   continueBtn.addEventListener('click', () => {
