@@ -10,7 +10,7 @@ import { dispatchGenericViolationEvent, dispatchViolationEvent } from './utils/e
 import {
   addFullscreenKeyboardListener, detectFullScreen, isFullScreen, requestFullScreen,
 } from './utils/fullScreenBlocker';
-import { initializeInstructionsModal } from './utils/instructionModal';
+import { setupCompatibilityCheckModal, showCompatibilityCheckModal } from './utils/compatibilityModal';
 import { checkBandwidth } from './utils/network';
 import { setupScreenshot } from './utils/screenshot';
 import detectBrowserBlur from './utils/violations/browserBlur';
@@ -28,7 +28,7 @@ import {
 
 import './assets/styles/alert.scss';
 import './assets/styles/fullScreenBlocker.scss';
-import './assets/styles/instructionModal.scss';
+import './assets/styles/compatibility-modal.scss';
 import './assets/styles/webcam-blocker.scss';
 
 export default class Proctor {
@@ -51,7 +51,7 @@ export default class Proctor {
     };
 
     this.compatibilityCheckConfig = {
-      enable: false,
+      enable: true,
       showAlert: enableAllAlerts,
       frequency: 5000,
       disqualficationTimeout: 15000,
@@ -62,7 +62,7 @@ export default class Proctor {
       eventCountThreshold: 5, // Number of violations after which disqualification will occur
       showAlert: enableAllAlerts,
       alertHeading: 'Disqualification Alert',
-      alertMessage: 'You have been disqualified after exceeding the allowed number of violations.',
+      alertMessage: 'You have been disqualified from the contest',
       ...disqualificationConfig,
     };
     this.proctoringInitialised = false;
@@ -167,8 +167,16 @@ export default class Proctor {
     this.compatibilityCheckInterval = null;
     this.disqualificationTimeout = null;
     this.initializeProctoring = this.initializeProctoring.bind(this);
+    this.runCompatibilityChecks = this.runCompatibilityChecks.bind(this);
 
     addFullscreenKeyboardListener();
+    setupCompatibilityCheckModal(() => {
+      this.runCompatibilityChecks(
+        this.handleCompatibilitySuccess.bind(this),
+        this.handleCompatibilityFailure.bind(this),
+      );
+      clearTimeout(this.disqualificationTimeout);
+    }, this.compatibilityCheckConfig);
   }
 
   initializeProctoring() {
@@ -360,10 +368,7 @@ export default class Proctor {
 
         if (failedCheck) {
           if (this.compatibilityCheckConfig.showAlert) {
-            initializeInstructionsModal(
-              this.runCompatibilityChecks.bind(this, onSuccess, onFailure),
-              this.proctoringInitialised,
-            );
+            showCompatibilityCheckModal(passedChecks, this.proctoringInitialised);
           }
 
           onFailure?.(failedCheck.reason, passedChecks);
@@ -376,7 +381,7 @@ export default class Proctor {
         }
       })
       .catch((failedCheck) => {
-        initializeInstructionsModal(this.runCompatibilityChecks.bind(this, onSuccess, onFailure));
+        showCompatibilityCheckModal(passedChecks, this.proctoringInitialised);
         // Handle any failure in individual checks
         onFailure?.(failedCheck, passedChecks);
       });

@@ -1,4 +1,5 @@
 import alertHtml from '../templates/alert.html';
+import warningIcon from '../assets/images/white-warning.svg';
 
 export function closeModal() {
   const modal = document.getElementById('warning-modal');
@@ -7,10 +8,17 @@ export function closeModal() {
   }
 }
 
-export function setupAlertUI() {
+export function setupAlert() {
+  const alertContainer = document.createElement('div');
+  alertContainer.innerHTML = alertHtml;
+  document.body.appendChild(alertContainer);
+
   const closeButton = document.getElementById('warning-modal-close-btn');
   const actionButton = document.getElementById('warning-modal-action');
-
+  const warningModalIcon = document.getElementById('warning-modal-icon');
+  if (warningModalIcon) {
+    warningModalIcon.src = warningIcon;
+  }
   if (closeButton) {
     closeButton.addEventListener('click', closeModal);
   }
@@ -18,15 +26,6 @@ export function setupAlertUI() {
   if (actionButton) {
     actionButton.addEventListener('click', closeModal);
   }
-}
-
-export function setupAlert() {
-  const alertContainer = document.createElement('div');
-  alertContainer.innerHTML = alertHtml;
-  document.body.appendChild(alertContainer);
-
-  // Set up the UI (close button functionality)
-  setupAlertUI();
 }
 
 export function showViolationWarning(heading, text, hideAction = false) {

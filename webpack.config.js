@@ -25,10 +25,27 @@ module.exports = {
           },
         },
       },
-      // HTML Loader (for alert template)
+      {
+        test: /\.svg$/,
+        use: [
+          {
+            loader: 'svg-url-loader',
+            options: {
+              limit: 10000, // Inline files smaller than 10kB
+              noquotes: true, // Remove surrounding quotes from the URL
+            },
+
+          },
+        ],
+
+      },
       {
         test: /\.html$/,
-        use: ['html-loader'],
+        use: [
+          {
+            loader: 'html-loader',
+          },
+        ],
       },
       {
         test: /\.scss$/,
