@@ -33,7 +33,6 @@ module.exports = {
           },
         ],
       },
-      // HTML Loader (for alert template)
       {
         test: /\.html$/,
         use: ['html-loader'],
