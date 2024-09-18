@@ -62,7 +62,7 @@ export default class Proctor {
       eventCountThreshold: 5, // Number of violations after which disqualification will occur
       showAlert: enableAllAlerts,
       alertHeading: 'Disqualification Alert',
-      alertMessage: 'You have been disqualified after exceeding the allowed number of violations.',
+      alertMessage: 'You have been disqualified from the contest',
       ...disqualificationConfig,
     };
     this.proctoringInitialised = false;
