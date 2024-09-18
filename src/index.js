@@ -54,7 +54,7 @@ export default class Proctor {
       enable: true,
       showAlert: enableAllAlerts,
       frequency: 5000,
-      disqualficationTimeout: 15000,
+      disqualificationTimeout: 15000,
       ...compatibilityCheckConfig,
     };
     this.disqualificationConfig = {
@@ -278,7 +278,7 @@ export default class Proctor {
       if (this.disqualificationConfig.enabled) {
         this.disqualificationTimeout = setTimeout(() => {
           this.disqualifyUser();
-        }, this.compatibilityCheckConfig.disqualficationTimeout);
+        }, this.compatibilityCheckConfig.disqualificationTimeout);
       }
       this.callbacks.onCompatibilityCheckFail({ failedCheck, passedChecks });
     }
