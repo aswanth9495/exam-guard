@@ -37,6 +37,7 @@ export function setupCompatibilityCheckModal(onContinueClick, config = {}) {
 
   const continueBtn = document.getElementById('enter-test-btn');
   const modalHeading = document.getElementById('compatibility-modal-heading');
+  const timerCountElement = document.getElementById('compatibility-modal-timer-count');
   const compatibilityModal = document.getElementById('compatibility-overlay');
   if (modalConfig.buttonText) {
     continueBtn.textContent = modalConfig.buttonText;
@@ -44,6 +45,10 @@ export function setupCompatibilityCheckModal(onContinueClick, config = {}) {
 
   if (modalConfig.headingText) {
     modalHeading.textContent = modalConfig.headingText;
+  }
+
+  if (timerCountElement) {
+    timerCountElement.dataset.timeout = modalConfig.disqualficationTimeout / 1000;
   }
 
   continueBtn.addEventListener('click', () => {
@@ -54,14 +59,17 @@ export function setupCompatibilityCheckModal(onContinueClick, config = {}) {
 }
 
 function setupTimer() {
+  const timerEl = document.getElementById('compatibility-modal-timer');
   const timerCountElement = document.getElementById('compatibility-modal-timer-count');
   const circleAnimation = document.getElementById('compatibility-modal-timer-circle');
-  let timerCount = 15;
-
+  let timerCount = timerCountElement.dataset.timeout;
+  if (timerEl) {
+    timerEl.style.display = 'flex';
+  }
   countdownInterval = setInterval(() => {
     timerCountElement.textContent = timerCount;
 
-    const offset = (timerCount / 15) * 440;
+    const offset = (timerCount / timerCountElement.dataset.timeout) * 440;
     circleAnimation.style.strokeDashoffset = `${offset}`;
 
     if (timerCount <= 0) {
@@ -71,7 +79,7 @@ function setupTimer() {
   }, 1000);
 }
 
-export function showCompatibilityCheckModal(passedChecks, enableDisqualification = false) {
+export function showCompatibilityCheckModal(passedChecks, disqualify = false) {
   const compatibilityModal = document.getElementById('compatibility-overlay');
 
   if (compatibilityModal.style.display !== '') {
@@ -79,5 +87,7 @@ export function showCompatibilityCheckModal(passedChecks, enableDisqualification
   }
   compatibilityModal.style.display = 'flex';
   setIconsForChecks(passedChecks);
-  setupTimer();
+  if (disqualify) {
+    setupTimer();
+  }
 }

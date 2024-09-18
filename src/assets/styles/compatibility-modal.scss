@@ -15,7 +15,6 @@ $compatibility-modal-btn-color:  #ffffff;
   border-radius: 1.6rem;
   border: 0.1rem solid $compatibility-modal-border-color;
   padding: 2.4rem 3.2rem;
-  height: 60Vh;
   width: 80vw;
   align-items: center;
 
@@ -82,8 +81,16 @@ $compatibility-modal-btn-color:  #ffffff;
   }
 
   &__timer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     position: relative;
     float: left;
+  }
+
+  &__timer-wrap {
+    display: none; 
+    flex-direction: column;
   }
 
   &__count-wrap {

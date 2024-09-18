@@ -167,13 +167,16 @@ export default class Proctor {
     this.compatibilityCheckInterval = null;
     this.disqualificationTimeout = null;
     this.initializeProctoring = this.initializeProctoring.bind(this);
+    this.runCompatibilityChecks = this.runCompatibilityChecks.bind(this);
 
     addFullscreenKeyboardListener();
-    setupCompatibilityCheckModal(this.runCompatibilityChecks.bind(
-      this,
-      this.handleCompatibilitySuccess.bind(this),
-      this.handleCompatibilityFailure.bind(this),
-    ), this.compatibilityCheckConfig);
+    setupCompatibilityCheckModal(() => {
+      this.runCompatibilityChecks(
+        this.handleCompatibilitySuccess.bind(this),
+        this.handleCompatibilityFailure.bind(this),
+      );
+      clearTimeout(this.disqualificationTimeout);
+    }, this.compatibilityCheckConfig);
   }
 
   initializeProctoring() {
@@ -365,7 +368,7 @@ export default class Proctor {
 
         if (failedCheck) {
           if (this.compatibilityCheckConfig.showAlert) {
-            showCompatibilityCheckModal(passedChecks);
+            showCompatibilityCheckModal(passedChecks, this.proctoringInitialised);
           }
 
           onFailure?.(failedCheck.reason, passedChecks);
@@ -378,7 +381,7 @@ export default class Proctor {
         }
       })
       .catch((failedCheck) => {
-        showCompatibilityCheckModal(passedChecks);
+        showCompatibilityCheckModal(passedChecks, this.proctoringInitialised);
         // Handle any failure in individual checks
         onFailure?.(failedCheck, passedChecks);
       });
