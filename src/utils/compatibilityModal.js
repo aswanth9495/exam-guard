@@ -65,7 +65,15 @@ export function setupCompatibilityCheckModal(onContinueClick, config = {}) {
   });
 }
 
-function setupTimer() {
+export function hideCompatibilityModal() {
+  const compatibilityModal = document.getElementById('compatibility-overlay');
+  if (compatibilityModal) {
+    compatibilityModal.style.display = '';
+    clearInterval(countdownInterval);
+  }
+}
+
+function setupTimer(onCountDownEnd) {
   const timerEl = document.getElementById('compatibility-modal-timer');
   const timerCountElement = document.getElementById('compatibility-modal-timer-count');
   const circleAnimation = document.getElementById('compatibility-modal-timer-circle');
@@ -73,6 +81,7 @@ function setupTimer() {
   if (timerEl) {
     timerEl.style.display = 'flex';
   }
+  timerCountElement.textContent = timerCount;
   countdownInterval = setInterval(() => {
     timerCountElement.textContent = timerCount;
 
@@ -81,12 +90,18 @@ function setupTimer() {
 
     if (timerCount <= 0) {
       clearInterval(countdownInterval);
+      onCountDownEnd?.();
     }
     timerCount -= 1;
   }, 1000);
 }
 
-export function showCompatibilityCheckModal(passedChecks, checks, disqualify = false) {
+export function showCompatibilityCheckModal(
+  passedChecks,
+  checks,
+  onCountDownEnd,
+  enableCounter = false,
+) {
   const compatibilityModal = document.getElementById('compatibility-overlay');
 
   if (compatibilityModal.style.display !== '') {
@@ -94,7 +109,7 @@ export function showCompatibilityCheckModal(passedChecks, checks, disqualify = f
   }
   compatibilityModal.style.display = 'flex';
   setIconsForChecks(passedChecks, checks);
-  if (disqualify) {
-    setupTimer();
+  if (enableCounter) {
+    setupTimer(onCountDownEnd);
   }
 }

@@ -10,7 +10,7 @@ import { dispatchGenericViolationEvent, dispatchViolationEvent } from './utils/e
 import {
   addFullscreenKeyboardListener, detectFullScreen, isFullScreen, requestFullScreen,
 } from './utils/fullScreenBlocker';
-import { setupCompatibilityCheckModal, showCompatibilityCheckModal } from './utils/compatibilityModal';
+import { hideCompatibilityModal, setupCompatibilityCheckModal, showCompatibilityCheckModal } from './utils/compatibilityModal';
 import { checkBandwidth } from './utils/network';
 import { setupScreenshot } from './utils/screenshot';
 import detectBrowserBlur from './utils/violations/browserBlur';
@@ -251,7 +251,6 @@ export default class Proctor {
     this.recordedViolationEvents = []; // Store events for batch sending
     this.failedCompatibilityChecks = false; // To track if checks have failed
     this.compatibilityCheckInterval = null;
-    this.disqualificationTimeout = null;
     this.initializeProctoring = this.initializeProctoring.bind(this);
     this.runCompatibilityChecks = this.runCompatibilityChecks.bind(this);
 
@@ -261,7 +260,6 @@ export default class Proctor {
         this.handleCompatibilitySuccess.bind(this),
         this.handleCompatibilityFailure.bind(this),
       );
-      clearTimeout(this.disqualificationTimeout);
     }, this.compatibilityCheckConfig);
   }
 
@@ -372,12 +370,6 @@ export default class Proctor {
 
   startCompatibilityChecks() {
     if (!this.compatibilityCheckConfig.enable) return;
-    // Run the first check immediately
-    this.runCompatibilityChecks(
-      this.handleCompatibilitySuccess.bind(this),
-      this.handleCompatibilityFailure.bind(this),
-    );
-
     // Set an interval to run the check
     this.compatibilityCheckInterval = setInterval(() => {
       this.runCompatibilityChecks(
@@ -388,27 +380,12 @@ export default class Proctor {
   }
 
   handleCompatibilitySuccess(passedChecks) {
-    // Clear any previous disqualification timer if checks pass
-    if (this.failedCompatibilityChecks) {
-      clearTimeout(this.disqualificationTimeout);
-      this.failedCompatibilityChecks = false;
-    }
     this.callbacks.onCompatibilityCheckSuccess({ passedChecks });
     // console.log('Compatibility checks passed:', passedChecks);
   }
 
   handleCompatibilityFailure(failedCheck, passedChecks) {
-    // Set the failed state and start the 15-second countdown for disqualification
-    if (!this.failedCompatibilityChecks) {
-      this.failedCompatibilityChecks = true;
-
-      if (this.disqualificationConfig.enabled) {
-        this.disqualificationTimeout = setTimeout(() => {
-          this.disqualifyUser();
-        }, this.compatibilityCheckConfig.disqualificationTimeout);
-      }
-      this.callbacks.onCompatibilityCheckFail({ failedCheck, passedChecks });
-    }
+    this.callbacks.onCompatibilityCheckFail({ failedCheck, passedChecks });
   }
 
   stopCompatibilityChecks() {
@@ -498,15 +475,15 @@ export default class Proctor {
             showCompatibilityCheckModal(
               passedChecks,
               compatibilityChecks,
+              () => {
+                this.disqualifyUser();
+              },
               this.proctoringInitialised,
             );
           }
-
           onFailure?.(failedCheck.reason, passedChecks);
         } else {
-          if (this.disqualificationTimeout) {
-            clearTimeout(this.disqualificationTimeout);
-          }
+          hideCompatibilityModal();
           this.failedCompatibilityChecks = false;
           onSuccess?.(passedChecks);
         }
@@ -515,6 +492,9 @@ export default class Proctor {
         showCompatibilityCheckModal(
           passedChecks,
           compatibilityChecks,
+          () => {
+            this.disqualifyUser();
+          },
           this.proctoringInitialised,
         );
         // Handle any failure in individual checks

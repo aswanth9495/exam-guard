@@ -53,7 +53,11 @@
             const imageUrl = URL.createObjectURL(blob);
             screenshotImg.src = imageUrl;
           }
+        },
+        onDisqualified: () => {
+          console.log('onDisqualified:')
         }
+        
       }
     });
 
@@ -64,7 +68,7 @@
     });
     // proctor.runCompatibilityChecks();
     proctor.on('violation', (violations, event) => {
-      console.log('%c⧭', 'color: #ffa640', 'Violation detected', violations, event.detail.type);
+      console.log('%c⧭', 'color: #ffa640', 'Violation detected', violations, event.detail);
     });
   </script>
 </body>
