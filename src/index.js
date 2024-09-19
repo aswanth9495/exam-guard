@@ -182,6 +182,7 @@ export default class Proctor {
   initializeProctoring() {
     this.proctoringInitialised = true;
     if (this.config.fullScreen.enabled) {
+      requestFullScreen();
       detectFullScreen({
         onFullScreenDisabled: this.handleFullScreenDisabled.bind(this),
         onFullScreenEnabled: this.handleFullScreenEnabled.bind(this),
@@ -297,7 +298,7 @@ export default class Proctor {
   runCompatibilityChecks(onSuccess, onFailure) {
     const compatibilityChecks = {
       webcam: this.snapshotConfig.enabled,
-      networkSpeed: this.snapshotConfig.enabled,
+      networkSpeed: this.snapshotConfig.enabled || this.screenshotConfig.enabled,
       fullscreen: this.config[VIOLATIONS.fullScreen].enabled,
     };
 
@@ -368,7 +369,11 @@ export default class Proctor {
 
         if (failedCheck) {
           if (this.compatibilityCheckConfig.showAlert) {
-            showCompatibilityCheckModal(passedChecks, this.proctoringInitialised);
+            showCompatibilityCheckModal(
+              passedChecks,
+              compatibilityChecks,
+              this.proctoringInitialised,
+            );
           }
 
           onFailure?.(failedCheck.reason, passedChecks);
@@ -381,7 +386,11 @@ export default class Proctor {
         }
       })
       .catch((failedCheck) => {
-        showCompatibilityCheckModal(passedChecks, this.proctoringInitialised);
+        showCompatibilityCheckModal(
+          passedChecks,
+          compatibilityChecks,
+          this.proctoringInitialised,
+        );
         // Handle any failure in individual checks
         onFailure?.(failedCheck, passedChecks);
       });
@@ -499,7 +508,7 @@ export default class Proctor {
 
     const url = new URL(this.eventsConfig.endpoint, this.baseUrl).toString();
     const payload = {
-      events: this.recordedViolationEvents,
+      events: JSON.stringify(this.recordedViolationEvents),
     };
 
     fetch(url, {
@@ -507,7 +516,7 @@ export default class Proctor {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(payload),
+      body: payload,
     }).then(() => {
       this.recordedViolationEvents = [];
     }).catch((error) => {
