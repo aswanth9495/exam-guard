@@ -182,6 +182,7 @@ export default class Proctor {
   initializeProctoring() {
     this.proctoringInitialised = true;
     if (this.config.fullScreen.enabled) {
+      requestFullScreen();
       detectFullScreen({
         onFullScreenDisabled: this.handleFullScreenDisabled.bind(this),
         onFullScreenEnabled: this.handleFullScreenEnabled.bind(this),
