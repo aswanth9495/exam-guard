@@ -1,5 +1,4 @@
 import compatibilityModalHtml from '../templates/compatibility_modal.html';
-import { DEFAULT_MODAL_CONFIG } from './constants';
 import checkMarkImage from '../assets/images/checkMark.svg';
 import failureMark from '../assets/images/failMark.svg';
 
@@ -39,10 +38,6 @@ export function setupCompatibilityCheckModal(onContinueClick, config = {}) {
   if (!config.enable) {
     return;
   }
-  const modalConfig = {
-    ...DEFAULT_MODAL_CONFIG,
-    ...config,
-  };
   const modalContainer = document.createElement('div');
   modalContainer.innerHTML = compatibilityModalHtml;
   document.body.appendChild(modalContainer);
@@ -51,16 +46,16 @@ export function setupCompatibilityCheckModal(onContinueClick, config = {}) {
   const modalHeading = document.getElementById('compatibility-modal-heading');
   const timerCountElement = document.getElementById('compatibility-modal-timer-count');
   const compatibilityModal = document.getElementById('compatibility-overlay');
-  if (modalConfig.buttonText) {
-    continueBtn.textContent = modalConfig.buttonText;
+  if (config.buttonText) {
+    continueBtn.textContent = config.buttonText;
   }
 
-  if (modalConfig.headingText) {
-    modalHeading.textContent = modalConfig.headingText;
+  if (config.headingText) {
+    modalHeading.textContent = config.headingText;
   }
 
   if (timerCountElement) {
-    timerCountElement.dataset.timeout = modalConfig.disqualificationTimeout / 1000;
+    timerCountElement.dataset.timeout = config.disqualificationTimeout / 1000;
   }
 
   continueBtn.addEventListener('click', () => {

@@ -59,11 +59,13 @@ export default class Proctor {
       enable: true,
       showAlert: enableAllAlerts,
       frequency: 5000,
-      disqualificationTimeout: 15000,
+      disqualificationTimeout: 45000,
+      buttonText: 'Click here to Recheck',
+      headingText: 'System Check: Configure Required Settings',
       ...compatibilityCheckConfig,
     };
     this.disqualificationConfig = {
-      enabled: false, // Enable when onDisqualify is added
+      enabled: true, // Enable when onDisqualify is added
       eventCountThreshold: 5, // Number of violations after which disqualification will occur
       showAlert: enableAllAlerts,
       alertHeading: 'Disqualification Alert',
