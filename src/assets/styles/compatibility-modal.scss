@@ -2,6 +2,7 @@ $compatibility-modal-bg-color: #ffffff;
 $compatibility-modal-border-color: #D6DEE5;
 $compatibility-modal-btn-bg-color:  #0080FF;
 $compatibility-modal-btn-color:  #ffffff;
+$compatibility-modal-count-color:  #000000;
 
 .compatibility-modal {
   display: flex;
@@ -109,6 +110,7 @@ $compatibility-modal-btn-color:  #ffffff;
   }
 
   &__count {
+    color: $compatibility-modal-count-color;
     font-size: 4.8rem;
     font-style: normal;
     font-weight: 700;
