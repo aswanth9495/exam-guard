@@ -303,9 +303,9 @@ export default class Proctor {
 
     // Initialize object to store the result of passed checks
     const passedChecks = {
-      webcam: false,
-      networkSpeed: false,
-      fullscreen: false,
+      webcam: !this.snapshotConfig.enabled,
+      networkSpeed: !this.snapshotConfig.enabled,
+      fullscreen: !this.config[VIOLATIONS.fullScreen].enabled,
     };
 
     // Array to store all compatibility promises
