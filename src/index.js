@@ -508,7 +508,7 @@ export default class Proctor {
 
     const url = new URL(this.eventsConfig.endpoint, this.baseUrl).toString();
     const payload = {
-      events: this.recordedViolationEvents,
+      events: JSON.stringify(this.recordedViolationEvents),
     };
 
     fetch(url, {
@@ -516,7 +516,7 @@ export default class Proctor {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(payload),
+      body: payload,
     }).then(() => {
       this.recordedViolationEvents = [];
     }).catch((error) => {
