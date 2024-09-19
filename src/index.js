@@ -21,6 +21,11 @@ import detectRightClickDisabled from './utils/violations/rightClick';
 import detectTabSwitch from './utils/violations/tabSwitch';
 import preventTextSelection from './utils/violations/textSelection';
 import {
+  detectCtrlShiftI, detectAltTab, detectCmdH, detectCmdM, detectCtrlW,
+  detectCmdW, detectCtrlQ, detectCtrlShiftC, detectCtrlShiftJ, detectCmdQ,
+} from './utils/violations/keyEvents';
+
+import {
   detectWebcam,
   setupSnapshotCapture,
   setupWebcam,
@@ -93,7 +98,7 @@ export default class Proctor {
       },
       [VIOLATIONS.exitTab]: {
         name: VIOLATIONS.exitTab,
-        enabled: false,
+        enabled: true,
         showAlert: enableAllAlerts,
         recordViolation: true,
         disqualify: true,
@@ -131,7 +136,86 @@ export default class Proctor {
         disqualify: true,
         ...config.fullScreen,
       },
-      ...config,
+      [VIOLATIONS.ctrlShiftI]: {
+        name: VIOLATIONS.ctrlShiftI,
+        enabled: true,
+        showAlert: enableAllAlerts,
+        recordViolation: true,
+        disqualify: true,
+        ...config.ctrlShiftI,
+      },
+      [VIOLATIONS.ctrlShiftC]: {
+        name: VIOLATIONS.ctrlShiftC,
+        enabled: true,
+        showAlert: enableAllAlerts,
+        recordViolation: true,
+        disqualify: true,
+        ...config.ctrlShiftC,
+      },
+      [VIOLATIONS.ctrlShiftJ]: {
+        name: VIOLATIONS.ctrlShiftJ,
+        enabled: true,
+        showAlert: enableAllAlerts,
+        recordViolation: true,
+        disqualify: true,
+        ...config.ctrlShiftJ,
+      },
+      [VIOLATIONS.altTab]: {
+        name: VIOLATIONS.altTab,
+        enabled: true,
+        showAlert: enableAllAlerts,
+        recordViolation: true,
+        disqualify: true,
+        ...config.altTab,
+      },
+      [VIOLATIONS.ctrlQ]: {
+        name: VIOLATIONS.ctrlQ,
+        enabled: true,
+        showAlert: enableAllAlerts,
+        recordViolation: true,
+        disqualify: true,
+        ...config.ctrlQ,
+      },
+      [VIOLATIONS.ctrlW]: {
+        name: VIOLATIONS.ctrlW,
+        enabled: true,
+        showAlert: enableAllAlerts,
+        recordViolation: true,
+        disqualify: true,
+        ...config.ctrlW,
+      },
+      [VIOLATIONS.cmdH]: {
+        name: VIOLATIONS.cmdH,
+        enabled: true,
+        showAlert: enableAllAlerts,
+        recordViolation: true,
+        disqualify: true,
+        ...config.cmdH,
+      },
+      [VIOLATIONS.cmdQ]: {
+        name: VIOLATIONS.cmdQ,
+        enabled: true,
+        showAlert: enableAllAlerts,
+        recordViolation: true,
+        disqualify: true,
+        ...config.cmdQ,
+      },
+      [VIOLATIONS.cmdM]: {
+        name: VIOLATIONS.cmdM,
+        enabled: true,
+        showAlert: enableAllAlerts,
+        recordViolation: true,
+        disqualify: true,
+        ...config.cmdM,
+      },
+      [VIOLATIONS.cmdW]: {
+        name: VIOLATIONS.cmdW,
+        enabled: true,
+        showAlert: enableAllAlerts,
+        recordViolation: true,
+        disqualify: true,
+        ...config.cmdW,
+      },
     };
     this.snapshotConfig = {
       enabled: true,
@@ -207,6 +291,46 @@ export default class Proctor {
 
     if (this.config.copyPasteCut.enabled) {
       detectCopyPasteCut(this.handleViolation.bind(this));
+    }
+
+    if (this.config.ctrlShiftI.enabled) {
+      detectCtrlShiftI(this.handleViolation.bind(this));
+    }
+
+    if (this.config.ctrlShiftC.enabled) {
+      detectCtrlShiftC(this.handleViolation.bind(this));
+    }
+
+    if (this.config.ctrlShiftJ.enabled) {
+      detectCtrlShiftJ(this.handleViolation.bind(this));
+    }
+
+    if (this.config.altTab.enabled) {
+      detectAltTab(this.handleViolation.bind(this));
+    }
+
+    if (this.config.ctrlQ.enabled) {
+      detectCtrlQ(this.handleViolation.bind(this));
+    }
+
+    if (this.config.ctrlW.enabled) {
+      detectCtrlW(this.handleViolation.bind(this));
+    }
+
+    if (this.config.cmdH.enabled) {
+      detectCmdH(this.handleViolation.bind(this));
+    }
+
+    if (this.config.cmdW.enabled) {
+      detectCmdW(this.handleViolation.bind(this));
+    }
+
+    if (this.config.cmdM.enabled) {
+      detectCmdM(this.handleViolation.bind(this));
+    }
+
+    if (this.config.cmdQ.enabled) {
+      detectCmdQ(this.handleViolation.bind(this));
     }
 
     if (this.config.restrictedKeyEvent.enabled) {
@@ -448,8 +572,8 @@ export default class Proctor {
   handleViolation(type, value = null, forceDisqualify = false) {
     if (!VIOLATIONS[type]) return;
     const violation = {
-      eventType: type,
-      eventValue: value,
+      event_type: this.config[type].name,
+      event_value: value,
       timestamp: `${new Date().toJSON().slice(0, 19).replace('T', ' ')} UTC`,
     };
 

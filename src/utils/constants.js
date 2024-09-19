@@ -8,6 +8,16 @@ export const VIOLATIONS = {
   restrictedKeyEvent: 'restrictedKeyEvent',
   textSelection: 'textSelection',
   fullScreen: 'fullScreen',
+  ctrlShiftI: 'ctrlShiftI',
+  ctrlShiftC: 'ctrlShiftC',
+  altTab: 'altTab',
+  ctrlQ: 'ctrlQ',
+  ctrlW: 'ctrlW',
+  cmdM: 'cmdM',
+  cmdH: 'cmdH',
+  cmdW: 'cmdW',
+  cmdQ: 'cmdQ',
+  ctrlShiftJ: 'ctrlShiftJ',
 };
 export const SNAPSHOT_SCREENSHOT_FREQUENCY = 5000;
 export const DEFAULT_SNAPSHOT_RESIZE_OPTIONS = { width: 480, height: 360 };
