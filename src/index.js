@@ -20,16 +20,10 @@ import detectRestrictedKeyEvents from './utils/violations/restrictedKeyEvent';
 import detectRightClickDisabled from './utils/violations/rightClick';
 import detectTabSwitch from './utils/violations/tabSwitch';
 import preventTextSelection from './utils/violations/textSelection';
-import detectCtrlShiftI from './utils/violations/ctrlShiftI';
-import detectAltTab from './utils/violations/altTab';
-import detectCtrlQ from './utils/violations/ctrlQ';
-import detectCtrlW from './utils/violations/ctrlW';
-import detectCtrlShiftC from './utils/violations/ctrlShiftC';
-import detectCtrlShiftJ from './utils/violations/ctrlShiftJ';
-import detectCmdH from './utils/violations/cmdH';
-import detectCmdW from './utils/violations/cmdW';
-import detectCmdM from './utils/violations/cmdM';
-import detectCmdQ from './utils/violations/cmdQ';
+import {
+  detectCtrlShiftI, detectAltTab, detectCmdH, detectCmdM, detectCtrlW,
+  detectCmdW, detectCtrlQ, detectCtrlShiftC, detectCtrlShiftJ, detectCmdQ,
+} from './utils/violations/keyEvents';
 
 import {
   detectWebcam,
