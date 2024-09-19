@@ -448,8 +448,8 @@ export default class Proctor {
   handleViolation(type, value = null, forceDisqualify = false) {
     if (!VIOLATIONS[type]) return;
     const violation = {
-      type: this.config[type].name,
-      value,
+      eventType: type,
+      eventValue: value,
       timestamp: `${new Date().toJSON().slice(0, 19).replace('T', ' ')} UTC`,
     };
 
