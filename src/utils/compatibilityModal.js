@@ -28,8 +28,8 @@ export function setupCompatibilityCheckModal(onContinueClick, config = {}) {
     return;
   }
   const modalConfig = {
-    config,
     ...DEFAULT_MODAL_CONFIG,
+    ...config,
   };
   const modalContainer = document.createElement('div');
   modalContainer.innerHTML = compatibilityModalHtml;
