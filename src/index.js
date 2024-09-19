@@ -60,7 +60,7 @@ export default class Proctor {
       showAlert: enableAllAlerts,
       frequency: 5000,
       disqualificationTimeout: 45000,
-      buttonText: 'Click here to Recheck',
+      buttonText: 'Continue',
       headingText: 'System Check: Configure Required Settings',
       ...compatibilityCheckConfig,
     };
@@ -253,7 +253,7 @@ export default class Proctor {
     this.compatibilityCheckInterval = null;
     this.initializeProctoring = this.initializeProctoring.bind(this);
     this.runCompatibilityChecks = this.runCompatibilityChecks.bind(this);
-
+    setupAlert();
     addFullscreenKeyboardListener();
     setupCompatibilityCheckModal(() => {
       this.runCompatibilityChecks(
@@ -346,7 +346,6 @@ export default class Proctor {
       preventTextSelection();
     }
 
-    setupAlert();
     // Setup webcam if snapshots are enabled
     if (this.snapshotConfig.enabled) {
       setupWebcam();

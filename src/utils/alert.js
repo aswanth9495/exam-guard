@@ -43,6 +43,8 @@ export function showViolationWarning(heading, text, hideAction = false) {
     modal.style.display = 'block';
     if (hideAction) {
       modalAction.style.display = 'none';
+    } else {
+      modalAction.style.display = 'block';
     }
   }
 }
