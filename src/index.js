@@ -573,7 +573,7 @@ export default class Proctor {
     if (!VIOLATIONS[type]) return;
     const violation = {
       event_type: this.config[type].name,
-      eventValue: value,
+      event_value: value,
       timestamp: `${new Date().toJSON().slice(0, 19).replace('T', ' ')} UTC`,
     };
 
