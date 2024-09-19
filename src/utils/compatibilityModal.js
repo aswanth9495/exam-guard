@@ -5,10 +5,13 @@ import failureMark from '../assets/images/failMark.svg';
 
 let countdownInterval = null;
 
-export function setIconsForChecks(passedChecks = {}) {
+export function setIconsForChecks(passedChecks = {}, checks = {}) {
   const camIcon = document.getElementById('webcam-check');
   const fullscreenIcon = document.getElementById('fullscreen-check');
   const networkIcon = document.getElementById('network-check');
+  const webcamPoint = document.getElementById('webcam-point');
+  const fullscreenPoint = document.getElementById('fullscreen-point');
+  const networkPoint = document.getElementById('network-point');
   camIcon.src = failureMark;
   fullscreenIcon.src = failureMark;
   networkIcon.src = failureMark;
@@ -20,6 +23,15 @@ export function setIconsForChecks(passedChecks = {}) {
   }
   if (passedChecks.networkSpeed) {
     networkIcon.src = checkMarkImage;
+  }
+  if (!checks.webcam) {
+    webcamPoint.style = 'display: none';
+  }
+  if (!checks.fullscreen) {
+    fullscreenPoint.style = 'display: none';
+  }
+  if (!checks.networkSpeed) {
+    networkPoint.style = 'display: none';
   }
 }
 
@@ -79,14 +91,14 @@ function setupTimer() {
   }, 1000);
 }
 
-export function showCompatibilityCheckModal(passedChecks, disqualify = false) {
+export function showCompatibilityCheckModal(passedChecks, checks, disqualify = false) {
   const compatibilityModal = document.getElementById('compatibility-overlay');
 
   if (compatibilityModal.style.display !== '') {
     return;
   }
   compatibilityModal.style.display = 'flex';
-  setIconsForChecks(passedChecks);
+  setIconsForChecks(passedChecks, checks);
   if (disqualify) {
     setupTimer();
   }

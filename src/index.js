@@ -297,15 +297,15 @@ export default class Proctor {
   runCompatibilityChecks(onSuccess, onFailure) {
     const compatibilityChecks = {
       webcam: this.snapshotConfig.enabled,
-      networkSpeed: this.snapshotConfig.enabled,
+      networkSpeed: this.snapshotConfig.enabled || this.screenshotConfig.enabled,
       fullscreen: this.config[VIOLATIONS.fullScreen].enabled,
     };
 
     // Initialize object to store the result of passed checks
     const passedChecks = {
-      webcam: !this.snapshotConfig.enabled,
-      networkSpeed: !this.snapshotConfig.enabled,
-      fullscreen: !this.config[VIOLATIONS.fullScreen].enabled,
+      webcam: false,
+      networkSpeed: false,
+      fullscreen: false,
     };
 
     // Array to store all compatibility promises
@@ -368,7 +368,11 @@ export default class Proctor {
 
         if (failedCheck) {
           if (this.compatibilityCheckConfig.showAlert) {
-            showCompatibilityCheckModal(passedChecks, this.proctoringInitialised);
+            showCompatibilityCheckModal(
+              passedChecks,
+              compatibilityChecks,
+              this.proctoringInitialised,
+            );
           }
 
           onFailure?.(failedCheck.reason, passedChecks);
@@ -381,7 +385,11 @@ export default class Proctor {
         }
       })
       .catch((failedCheck) => {
-        showCompatibilityCheckModal(passedChecks, this.proctoringInitialised);
+        showCompatibilityCheckModal(
+          passedChecks,
+          compatibilityChecks,
+          this.proctoringInitialised,
+        );
         // Handle any failure in individual checks
         onFailure?.(failedCheck, passedChecks);
       });
