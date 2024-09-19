@@ -507,16 +507,16 @@ export default class Proctor {
     if (this.recordedViolationEvents.length === 0) return;
 
     const url = new URL(this.eventsConfig.endpoint, this.baseUrl).toString();
-    const payload = {
+    const payload = new URLSearchParams({
       events: JSON.stringify(this.recordedViolationEvents),
-    };
+    });
 
     fetch(url, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: payload,
+      body: payload.toString(),
     }).then(() => {
       this.recordedViolationEvents = [];
     }).catch((error) => {
