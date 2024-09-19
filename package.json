@@ -1,6 +1,6 @@
 {
   "name": "exam-guard",
-  "version": "3.4.0",
+  "version": "4.0.0",
   "description": "AI proctoring tool",
   "main": "dist/proctor.js",
   "files": [
