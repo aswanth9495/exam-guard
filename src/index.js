@@ -1,4 +1,4 @@
-import { setupAlert, showViolationWarning } from './utils/alert';
+import { setupAlert, showViolationWarning, closeModal } from './utils/alert';
 import {
   DEFAULT_SCREENSHOT_RESIZE_OPTIONS,
   DEFAULT_SNAPSHOT_RESIZE_OPTIONS,
@@ -260,6 +260,11 @@ export default class Proctor {
         this.handleCompatibilitySuccess.bind(this),
         this.handleCompatibilityFailure.bind(this),
       );
+      showViolationWarning(
+        'System check failed',
+        'Please ensure all the required settings are enabled',
+        true,
+      );
     }, this.compatibilityCheckConfig);
   }
 
@@ -484,6 +489,7 @@ export default class Proctor {
           onFailure?.(failedCheck.reason, passedChecks);
         } else {
           hideCompatibilityModal();
+          closeModal();
           this.failedCompatibilityChecks = false;
           onSuccess?.(passedChecks);
         }
@@ -544,6 +550,12 @@ export default class Proctor {
   }
 
   handleFullScreenEnabled() {
+    if (this.compatibilityCheckConfig.enable) {
+      this.runCompatibilityChecks(
+        this.handleCompatibilitySuccess.bind(this),
+        this.handleCompatibilityFailure.bind(this),
+      );
+    }
     this.callbacks.onFullScreenEnabled();
   }
 

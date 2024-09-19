@@ -24,7 +24,7 @@
   </div>
 
   <!-- Include the Webpack bundle -->
-  <script src="https://cdn.jsdelivr.net/npm/exam-guard@latest/dist/proctor.js"></script>
+  <script src="proctor.js"></script>
 
   <script>
     const proctor = new Proctor({
@@ -61,11 +61,7 @@
       }
     });
 
-    document.addEventListener('click', () => {
-      if (!proctor.proctoringInitialised) {
-        proctor.initializeProctoring();
-      }
-    });
+    proctor.initializeProctoring();
     // proctor.runCompatibilityChecks();
     proctor.on('violation', (violations, event) => {
       console.log('%c⧭', 'color: #ffa640', 'Violation detected', violations, event.detail);

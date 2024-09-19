@@ -18,7 +18,7 @@ html, body {
   color: $warning-modal-font-color;
   border-radius: 1.6rem;
   background-color: $warning-modal-bg-color;
-  position: absolute;
+  position: fixed;
   z-index: 99999;
   top: 2%;
   left: 50%;
@@ -42,7 +42,6 @@ html, body {
   &__body {
     display: flex;
     align-items: start;
-    margin-bottom: 2.4rem;
   }
 
   &__icon-wrap {
@@ -72,5 +71,6 @@ html, body {
     padding: 0.8rem 2.4rem;
     border-radius: 0.4rem;
     font-weight: 600;
+    margin-top: 2.4rem;
   }
 }
