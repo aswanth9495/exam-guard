@@ -220,7 +220,7 @@ export default class Proctor {
       },
     };
     this.snapshotConfig = {
-      enabled: true,
+      enabled: false,
       frequency: SNAPSHOT_SCREENSHOT_FREQUENCY, // 5s by default
       resizeTo: DEFAULT_SNAPSHOT_RESIZE_OPTIONS,
       optional: false,
@@ -568,6 +568,7 @@ export default class Proctor {
       event_type: this.config[type].name,
       event_value: value,
       timestamp: `${new Date().toJSON().slice(0, 19).replace('T', ' ')} UTC`,
+      disqualify: this.config[type].disqualify,
     };
 
     if (this.config[type].showAlert) {
@@ -611,7 +612,11 @@ export default class Proctor {
   recordViolation(violation) {
     this.violationEvents.push(violation);
     // Push the violation to the recordedViolationEvents array
-    this.recordedViolationEvents.push(violation);
+    this.recordedViolationEvents.push({
+      event_type: violation.event_type,
+      event_value: violation.event_value,
+      timestamp: violation.timestamp,
+    });
 
     // Check if the max threshold is exceeded
     if (this.recordedViolationEvents.length >= this.eventsConfig.maxEventsBeforeSend) {
