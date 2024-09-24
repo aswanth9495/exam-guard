@@ -625,6 +625,7 @@ export default class Proctor {
   }
 
   sendEvents() {
+    let csrfToken = null;
     if (!this.baseUrl || !this.eventsConfig.endpoint) return;
     if (this.recordedViolationEvents.length === 0) return;
 
@@ -632,11 +633,14 @@ export default class Proctor {
     const payload = new URLSearchParams({
       events: JSON.stringify(this.recordedViolationEvents),
     });
-
+    if (document.querySelector('meta[name="csrf-token"]')) {
+      csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    }
     fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
+        'X-CSRF-TOKEN': csrfToken,
       },
       body: payload.toString(),
     }).then(() => {
