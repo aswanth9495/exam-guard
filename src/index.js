@@ -5,6 +5,7 @@ import {
   MAX_EVENTS_BEFORE_SEND,
   SNAPSHOT_SCREENSHOT_FREQUENCY,
   VIOLATIONS,
+  DEFAULT_HEADERS_CONTENT_TYPE,
 } from './utils/constants';
 import { dispatchGenericViolationEvent, dispatchViolationEvent } from './utils/events';
 import {
@@ -47,6 +48,7 @@ export default class Proctor {
     compatibilityCheckConfig = {},
     callbacks = {},
     enableAllAlerts = false,
+    headerOptions = {},
   }) {
     this.baseUrl = baseUrl;
     this.eventsConfig = {
@@ -54,7 +56,11 @@ export default class Proctor {
       endpoint: eventsConfig.endpoint,
       ...eventsConfig,
     };
-
+    this.headerOptions = {
+      csrfToken: null,
+      contentType: DEFAULT_HEADERS_CONTENT_TYPE,
+      ...headerOptions,
+    };
     this.compatibilityCheckConfig = {
       enable: true,
       showAlert: enableAllAlerts,
@@ -636,7 +642,8 @@ export default class Proctor {
     fetch(url, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Type': this.headerOptions.contentType,
+        'X-CSRF-TOKEN': this.headerOptions.csrfToken,
       },
       body: payload.toString(),
     }).then(() => {
