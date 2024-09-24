@@ -5,6 +5,7 @@ import {
   MAX_EVENTS_BEFORE_SEND,
   SNAPSHOT_SCREENSHOT_FREQUENCY,
   VIOLATIONS,
+  DEFAULT_HEADERS_CONTENT_TYPE,
 } from './utils/constants';
 import { dispatchGenericViolationEvent, dispatchViolationEvent } from './utils/events';
 import {
@@ -47,6 +48,7 @@ export default class Proctor {
     compatibilityCheckConfig = {},
     callbacks = {},
     enableAllAlerts = false,
+    headerOptions = {},
   }) {
     this.baseUrl = baseUrl;
     this.eventsConfig = {
@@ -54,7 +56,11 @@ export default class Proctor {
       endpoint: eventsConfig.endpoint,
       ...eventsConfig,
     };
-
+    this.headerOptions = {
+      csrfToken: null,
+      contentType: DEFAULT_HEADERS_CONTENT_TYPE,
+      ...headerOptions,
+    };
     this.compatibilityCheckConfig = {
       enable: true,
       showAlert: enableAllAlerts,
@@ -625,7 +631,6 @@ export default class Proctor {
   }
 
   sendEvents() {
-    let csrfToken = null;
     if (!this.baseUrl || !this.eventsConfig.endpoint) return;
     if (this.recordedViolationEvents.length === 0) return;
 
@@ -633,14 +638,12 @@ export default class Proctor {
     const payload = new URLSearchParams({
       events: JSON.stringify(this.recordedViolationEvents),
     });
-    if (document.querySelector('meta[name="csrf-token"]')) {
-      csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-    }
+
     fetch(url, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'X-CSRF-TOKEN': csrfToken,
+        'Content-Type': this.headerOptions.contentType,
+        'X-CSRF-TOKEN': this.headerOptions.csrfToken,
       },
       body: payload.toString(),
     }).then(() => {

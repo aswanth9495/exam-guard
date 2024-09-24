@@ -23,3 +23,4 @@ export const SNAPSHOT_SCREENSHOT_FREQUENCY = 5000;
 export const DEFAULT_SNAPSHOT_RESIZE_OPTIONS = { width: 480, height: 360 };
 export const DEFAULT_SCREENSHOT_RESIZE_OPTIONS = { width: 480, height: 270 };
 export const MAX_EVENTS_BEFORE_SEND = 5;
+export const DEFAULT_CONTENT_TYPE = 'application/x-www-form-urlencoded';
