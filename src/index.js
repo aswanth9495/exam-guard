@@ -66,6 +66,7 @@ export default class Proctor {
       showAlert: enableAllAlerts,
       frequency: 5000,
       disqualificationTimeout: 45000,
+      showTimer: true,
       buttonText: 'Continue',
       headingText: 'System Check: Configure Required Settings',
       ...compatibilityCheckConfig,
@@ -488,7 +489,7 @@ export default class Proctor {
               () => {
                 this.disqualifyUser();
               },
-              this.proctoringInitialised,
+              this.proctoringInitialised && this.compatibilityCheckConfig.showTimer,
             );
           }
           onFailure?.(failedCheck.reason, passedChecks);

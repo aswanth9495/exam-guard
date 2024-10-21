@@ -42,7 +42,7 @@ export function setupCompatibilityCheckModal(onContinueClick, config = {}) {
   modalContainer.innerHTML = compatibilityModalHtml;
   document.body.appendChild(modalContainer);
 
-  const continueBtn = document.getElementById('enter-test-btn');
+  const continueBtn = document.getElementById('compatibility-continue-test-btn');
   const modalHeading = document.getElementById('compatibility-modal-heading');
   const timerCountElement = document.getElementById('compatibility-modal-timer-count');
   const compatibilityModal = document.getElementById('compatibility-overlay');
