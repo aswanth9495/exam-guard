@@ -279,10 +279,16 @@ export default class Proctor {
     this.proctoringInitialised = true;
     if (this.config.fullScreen.enabled) {
       requestFullScreen();
-      detectFullScreen({
-        onFullScreenDisabled: this.handleFullScreenDisabled.bind(this),
-        onFullScreenEnabled: this.handleFullScreenEnabled.bind(this),
-      });
+      const handleFullScreenChange = () => {
+        if (isFullScreen()) {
+          detectFullScreen({
+            onFullScreenDisabled: this.handleFullScreenDisabled.bind(this),
+            onFullScreenEnabled: this.handleFullScreenEnabled.bind(this),
+          });
+          document.removeEventListener('fullscreenchange', handleFullScreenChange);
+        }
+      };
+      document.addEventListener('fullscreenchange', handleFullScreenChange);
     }
 
     if (this.config.tabSwitch.enabled) {
