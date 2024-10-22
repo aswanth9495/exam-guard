@@ -260,6 +260,7 @@ export default class Proctor {
     this.compatibilityCheckInterval = null;
     this.initializeProctoring = this.initializeProctoring.bind(this);
     this.runCompatibilityChecks = this.runCompatibilityChecks.bind(this);
+    this.initialFullScreen = false;
     setupAlert();
     addFullscreenKeyboardListener();
     setupCompatibilityCheckModal(() => {
@@ -278,17 +279,10 @@ export default class Proctor {
   initializeProctoring() {
     this.proctoringInitialised = true;
     if (this.config.fullScreen.enabled) {
-      requestFullScreen();
-      const handleFullScreenChange = () => {
-        if (isFullScreen()) {
-          detectFullScreen({
-            onFullScreenDisabled: this.handleFullScreenDisabled.bind(this),
-            onFullScreenEnabled: this.handleFullScreenEnabled.bind(this),
-          });
-          document.removeEventListener('fullscreenchange', handleFullScreenChange);
-        }
-      };
-      document.addEventListener('fullscreenchange', handleFullScreenChange);
+      detectFullScreen({
+        onFullScreenDisabled: this.handleFullScreenDisabled.bind(this),
+        onFullScreenEnabled: this.handleFullScreenEnabled.bind(this),
+      });
     }
 
     if (this.config.tabSwitch.enabled) {
@@ -557,8 +551,13 @@ export default class Proctor {
   }
 
   handleFullScreenDisabled() {
-    this.handleViolation(VIOLATIONS.fullScreen);
-    this.callbacks.onFullScreenDisabled();
+    if (!this.initialFullScreen) {
+      requestFullScreen();
+      this.initialFullScreen = true;
+    } else {
+      this.handleViolation(VIOLATIONS.fullScreen);
+      this.callbacks.onFullScreenDisabled();
+    }
   }
 
   handleFullScreenEnabled() {
