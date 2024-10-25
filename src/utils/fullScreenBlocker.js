@@ -14,6 +14,18 @@ export function requestFullScreen() {
   }
 }
 
+export function requestExitFullscreen() {
+  if (document.exitFullscreen) {
+    document.exitFullscreen();
+  } else if (document.mozCancelFullScreen) {
+    document.mozCancelFullScreen();
+  } else if (document.webkitExitFullscreen) {
+    document.webkitExitFullscreen();
+  } else if (document.msExitFullscreen) {
+    document.msExitFullscreen();
+  }
+}
+
 export function isFullScreen() {
   return document.fullscreenElement
     || document.webkitFullscreenElement
@@ -33,7 +45,14 @@ function setupFullScreenBlocker() {
 
 export function addFullscreenKeyboardListener() {
   document.addEventListener('keydown', (event) => {
-    if (!isFullScreen() && (event.key === 'Enter' || event.key === 'Return')) {
+    if (event.key === 'F11') {
+      event.preventDefault();
+      if (!isFullScreen()) {
+        requestFullScreen();
+      } else {
+        requestExitFullscreen();
+      }
+    } else if (!isFullScreen() && (event.key === 'Enter' || event.key === 'Return')) {
       requestFullScreen();
       const fullScreenBlocker = document.getElementById('fullscreenBlocker');
 
