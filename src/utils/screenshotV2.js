@@ -14,7 +14,9 @@ class ScreenShareMonitor {
 
   async requestScreenShare({ onSuccess, onFailure, onEnd }) {
     try {
-      this.mediaStream = await navigator.mediaDevices.getDisplayMedia({});
+      this.mediaStream = await navigator.mediaDevices.getDisplayMedia({
+        video: { displaySurface: 'monitor' },
+      });
       listenScreenShareEnd({ onEnd });
       onSuccess?.({ stream: this.mediaStream });
 
@@ -43,7 +45,7 @@ class ScreenShareMonitor {
     return [true, null];
   }
 
-  startScreenshotCapture({ onSuccess, onFailure, interval = 3_000 }) {
+  startScreenshotCapture({ onSuccess, onFailure, interval = 3000, maxRetries = 3, baseDelay = 1000 }) {
     if (!this.mediaStream) {
       console.warn("No media stream available. Start screen sharing first.");
       return;
@@ -55,9 +57,28 @@ class ScreenShareMonitor {
     this.captureInterval = setInterval(async () => {
       try {
         const blob = await imageCapture.takePhoto();
-        onSuccess?.({ blob });
+
+        let attempt = 0;
+        let success = false;
+        let delay = baseDelay;
+
+        while (attempt < maxRetries && !success) {
+          try {
+            await onSuccess?.({ blob });
+            success = true;
+          } catch (err) {
+            attempt += 1;
+            if (attempt === maxRetries) {
+              onFailure?.({ err });
+            } else {
+              console.warn(`Retry attempt ${attempt} failed. Retrying in ${delay}ms.`);
+              await new Promise(resolve => setTimeout(resolve, delay));
+              delay *= 2;
+            }
+          }
+        }
       } catch (err) {
-        onFailure?.({ err })
+        onFailure?.({ err });
       }
     }, interval);
   }
