@@ -1,4 +1,4 @@
-import { setupAlert, showViolationWarning, closeModal } from './utils/alert';
+import { setupAlert, showViolationWarning } from './utils/alert';
 import {
   DEFAULT_SCREENSHOT_RESIZE_OPTIONS,
   DEFAULT_SNAPSHOT_RESIZE_OPTIONS,
@@ -75,6 +75,7 @@ export default class Proctor {
       enabled: true, // Enable when onDisqualify is added
       eventCountThreshold: 5, // Number of violations after which disqualification will occur
       showAlert: enableAllAlerts,
+      beepInterval: 2000,
       alertHeading: 'Disqualification Alert',
       alertMessage: 'You have been disqualified from the contest',
       ...disqualificationConfig,
@@ -92,9 +93,10 @@ export default class Proctor {
       [VIOLATIONS.browserBlur]: {
         name: VIOLATIONS.browserBlur,
         enabled: true,
-        showAlert: enableAllAlerts,
+        showAlert: false,
         recordViolation: true,
         disqualify: true,
+        disqualifyAfter: 20000,
         ...config.browserBlur,
       },
       [VIOLATIONS.rightClick]: {
@@ -290,7 +292,13 @@ export default class Proctor {
     }
 
     if (this.config.browserBlur.enabled) {
-      detectBrowserBlur(this.handleViolation.bind(this));
+      detectBrowserBlur(
+        this.handleViolation.bind(this),
+        this.callbacks.onDisqualified,
+        this.disqualificationConfig.beepInterval,
+        this.config.browserBlur.disqualifyAfter,
+        this.disqualificationConfig.enabled,
+      );
     }
 
     if (this.config.rightClick.enabled) {
@@ -495,7 +503,6 @@ export default class Proctor {
           onFailure?.(failedCheck.reason, passedChecks);
         } else {
           hideCompatibilityModal();
-          closeModal();
           this.failedCompatibilityChecks = false;
           onSuccess?.(passedChecks);
         }
