@@ -65,6 +65,8 @@ export default class Proctor {
       enable: true,
       showAlert: enableAllAlerts,
       frequency: 5000,
+      maxFrequency: 60000,
+      cpuThreshold: 30, // Common CPU threshold in case of network latency test
       disqualificationTimeout: 45000,
       showTimer: true,
       buttonText: 'Continue',
@@ -260,6 +262,7 @@ export default class Proctor {
     this.compatibilityCheckInterval = null;
     this.initializeProctoring = this.initializeProctoring.bind(this);
     this.runCompatibilityChecks = this.runCompatibilityChecks.bind(this);
+    this.runAdaptiveCompatibilityChecks = this.runAdaptiveCompatibilityChecks.bind(this);
     this.initialFullScreen = false;
     setupAlert();
     addFullscreenKeyboardListener();
@@ -381,13 +384,32 @@ export default class Proctor {
 
   startCompatibilityChecks() {
     if (!this.compatibilityCheckConfig.enable) return;
-    // Set an interval to run the check
-    this.compatibilityCheckInterval = setInterval(() => {
-      this.runCompatibilityChecks(
-        this.handleCompatibilitySuccess.bind(this),
-        this.handleCompatibilityFailure.bind(this),
-      );
-    }, this.compatibilityCheckConfig.frequency);
+    setTimeout(this.runAdaptiveCompatibilityChecks, this.compatibilityCheckConfig.frequency);
+  }
+
+  runAdaptiveCompatibilityChecks() {
+    const start = performance.now();
+
+    // Run compatibility checks (e.g., webcam, network speed, etc.)
+    this.runCompatibilityChecks(
+      this.handleCompatibilitySuccess.bind(this),
+      this.handleCompatibilityFailure.bind(this),
+    );
+
+    const duration = performance.now() - start;
+
+    /* Debugging logs */
+    console.log('%c%s', 'color: #ff2525', 'Time take for running Compatibility checks (in ms):', duration);
+
+    console.log('%c%s', 'color: #ff2525', 'Is CPU peformance fine ?: ', duration < this.compatibilityCheckConfig.cpuThreshold);
+
+    // Adjust frequency based on system load
+    const delay = duration < this.compatibilityCheckConfig.cpuThreshold
+      ? this.compatibilityCheckConfig.frequency
+      : this.compatibilityCheckConfig.maxFrequency;
+
+    // Schedule the next check adaptively
+    this.compatibilityCheckTimeout = setTimeout(this.runAdaptiveCompatibilityChecks, delay);
   }
 
   handleCompatibilitySuccess(passedChecks) {
