@@ -11,9 +11,13 @@ import { dispatchGenericViolationEvent, dispatchViolationEvent } from './utils/e
 import {
   addFullscreenKeyboardListener, detectFullScreen, isFullScreen, requestFullScreen,
 } from './utils/fullScreenBlocker';
-import { hideCompatibilityModal, setupCompatibilityCheckModal, showCompatibilityCheckModal } from './utils/compatibilityModal';
+import {
+  hideCompatibilityModal,
+  setupCompatibilityCheckModal,
+  showCompatibilityCheckModal,
+} from './utils/compatibilityModal';
 import { checkBandwidth } from './utils/network';
-import { setupScreenshot } from './utils/screenshot';
+import { setupScreenshotCaptureFromScreenShare, isScreenShareValid, screenshareCleanup } from './utils/screenshotV2';
 import detectBrowserBlur from './utils/violations/browserBlur';
 import detectCopyPasteCut from './utils/violations/copyPasteCut';
 import detectExitTab from './utils/violations/exitTab';
@@ -245,8 +249,9 @@ export default class Proctor {
       onWebcamEnabled: callbacks.onWebcamEnabled || (() => {}),
       onSnapshotSuccess: callbacks.onSnapshotSuccess || (() => {}),
       onSnapshotFailure: callbacks.onSnapshotFailure || (() => {}),
-      onScreenshotDisabled: callbacks.onScreenshotDisabled || (() => {}),
-      onScreenshotEnabled: callbacks.onScreenshotEnabled || (() => {}),
+      onScreenShareSuccess: callbacks.onScreenShareSuccess || (() => {}),
+      onScreenShareFailure: callbacks.onScreenShareFailure || (() => {}),
+      onScreenShareEnd: callbacks.onScreenShareEnd || (() => {}),
       onScreenshotFailure: callbacks.onScreenshotFailure || (() => {}),
       onScreenshotSuccess: callbacks.onScreenshotSuccess || (() => {}),
       onFullScreenEnabled: callbacks.onFullScreenEnabled || (() => {}),
@@ -364,13 +369,21 @@ export default class Proctor {
     }
 
     if (this.screenshotConfig.enabled) {
-      setupScreenshot({
-        onScreenshotEnabled: this.handleScreenshotEnabled.bind(this),
-        onScreenshotDisabled: this.handleScreenshotDisabled.bind(this),
-        onScreenshotFailure: this.handleScreenshotFailure.bind(this),
-        onScreenshotSuccess: this.handleScreenshotSuccess.bind(this),
-        frequency: this.screenshotConfig.frequency,
-        resizeDimensions: this.screenshotConfig.resizeTo,
+      const examGuardScreenShareHandler = () => {
+        setupScreenshotCaptureFromScreenShare({
+          onScreenShareEnabled: this.handleScreenShareSuccess.bind(this),
+          onScreenShareFailure: this.handleScreenShareFailure.bind(this),
+          onScreenShareEnd: this.handleScreenShareEnd.bind(this),
+          onScreenshotSuccess: this.handleScreenshotSuccess.bind(this),
+          onScreenshotFailure: this.handleScreenshotFailure.bind(this),
+          frequency: this.screenshotConfig.frequency,
+          resizeDimensions: this.screenshotConfig.resizeTo,
+        });
+      };
+      examGuardScreenShareHandler();
+      const fullscreenShareButton = document.getElementById('fullscreen-share-button');
+      fullscreenShareButton.addEventListener('click', () => {
+        examGuardScreenShareHandler();
       });
     }
 
@@ -414,6 +427,7 @@ export default class Proctor {
       webcam: this.snapshotConfig.enabled,
       networkSpeed: this.snapshotConfig.enabled || this.screenshotConfig.enabled,
       fullscreen: this.config[VIOLATIONS.fullScreen].enabled,
+      screenshare: this.screenshotConfig.enabled,
     };
 
     // Initialize object to store the result of passed checks
@@ -421,6 +435,7 @@ export default class Proctor {
       webcam: false,
       networkSpeed: false,
       fullscreen: false,
+      screenshare: false,
     };
 
     // Array to store all compatibility promises
@@ -473,6 +488,23 @@ export default class Proctor {
         }
       });
       compatibilityPromises.push(fullScreenCheck);
+    }
+
+    if (compatibilityChecks.screenshare) {
+      const screenshareCheck = new Promise((resolve, reject) => {
+        isScreenShareValid({
+          onSuccess: () => {
+            passedChecks.screenshare = true;
+            resolve('screenshare');
+          },
+          onFailure: (error) => {
+            // eslint-disable-next-line prefer-promise-reject-errors
+            reject('screenshare');
+            console.warn(error);
+          },
+        });
+      });
+      compatibilityPromises.push(screenshareCheck);
     }
 
     // Wait for all compatibility checks to complete
@@ -534,16 +566,28 @@ export default class Proctor {
     this.callbacks.onWebcamEnabled();
   }
 
-  handleScreenshotEnabled() {
-    this.callbacks.onScreenshotEnabled();
+  handleScreenShareSuccess() {
+    this.callbacks.onScreenShareSuccess();
+  }
+
+  handleScreenShareFailure() {
+    this.callbacks.onScreenShareFailure();
+  }
+
+  handleScreenShareEnd() {
+    this.callbacks.onScreenShareEnd();
+  }
+
+  handleScreenshotSuccess({ blob }) {
+    this.callbacks.onScreenshotSuccess({ blob });
   }
 
   handleSnapshotSuccess({ blob }) {
     this.callbacks.onSnapshotSuccess({ blob });
   }
 
-  handleScreenshotSuccess({ blob }) {
-    this.callbacks.onScreenshotSuccess({ blob });
+  handleScreenshotFailure() {
+    this.callbacks.onScreenshotFailure();
   }
 
   handleSnapshotFailure() {
@@ -568,10 +612,6 @@ export default class Proctor {
       );
     }
     this.callbacks.onFullScreenEnabled();
-  }
-
-  handleScreenshotFailure() {
-    this.callbacks.onScreenshotFailure();
   }
 
   handleViolation(type, value = null, forceDisqualify = false) {
@@ -697,5 +737,6 @@ export default class Proctor {
   _cleanup() {
     this.sendEvents();
     this.stopCompatibilityChecks();
+    screenshareCleanup();
   }
 }
