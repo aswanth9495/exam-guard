@@ -1,5 +1,4 @@
 import webcamHtml from '../templates/webcam.html';
-import webcamBlocker from '../templates/webcam_blocker.html';
 import resizeImage from './image';
 
 export function getVideoElement() {
@@ -76,17 +75,4 @@ export function detectWebcam({
         onWebcamDisabled?.({ error });
       }
     });
-}
-
-export function showWebcamBlocker() {
-  const webcamBlockerContainer = document.createElement('div');
-  webcamBlockerContainer.innerHTML = webcamBlocker;
-  document.body.appendChild(webcamBlockerContainer);
-}
-
-export function disableWebcamBlocker() {
-  const webcamBlockerEl = document.getElementById('webcam-blocker');
-  if (webcamBlockerEl) {
-    webcamBlockerEl.remove();
-  }
 }

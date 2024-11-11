@@ -265,6 +265,9 @@ export default class Proctor {
     this.runAdaptiveCompatibilityChecks = this.runAdaptiveCompatibilityChecks.bind(this);
     this.initialFullScreen = false;
     setupAlert();
+    if (this.snapshotConfig.enabled) {
+      setupWebcam();
+    }
     addFullscreenKeyboardListener();
     setupCompatibilityCheckModal(() => {
       this.runCompatibilityChecks(
@@ -358,7 +361,6 @@ export default class Proctor {
 
     // Setup webcam if snapshots are enabled
     if (this.snapshotConfig.enabled) {
-      setupWebcam();
       detectWebcam({
         onWebcamEnabled: this.handleWebcamEnabled.bind(this),
         onWebcamDisabled: this.handleWebcamDisabled.bind(this),
@@ -451,7 +453,6 @@ export default class Proctor {
     // Webcam check
     if (compatibilityChecks.webcam) {
       const webcamCheck = new Promise((resolve, reject) => {
-        setupWebcam();
         detectWebcam({
           onWebcamDisabled: () => {
             // eslint-disable-next-line prefer-promise-reject-errors
