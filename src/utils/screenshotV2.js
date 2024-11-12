@@ -5,12 +5,19 @@ const ERRORS = {
   SCREEN_SHARE_STREAM_ENDED: 'SCREEN_SHARE_STREAM_ENDED',
   SCREEN_SHARE_FAILED: 'SCREEN_SHARE_FAILED',
   SCREEN_SHARE_DENIED: 'SCREEN_SHARE_DENIED',
+  ROLLING_WINDOW_STRATEGY_LENGTH_EXCEEDED: 'ROLLING_WINDOW_STRATEGY_LENGTH_EXCEEDED',
+};
+
+const STRATEGIES = {
+  RETRY_STRATEGY: 'RETRY_STRATEGY',
+  ROLLING_WINDOW_STRATEGY: 'ROLLING_WINDOW_STRATEGY',
 };
 
 class ScreenShareMonitor {
-  constructor() {
-    this.captureInterval = null;
+  constructor(strategy = STRATEGIES.ROLLING_WINDOW_STRATEGY) {
+    this.capturedIntervals = [];
     this.mediaStream = null;
+    this.strategy = strategy;
   }
 
   async requestScreenShare({ onSuccess, onFailure, onEnd }) {
@@ -69,7 +76,7 @@ class ScreenShareMonitor {
     return blob;
   }
 
-  startScreenshotCapture({
+  useRetryStrategy({
     onSuccess, onFailure, interval = 3000, maxRetries = 3, baseDelay = 1000,
   }) {
     if (!this.mediaStream) {
@@ -77,7 +84,7 @@ class ScreenShareMonitor {
       return;
     }
 
-    this.captureInterval = setInterval(async () => {
+    this.capturedIntervals.push(setInterval(async () => {
       try {
         const blob = await this.captureScreenshot();
 
@@ -94,7 +101,8 @@ class ScreenShareMonitor {
             console.log(err);
             attempt += 1;
             if (attempt === maxRetries) {
-              onFailure?.({ err });
+              // eslint-disable-next-line no-await-in-loop
+              await onFailure?.({ err });
             } else {
               console.warn(`Retry attempt ${attempt} failed. Retrying in ${delay}ms.`);
               // eslint-disable-next-line no-await-in-loop, no-loop-func
@@ -104,9 +112,78 @@ class ScreenShareMonitor {
           }
         }
       } catch (err) {
-        onFailure?.({ err });
+        await onFailure?.({ err });
       }
-    }, interval);
+    }, interval));
+  }
+
+  useRollingWindowStrategy({
+    onSuccess, onFailure, windowSize = 100, interval,
+  }) {
+    if (!this.mediaStream) {
+      console.warn('No media stream available. Start screen sharing first.');
+      return;
+    }
+    this.rollingWindow = [];
+    this.rollingWindowInProcess = false;
+
+    const insertInWindow = async (blob) => {
+      if (this.rollingWindow.length === windowSize) {
+        this.rollingWindow.shift();
+        await onFailure?.({ err: ERRORS.ROLLING_WINDOW_STRATEGY_LENGTH_EXCEEDED });
+      }
+      this.rollingWindow.push(blob);
+    };
+
+    const pushFromWindow = async () => {
+      console.log(this.rollingWindow);
+      if (this.rollingWindowInProcess) return;
+
+      this.rollingWindowInProcess = true;
+
+      for (let idx = 0; idx < this.rollingWindow.length; idx += 1) {
+        const item = this.rollingWindow[idx];
+        try {
+          // eslint-disable-next-line no-await-in-loop
+          await onSuccess?.({ blob: item });
+          this.rollingWindow.splice(idx, 1);
+          idx -= 1;
+        } catch (err) {
+          onFailure?.(err);
+        }
+      }
+
+      this.rollingWindowInProcess = false;
+    };
+
+    this.capturedIntervals.push(setInterval(async () => {
+      const blob = await this.captureScreenshot();
+      await insertInWindow(blob);
+    }, interval));
+
+    this.capturedIntervals.push(setInterval(async () => {
+      await pushFromWindow();
+    }, interval / 2));
+  }
+
+  startScreenshotCapture({ onSuccess, onFailure, interval }) {
+    switch (this.strategy) {
+      case STRATEGIES.RETRY_STRATEGY:
+        this.useRetryStrategy({
+          onSuccess, onFailure, interval, maxRetries: 3, baseDelay: 1000,
+        });
+        break;
+      case STRATEGIES.ROLLING_WINDOW_STRATEGY:
+        this.useRollingWindowStrategy({
+          onSuccess, onFailure, windowSize: 200, interval,
+        });
+        break;
+      default:
+        this.useRollingWindowStrategy({
+          onSuccess, onFailure, windowSize: 200, interval: 1000,
+        });
+        break;
+    }
   }
 
   stopScreenShare() {
@@ -114,7 +191,10 @@ class ScreenShareMonitor {
       this.mediaStream.getTracks().forEach((track) => track.stop());
       this.mediaStream = null;
     }
-    clearInterval(this.captureInterval);
+    this.capturedIntervals.forEach((interval) => {
+      clearInterval(interval);
+    });
+    this.rollingWindow = [];
   }
 
   listenScreenShareEnd({ onEnd }) {
