@@ -5,7 +5,7 @@ import beep from '../../assets/sound/beep.wav';
 const beepSound = new Audio(beep);
 let beepInterval = null;
 let disqualificationTimeout = null;
-let violationInterval = null;
+let violationTimeout = null;
 
 export default function detectBrowserBlur(
   handleViolation,
@@ -15,8 +15,6 @@ export default function detectBrowserBlur(
   disqualificationEnabled = false,
 ) {
   window.addEventListener('blur', () => {
-    handleViolation(VIOLATIONS.browserBlur, false);
-    showViolationWarning('WARNING', BROWSER_BLUR_WARNING);
     if (!beepInterval && disqualificationEnabled) {
       beepInterval = setInterval(() => {
         beepSound.play();
@@ -24,7 +22,8 @@ export default function detectBrowserBlur(
       disqualificationTimeout = setTimeout(() => {
         onDisqualify();
       }, disqualifyAfter);
-      violationInterval = setInterval(() => {
+      violationTimeout = setTimeout(() => {
+        showViolationWarning('WARNING', BROWSER_BLUR_WARNING);
         handleViolation(VIOLATIONS.browserBlur, false);
       }, 5000);
     }
@@ -37,9 +36,9 @@ export default function detectBrowserBlur(
         clearTimeout(disqualificationTimeout);
         disqualificationTimeout = null;
       }
-      if (violationInterval) {
-        clearInterval(violationInterval);
-        violationInterval = null;
+      if (violationTimeout) {
+        clearTimeout(violationTimeout);
+        violationTimeout = null;
       }
     });
   });
