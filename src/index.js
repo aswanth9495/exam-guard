@@ -65,7 +65,10 @@ export default class Proctor {
       enable: true,
       showAlert: enableAllAlerts,
       frequency: 5000,
+      maxFrequency: 60000,
+      cpuThreshold: 30, // Common CPU threshold in case of network latency test
       disqualificationTimeout: 45000,
+      memoryLimit: 200,
       showTimer: true,
       buttonText: 'Continue',
       headingText: 'System Check: Configure Required Settings',
@@ -260,8 +263,12 @@ export default class Proctor {
     this.compatibilityCheckInterval = null;
     this.initializeProctoring = this.initializeProctoring.bind(this);
     this.runCompatibilityChecks = this.runCompatibilityChecks.bind(this);
+    this.runAdaptiveCompatibilityChecks = this.runAdaptiveCompatibilityChecks.bind(this);
     this.initialFullScreen = false;
     setupAlert();
+    if (this.snapshotConfig.enabled) {
+      setupWebcam();
+    }
     addFullscreenKeyboardListener();
     setupCompatibilityCheckModal(() => {
       this.runCompatibilityChecks(
@@ -355,7 +362,6 @@ export default class Proctor {
 
     // Setup webcam if snapshots are enabled
     if (this.snapshotConfig.enabled) {
-      setupWebcam();
       detectWebcam({
         onWebcamEnabled: this.handleWebcamEnabled.bind(this),
         onWebcamDisabled: this.handleWebcamDisabled.bind(this),
@@ -381,13 +387,44 @@ export default class Proctor {
 
   startCompatibilityChecks() {
     if (!this.compatibilityCheckConfig.enable) return;
-    // Set an interval to run the check
-    this.compatibilityCheckInterval = setInterval(() => {
+    setTimeout(this.runAdaptiveCompatibilityChecks, this.compatibilityCheckConfig.frequency);
+  }
+
+  runAdaptiveCompatibilityChecks() {
+    const start = performance.now();
+    // MB (adjust this as per your requirement)
+    const { memoryLimit } = this.compatibilityCheckConfig;
+
+    // Check memory usage via the browser's Performance API (for browsers that support it)
+    const memoryUsage = window.performance && window.performance.memory
+      ? window.performance.memory.usedJSHeapSize / 1024 / 1024 // in MB
+      : 0; // If memory data is not available, assume 0 (safe fallback)
+
+    console.log('%c%s', 'color: #ff2525', 'Memory Usage (in MB):', memoryUsage);
+
+    if (memoryUsage < memoryLimit) {
+      console.log('%c⧭', 'color: #bfffc8', 'Running compatibility check');
+      // Run compatibility checks (e.g., webcam, network speed, etc.)
       this.runCompatibilityChecks(
         this.handleCompatibilitySuccess.bind(this),
         this.handleCompatibilityFailure.bind(this),
       );
-    }, this.compatibilityCheckConfig.frequency);
+    }
+
+    const duration = performance.now() - start;
+
+    /* Debugging logs */
+    console.log('%c%s', 'color: #ff2525', 'Time take for running Compatibility checks (in ms):', duration);
+
+    console.log('%c%s', 'color: #ff2525', 'Is CPU peformance fine ?: ', duration < this.compatibilityCheckConfig.cpuThreshold);
+
+    // Adjust frequency based on system load
+    const delay = duration < this.compatibilityCheckConfig.cpuThreshold
+      ? this.compatibilityCheckConfig.frequency
+      : this.compatibilityCheckConfig.maxFrequency;
+
+    // Schedule the next check adaptively
+    this.compatibilityCheckTimeout = setTimeout(this.runAdaptiveCompatibilityChecks, delay);
   }
 
   handleCompatibilitySuccess(passedChecks) {
@@ -429,7 +466,6 @@ export default class Proctor {
     // Webcam check
     if (compatibilityChecks.webcam) {
       const webcamCheck = new Promise((resolve, reject) => {
-        setupWebcam();
         detectWebcam({
           onWebcamDisabled: () => {
             // eslint-disable-next-line prefer-promise-reject-errors
