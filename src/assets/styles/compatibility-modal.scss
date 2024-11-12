@@ -127,4 +127,14 @@ $compatibility-modal-count-color:  #000000;
     transition: all 1s linear;
   }
 
+  &__note {
+    font-size: 1.6rem;
+    display: flex;
+    align-items: center;
+    width: 80%;
+  }
+
+  &__warning-icon {
+    margin-right: 1rem;
+  }
 }
