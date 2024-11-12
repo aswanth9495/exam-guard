@@ -68,7 +68,7 @@ export default class Proctor {
       maxFrequency: 60000,
       cpuThreshold: 30, // Common CPU threshold in case of network latency test
       disqualificationTimeout: 45000,
-      memoryLimit: 400,
+      memoryLimit: 200,
       showTimer: true,
       buttonText: 'Continue',
       headingText: 'System Check: Configure Required Settings',
