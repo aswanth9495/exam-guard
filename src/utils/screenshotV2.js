@@ -55,7 +55,7 @@ class ScreenShareMonitor {
     return [true, null];
   }
 
-  async captureScreenshot() {
+  async captureScreenshot({ resizeDimensions }) {
     // check if video, canvas need to be manually garbage collected!
     const video = document.createElement('video');
     video.srcObject = this.mediaStream;
@@ -66,8 +66,15 @@ class ScreenShareMonitor {
     });
 
     const canvas = document.createElement('canvas');
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
+
+    if (resizeDimensions) {
+      canvas.width = resizeDimensions.width;
+      canvas.height = resizeDimensions.height;
+    } else {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+    }
+
     const context = canvas.getContext('2d');
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
@@ -77,7 +84,7 @@ class ScreenShareMonitor {
   }
 
   useRetryStrategy({
-    onSuccess, onFailure, interval = 3000, maxRetries = 3, baseDelay = 1000,
+    onSuccess, onFailure, resizeDimensions, interval = 3000, maxRetries = 3, baseDelay = 1000,
   }) {
     if (!this.mediaStream) {
       console.warn('No media stream available. Start screen sharing first.');
@@ -86,7 +93,7 @@ class ScreenShareMonitor {
 
     this.capturedIntervals.push(setInterval(async () => {
       try {
-        const blob = await this.captureScreenshot();
+        const blob = await this.captureScreenshot({ resizeDimensions });
 
         let attempt = 0;
         let success = false;
@@ -118,7 +125,7 @@ class ScreenShareMonitor {
   }
 
   useRollingWindowStrategy({
-    onSuccess, onFailure, windowSize = 100, interval,
+    onSuccess, onFailure, resizeDimensions, windowSize = 100, interval,
   }) {
     if (!this.mediaStream) {
       console.warn('No media stream available. Start screen sharing first.');
@@ -157,7 +164,7 @@ class ScreenShareMonitor {
     };
 
     this.capturedIntervals.push(setInterval(async () => {
-      const blob = await this.captureScreenshot();
+      const blob = await this.captureScreenshot({ resizeDimensions });
       await insertInWindow(blob);
     }, interval));
 
@@ -166,21 +173,23 @@ class ScreenShareMonitor {
     }, interval / 2));
   }
 
-  startScreenshotCapture({ onSuccess, onFailure, interval }) {
+  startScreenshotCapture({
+    onSuccess, onFailure, interval, resizeDimensions,
+  }) {
     switch (this.strategy) {
       case STRATEGIES.RETRY_STRATEGY:
         this.useRetryStrategy({
-          onSuccess, onFailure, interval, maxRetries: 3, baseDelay: 1000,
+          onSuccess, onFailure, interval, maxRetries: 3, baseDelay: 1000, resizeDimensions,
         });
         break;
       case STRATEGIES.ROLLING_WINDOW_STRATEGY:
         this.useRollingWindowStrategy({
-          onSuccess, onFailure, windowSize: 200, interval,
+          onSuccess, onFailure, windowSize: 200, interval, resizeDimensions,
         });
         break;
       default:
         this.useRollingWindowStrategy({
-          onSuccess, onFailure, windowSize: 200, interval: 1000,
+          onSuccess, onFailure, windowSize: 200, interval, resizeDimensions,
         });
         break;
     }
