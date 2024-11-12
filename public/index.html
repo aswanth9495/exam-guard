@@ -62,7 +62,12 @@
       }
     });
 
-    proctor.initializeProctoring();
+    document.addEventListener('click', () => {
+      if (proctor.proctoringInitialised) return;
+      proctor.initializeProctoring();
+    })
+
+    
     // proctor.runCompatibilityChecks();
     proctor.on('violation', (violations, event) => {
       console.log('%c⧭', 'color: #ffa640', 'Violation detected', violations, event.detail);
