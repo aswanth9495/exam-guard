@@ -295,6 +295,7 @@ export default class Proctor {
           frequency: this.screenshotConfig.frequency,
           resizeDimensions: this.screenshotConfig.resizeTo,
         });
+        this.enableFullScreen();
       };
       await examGuardScreenShareHandler();
       const fullscreenShareButton = document.getElementById('fullscreen-share-button');
