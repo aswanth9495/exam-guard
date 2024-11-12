@@ -68,6 +68,7 @@ export default class Proctor {
       maxFrequency: 60000,
       cpuThreshold: 30, // Common CPU threshold in case of network latency test
       disqualificationTimeout: 45000,
+      memoryLimit: 400,
       showTimer: true,
       buttonText: 'Continue',
       headingText: 'System Check: Configure Required Settings',
@@ -391,12 +392,24 @@ export default class Proctor {
 
   runAdaptiveCompatibilityChecks() {
     const start = performance.now();
+    // MB (adjust this as per your requirement)
+    const { memoryLimit } = this.compatibilityCheckConfig;
 
-    // Run compatibility checks (e.g., webcam, network speed, etc.)
-    this.runCompatibilityChecks(
-      this.handleCompatibilitySuccess.bind(this),
-      this.handleCompatibilityFailure.bind(this),
-    );
+    // Check memory usage via the browser's Performance API (for browsers that support it)
+    const memoryUsage = window.performance && window.performance.memory
+      ? window.performance.memory.usedJSHeapSize / 1024 / 1024 // in MB
+      : 0; // If memory data is not available, assume 0 (safe fallback)
+
+    console.log('%c%s', 'color: #ff2525', 'Memory Usage (in MB):', memoryUsage);
+
+    if (memoryUsage < memoryLimit) {
+      console.log('%c⧭', 'color: #bfffc8', 'Running compatibility check');
+      // Run compatibility checks (e.g., webcam, network speed, etc.)
+      this.runCompatibilityChecks(
+        this.handleCompatibilitySuccess.bind(this),
+        this.handleCompatibilityFailure.bind(this),
+      );
+    }
 
     const duration = performance.now() - start;
 
