@@ -12,6 +12,8 @@ export default function detectBrowserBlur(
   onDisqualify,
   beepTime,
   disqualifyAfter,
+  violationAfter,
+  showAlert = false,
   disqualificationEnabled = false,
 ) {
   window.addEventListener('blur', () => {
@@ -23,9 +25,9 @@ export default function detectBrowserBlur(
         onDisqualify();
       }, disqualifyAfter);
       violationTimeout = setTimeout(() => {
-        showViolationWarning('WARNING', BROWSER_BLUR_WARNING);
+        if (showAlert) showViolationWarning('WARNING', BROWSER_BLUR_WARNING);
         handleViolation(VIOLATIONS.browserBlur, false);
-      }, 5000);
+      }, violationAfter);
     }
     window.addEventListener('focus', () => {
       if (beepInterval) {

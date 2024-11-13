@@ -96,10 +96,11 @@ export default class Proctor {
       [VIOLATIONS.browserBlur]: {
         name: VIOLATIONS.browserBlur,
         enabled: true,
-        showAlert: false,
+        showAlert: enableAllAlerts,
         recordViolation: true,
         disqualify: true,
         disqualifyAfter: 20000,
+        violationTimeout: 5000,
         ...config.browserBlur,
       },
       [VIOLATIONS.rightClick]: {
@@ -304,6 +305,8 @@ export default class Proctor {
         this.callbacks.onDisqualified,
         this.disqualificationConfig.beepInterval,
         this.config.browserBlur.disqualifyAfter,
+        this.config.browserBlur.violationTimeout,
+        this.config.browserBlur.showAlert,
         this.disqualificationConfig.enabled,
       );
     }
@@ -625,8 +628,8 @@ export default class Proctor {
       timestamp: `${new Date().toJSON().slice(0, 19).replace('T', ' ')} UTC`,
       disqualify: this.config[type].disqualify,
     };
-
-    if (this.config[type].showAlert) {
+    // to avoid 2 alerts, disabling alerts for browserBlur
+    if (this.config[type].showAlert && type !== VIOLATIONS.browserBlur) {
       showViolationWarning(
         'Warning',
         `You performed a violation during the test. 
