@@ -241,6 +241,8 @@ export default class Proctor {
       enabled: true,
       frequency: SNAPSHOT_SCREENSHOT_FREQUENCY,
       resizeTo: DEFAULT_SCREENSHOT_RESIZE_OPTIONS,
+      screenshareClickHandler: () => {},
+      screenshareRequestHandler: async () => {},
       ...screenshotConfig,
     };
     this.callbacks = {
@@ -278,30 +280,38 @@ export default class Proctor {
         'Please ensure all the required settings are enabled',
         true,
       );
-    }, this.compatibilityCheckConfig);
+    }, { ...this.compatibilityCheckConfig, proctoringInitialised: this.proctoringInitialised });
+
+    this.screenshotConfig.screenshareRequestHandler = async () => {
+      await setupScreenshotCaptureFromScreenShare({
+        onScreenShareEnabled: this.handleScreenShareSuccess.bind(this),
+        onScreenShareFailure: this.handleScreenShareFailure.bind(this),
+        onScreenShareEnd: this.handleScreenShareEnd.bind(this),
+        onScreenshotSuccess: this.handleScreenshotSuccess.bind(this),
+        onScreenshotFailure: this.handleScreenshotFailure.bind(this),
+        frequency: this.screenshotConfig.frequency,
+        resizeDimensions: this.screenshotConfig.resizeTo,
+      });
+      this.enableFullScreen();
+    };
+
+    this.screenshotConfig.screenshareClickHandler = () => {
+      const fullscreenShareButton = document.getElementById('fullscreen-share-button');
+      fullscreenShareButton.addEventListener('click', () => {
+        this.screenshotConfig.screenshareRequestHandler();
+      });
+    };
+
+    if (this.screenshotConfig.enabled) {
+      this.screenshotConfig.screenshareClickHandler();
+    }
   }
 
   async initializeProctoring() {
     this.proctoringInitialised = true;
 
     if (this.screenshotConfig.enabled) {
-      const examGuardScreenShareHandler = async () => {
-        await setupScreenshotCaptureFromScreenShare({
-          onScreenShareEnabled: this.handleScreenShareSuccess.bind(this),
-          onScreenShareFailure: this.handleScreenShareFailure.bind(this),
-          onScreenShareEnd: this.handleScreenShareEnd.bind(this),
-          onScreenshotSuccess: this.handleScreenshotSuccess.bind(this),
-          onScreenshotFailure: this.handleScreenshotFailure.bind(this),
-          frequency: this.screenshotConfig.frequency,
-          resizeDimensions: this.screenshotConfig.resizeTo,
-        });
-        this.enableFullScreen();
-      };
-      await examGuardScreenShareHandler();
-      const fullscreenShareButton = document.getElementById('fullscreen-share-button');
-      fullscreenShareButton.addEventListener('click', () => {
-        examGuardScreenShareHandler();
-      });
+      await this.screenshotConfig.screenshareRequestHandler();
     }
 
     if (this.config.fullScreen.enabled) {

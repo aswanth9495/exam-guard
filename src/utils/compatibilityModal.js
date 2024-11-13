@@ -4,6 +4,29 @@ import failureMark from '../assets/images/failMark.svg';
 
 let countdownInterval = null;
 
+function renderCompatibilityModalHTML(proctoringInitialised) {
+  console.log(proctoringInitialised);
+  const baseHTML = compatibilityModalHtml;
+  let screenshareHTML;
+  if (proctoringInitialised) {
+    screenshareHTML = /* html */`
+      <button id="fullscreen-share-button">Click Here</button>&nbsp;to share your full screen.
+    `;
+  } else {
+    screenshareHTML = /* html */`
+      <div class="compatibility-modal__screenshare-info">
+        <ul>
+          <li>As part of the test process, you must share your <strong> FULL SCREEN </strong> for proctoring purposes</li>
+          <li>You can test your setup by sharing your complete screen here and clicking continue</li>
+          <li>If your screenshare setup is working, you can proceed forward in the test where you'll be asked to share your screen again</ul>
+        </ul>
+        <button id="fullscreen-share-button"> Share Full Screen </button>
+      </div>
+    `;
+  }
+  return baseHTML.replace('{{ screenshare_html }}', screenshareHTML);
+}
+
 export function setIconsForChecks(passedChecks = {}, checks = {}) {
   const camIcon = document.getElementById('webcam-check');
   const fullscreenIcon = document.getElementById('fullscreen-check');
@@ -46,8 +69,10 @@ export function setupCompatibilityCheckModal(onContinueClick, config = {}) {
   if (!config.enable) {
     return;
   }
+  const { proctoringInitialised } = config;
+  console.log(config);
   const modalContainer = document.createElement('div');
-  modalContainer.innerHTML = compatibilityModalHtml;
+  modalContainer.innerHTML = renderCompatibilityModalHTML(proctoringInitialised);
   document.body.appendChild(modalContainer);
 
   const continueBtn = document.getElementById('compatibility-continue-test-btn');

@@ -226,6 +226,7 @@ export async function isScreenShareValid({ onSuccess, onFailure }) {
   } else {
     onFailure?.(error);
   }
+  return [success, error];
 }
 
 export async function setupScreenshotCaptureFromScreenShare({
@@ -237,6 +238,9 @@ export async function setupScreenshotCaptureFromScreenShare({
   frequency,
   resizeDimensions,
 }) {
+  const [success] = await isScreenShareValid({});
+  if (success) return;
+
   try {
     const resp = await screenShareMonitor.requestScreenShare({
       onSuccess: onScreenShareEnabled,

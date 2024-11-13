@@ -127,6 +127,15 @@ $compatibility-modal-count-color:  #000000;
     transition: all 1s linear;
   }
 
+  &__screenshare-info {
+    display: flex;
+    flex-direction: column;
+
+    #fullscreen-share-button {
+      max-width: 15rem;
+      align-self: center;
+    }
+  }
 }
 
 #fullscreen-share-button {
