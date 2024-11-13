@@ -17,7 +17,9 @@ import {
   showCompatibilityCheckModal,
 } from './utils/compatibilityModal';
 import { checkBandwidth } from './utils/network';
-import { setupScreenshotCaptureFromScreenShare, isScreenShareValid, screenshareCleanup } from './utils/screenshotV2';
+import {
+  screenshareClickHandler, screenshareRequestHandler, isScreenShareValid, screenshareCleanup,
+} from './utils/screenshotV2';
 import detectBrowserBlur from './utils/violations/browserBlur';
 import detectCopyPasteCut from './utils/violations/copyPasteCut';
 import detectExitTab from './utils/violations/exitTab';
@@ -245,8 +247,6 @@ export default class Proctor {
       enabled: true,
       frequency: SNAPSHOT_SCREENSHOT_FREQUENCY,
       resizeTo: DEFAULT_SCREENSHOT_RESIZE_OPTIONS,
-      screenshareClickHandler: () => {},
-      screenshareRequestHandler: async () => {},
       ...screenshotConfig,
     };
     this.callbacks = {
@@ -290,28 +290,8 @@ export default class Proctor {
       );
     }, { ...this.compatibilityCheckConfig, mockModeEnabled });
 
-    this.screenshotConfig.screenshareRequestHandler = async () => {
-      await setupScreenshotCaptureFromScreenShare({
-        onScreenShareEnabled: this.handleScreenShareSuccess.bind(this),
-        onScreenShareFailure: this.handleScreenShareFailure.bind(this),
-        onScreenShareEnd: this.handleScreenShareEnd.bind(this),
-        onScreenshotSuccess: this.handleScreenshotSuccess.bind(this),
-        onScreenshotFailure: this.handleScreenshotFailure.bind(this),
-        frequency: this.screenshotConfig.frequency,
-        resizeDimensions: this.screenshotConfig.resizeTo,
-      });
-      this.enableFullScreen();
-    };
-
-    this.screenshotConfig.screenshareClickHandler = () => {
-      const fullscreenShareButton = document.getElementById('fullscreen-share-button');
-      fullscreenShareButton.addEventListener('click', () => {
-        this.screenshotConfig.screenshareRequestHandler();
-      });
-    };
-
     if (this.screenshotConfig.enabled) {
-      this.screenshotConfig.screenshareClickHandler();
+      this.handleScreenshareClick();
     }
   }
 
@@ -319,7 +299,7 @@ export default class Proctor {
     this.proctoringInitialised = true;
 
     if (this.screenshotConfig.enabled) {
-      await this.screenshotConfig.screenshareRequestHandler();
+      await this.handleScreenshareRequest();
     }
 
     if (this.config.fullScreen.enabled) {
@@ -633,6 +613,16 @@ export default class Proctor {
 
   handleSnapshotSuccess({ blob }) {
     this.callbacks.onSnapshotSuccess({ blob });
+  }
+
+  handleScreenshareClick() {
+    screenshareClickHandler.bind(this)({
+      onClick: () => { screenshareRequestHandler.bind(this)(); },
+    });
+  }
+
+  async handleScreenshareRequest() {
+    await screenshareRequestHandler.bind(this)();
   }
 
   handleScreenshotFailure() {

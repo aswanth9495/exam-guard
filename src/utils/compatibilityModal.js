@@ -1,4 +1,6 @@
 import compatibilityModalHtml from '../templates/compatibility_modal.html';
+import screenshareButtonHtml from '../templates/screenshare_button.html';
+import screenshareInstruction from '../templates/screenshare_instruction.html';
 import checkMarkImage from '../assets/images/checkMark.svg';
 import failureMark from '../assets/images/failMark.svg';
 
@@ -8,19 +10,9 @@ function renderCompatibilityModalHTML(mockModeEnabled) {
   const baseHTML = compatibilityModalHtml;
   let screenshareHTML;
   if (!mockModeEnabled) {
-    screenshareHTML = /* html */`
-      <button id="fullscreen-share-button">Click Here</button>&nbsp;to share your full screen.
-    `;
+    screenshareHTML = screenshareButtonHtml;
   } else {
-    screenshareHTML = /* html */`
-      <div class="compatibility-modal__screenshare-info">
-        <div>Test your full screen share setup by clicking here&nbsp;<button id="fullscreen-share-button"> Share Full Screen </button></div>
-        <ul>
-          <li>You need to provide your full screen access</li>
-          <li>You'll be asked to share your full screen once the test starts</li>
-        </ul>
-      </div>
-    `;
+    screenshareHTML = screenshareInstruction;
   }
   return baseHTML.replace('{{ screenshare_html }}', screenshareHTML);
 }
@@ -68,7 +60,6 @@ export function setupCompatibilityCheckModal(onContinueClick, config = {}) {
     return;
   }
   const { mockModeEnabled } = config;
-  console.log(config);
   const modalContainer = document.createElement('div');
   modalContainer.innerHTML = renderCompatibilityModalHTML(mockModeEnabled);
   document.body.appendChild(modalContainer);

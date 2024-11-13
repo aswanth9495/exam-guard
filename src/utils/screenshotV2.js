@@ -229,7 +229,7 @@ export async function isScreenShareValid({ onSuccess, onFailure }) {
   return [success, error];
 }
 
-export async function setupScreenshotCaptureFromScreenShare({
+async function setupScreenshotCaptureFromScreenShare({
   onScreenShareEnabled,
   onScreenShareFailure,
   onScreenShareEnd,
@@ -262,6 +262,26 @@ export async function setupScreenshotCaptureFromScreenShare({
   } catch (error) {
     onScreenShareFailure?.();
   }
+}
+
+export async function screenshareRequestHandler() {
+  await setupScreenshotCaptureFromScreenShare({
+    onScreenShareEnabled: this.handleScreenShareSuccess.bind(this),
+    onScreenShareFailure: this.handleScreenShareFailure.bind(this),
+    onScreenShareEnd: this.handleScreenShareEnd.bind(this),
+    onScreenshotSuccess: this.handleScreenshotSuccess.bind(this),
+    onScreenshotFailure: this.handleScreenshotFailure.bind(this),
+    frequency: this.screenshotConfig.frequency,
+    resizeDimensions: this.screenshotConfig.resizeTo,
+  });
+  this.enableFullScreen();
+}
+
+export function screenshareClickHandler({ onClick }) {
+  const fullscreenShareButton = document.getElementById('fullscreen-share-button');
+  fullscreenShareButton.addEventListener('click', () => {
+    onClick();
+  });
 }
 
 export function screenshareCleanup() {
