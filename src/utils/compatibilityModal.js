@@ -15,12 +15,11 @@ function renderCompatibilityModalHTML(proctoringInitialised) {
   } else {
     screenshareHTML = /* html */`
       <div class="compatibility-modal__screenshare-info">
+        <div>Test your full screen share setup by clicking here&nbsp;<button id="fullscreen-share-button"> Share Full Screen </button></div>
         <ul>
-          <li>As part of the test process, you must share your <strong> FULL SCREEN </strong> for proctoring purposes</li>
-          <li>You can test your setup by sharing your complete screen here and clicking continue</li>
-          <li>If your screenshare setup is working, you can proceed forward in the test where you'll be asked to share your screen again</ul>
+          <li>You need to provide your full screen access</li>
+          <li>You'll be asked to share your full screen once the test starts</li>
         </ul>
-        <button id="fullscreen-share-button"> Share Full Screen </button>
       </div>
     `;
   }
