@@ -27,23 +27,32 @@ module.exports = {
       },
       {
         test: /\.svg$/,
-        use: [
-          {
-            loader: 'svg-url-loader',
-            options: {
-              limit: 10000, // Inline files smaller than 10kB
-              noquotes: true, // Remove surrounding quotes from the URL
-            },
-
-          },
-        ],
-
+        type: 'asset/resource',
+        generator: {
+          filename: 'images/[name][hash][ext]',
+        },
       },
       {
         test: /\.html$/,
         use: [
           {
             loader: 'html-loader',
+            options: {
+              sources: {
+                list: [
+                  {
+                    tag: 'img',
+                    attribute: 'src',
+                    type: 'src',
+                  },
+                  {
+                    tag: 'image',
+                    attribute: 'xlink:href',
+                    type: 'src',
+                  },
+                ],
+              },
+            },
           },
         ],
       },
