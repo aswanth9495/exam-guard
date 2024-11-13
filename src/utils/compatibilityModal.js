@@ -4,11 +4,10 @@ import failureMark from '../assets/images/failMark.svg';
 
 let countdownInterval = null;
 
-function renderCompatibilityModalHTML(proctoringInitialised) {
-  console.log(proctoringInitialised);
+function renderCompatibilityModalHTML(mockModeEnabled) {
   const baseHTML = compatibilityModalHtml;
   let screenshareHTML;
-  if (proctoringInitialised) {
+  if (!mockModeEnabled) {
     screenshareHTML = /* html */`
       <button id="fullscreen-share-button">Click Here</button>&nbsp;to share your full screen.
     `;
@@ -68,10 +67,10 @@ export function setupCompatibilityCheckModal(onContinueClick, config = {}) {
   if (!config.enable) {
     return;
   }
-  const { proctoringInitialised } = config;
+  const { mockModeEnabled } = config;
   console.log(config);
   const modalContainer = document.createElement('div');
-  modalContainer.innerHTML = renderCompatibilityModalHTML(proctoringInitialised);
+  modalContainer.innerHTML = renderCompatibilityModalHTML(mockModeEnabled);
   document.body.appendChild(modalContainer);
 
   const continueBtn = document.getElementById('compatibility-continue-test-btn');

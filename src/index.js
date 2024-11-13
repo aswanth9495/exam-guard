@@ -53,6 +53,7 @@ export default class Proctor {
     callbacks = {},
     enableAllAlerts = false,
     headerOptions = {},
+    mockModeEnabled = false,
   }) {
     this.baseUrl = baseUrl;
     this.eventsConfig = {
@@ -280,7 +281,7 @@ export default class Proctor {
         'Please ensure all the required settings are enabled',
         true,
       );
-    }, { ...this.compatibilityCheckConfig, proctoringInitialised: this.proctoringInitialised });
+    }, { ...this.compatibilityCheckConfig, mockModeEnabled });
 
     this.screenshotConfig.screenshareRequestHandler = async () => {
       await setupScreenshotCaptureFromScreenShare({
