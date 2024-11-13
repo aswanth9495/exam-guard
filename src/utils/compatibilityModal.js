@@ -1,12 +1,26 @@
 import compatibilityModalHtml from '../templates/compatibility_modal.html';
+import screenshareButtonHtml from '../templates/screenshare_button.html';
+import screenshareInstruction from '../templates/screenshare_instruction.html';
 import checkMarkImage from '../assets/images/checkMark.svg';
 import failureMark from '../assets/images/failMark.svg';
 
 let countdownInterval = null;
 
+function renderCompatibilityModalHTML(mockModeEnabled) {
+  const baseHTML = compatibilityModalHtml;
+  let screenshareHTML;
+  if (!mockModeEnabled) {
+    screenshareHTML = screenshareButtonHtml;
+  } else {
+    screenshareHTML = screenshareInstruction;
+  }
+  return baseHTML.replace('{{ screenshare_html }}', screenshareHTML);
+}
+
 export function setIconsForChecks(passedChecks = {}, checks = {}) {
   const camIcon = document.getElementById('webcam-check');
   const fullscreenIcon = document.getElementById('fullscreen-check');
+  const fullscreenShareIcon = document.getElementById('screenshare-check');
   const networkIcon = document.getElementById('network-check');
   const webcamPoint = document.getElementById('webcam-point');
   const fullscreenPoint = document.getElementById('fullscreen-point');
@@ -14,6 +28,7 @@ export function setIconsForChecks(passedChecks = {}, checks = {}) {
   camIcon.src = failureMark;
   fullscreenIcon.src = failureMark;
   networkIcon.src = failureMark;
+  fullscreenShareIcon.src = failureMark;
   if (passedChecks.webcam) {
     camIcon.src = checkMarkImage;
   }
@@ -22,6 +37,9 @@ export function setIconsForChecks(passedChecks = {}, checks = {}) {
   }
   if (passedChecks.networkSpeed) {
     networkIcon.src = checkMarkImage;
+  }
+  if (passedChecks.screenshare) {
+    fullscreenShareIcon.src = checkMarkImage;
   }
   if (!checks.webcam) {
     webcamPoint.style = 'display: none';
@@ -32,14 +50,18 @@ export function setIconsForChecks(passedChecks = {}, checks = {}) {
   if (!checks.networkSpeed) {
     networkPoint.style = 'display: none';
   }
+  if (!checks.screenshare) {
+    fullscreenShareIcon.src = 'display: none';
+  }
 }
 
 export function setupCompatibilityCheckModal(onContinueClick, config = {}) {
   if (!config.enable) {
     return;
   }
+  const { mockModeEnabled } = config;
   const modalContainer = document.createElement('div');
-  modalContainer.innerHTML = compatibilityModalHtml;
+  modalContainer.innerHTML = renderCompatibilityModalHTML(mockModeEnabled);
   document.body.appendChild(modalContainer);
 
   const continueBtn = document.getElementById('compatibility-continue-test-btn');
