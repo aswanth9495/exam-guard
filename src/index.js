@@ -6,6 +6,7 @@ import {
   SNAPSHOT_SCREENSHOT_FREQUENCY,
   VIOLATIONS,
   DEFAULT_HEADERS_CONTENT_TYPE,
+  BROWSER_BLUR_WARNING,
 } from './utils/constants';
 import { dispatchGenericViolationEvent, dispatchViolationEvent } from './utils/events';
 import {
@@ -99,6 +100,7 @@ export default class Proctor {
         showAlert: enableAllAlerts,
         recordViolation: true,
         disqualify: true,
+        customAlertMessage: BROWSER_BLUR_WARNING,
         disqualifyAfter: 20000,
         violationTimeout: 5000,
         ...config.browserBlur,
@@ -306,7 +308,6 @@ export default class Proctor {
         this.disqualificationConfig.beepInterval,
         this.config.browserBlur.disqualifyAfter,
         this.config.browserBlur.violationTimeout,
-        this.config.browserBlur.showAlert,
         this.disqualificationConfig.enabled,
       );
     }
@@ -628,15 +629,22 @@ export default class Proctor {
       timestamp: `${new Date().toJSON().slice(0, 19).replace('T', ' ')} UTC`,
       disqualify: this.config[type].disqualify,
     };
-    // to avoid 2 alerts, disabling alerts for browserBlur
-    if (this.config[type].showAlert && type !== VIOLATIONS.browserBlur) {
-      showViolationWarning(
-        'Warning',
-        `You performed a violation during the test. 
-         Repeating this action may result in disqualification 
-         and a failed test attempt.`,
-        false,
-      );
+    if (this.config[type].showAlert) {
+      if (this.config[type].customAlertMessage) {
+        showViolationWarning(
+          'Warning',
+          this.config[type].customAlertMessage,
+          false,
+        );
+      } else {
+        showViolationWarning(
+          'Warning',
+          `You performed a violation during the test. 
+           Repeating this action may result in disqualification 
+           and a failed test attempt.`,
+          false,
+        );
+      }
     }
     if (this.config[type].recordViolation) {
       this.recordViolation(violation);
