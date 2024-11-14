@@ -25,6 +25,7 @@ export function setIconsForChecks(passedChecks = {}, checks = {}) {
   const webcamPoint = document.getElementById('webcam-point');
   const fullscreenPoint = document.getElementById('fullscreen-point');
   const networkPoint = document.getElementById('network-point');
+  const screensharePoint = document.getElementById('screenshare-point');
   camIcon.src = failureMark;
   fullscreenIcon.src = failureMark;
   networkIcon.src = failureMark;
@@ -51,7 +52,7 @@ export function setIconsForChecks(passedChecks = {}, checks = {}) {
     networkPoint.style = 'display: none';
   }
   if (!checks.screenshare) {
-    fullscreenShareIcon.src = 'display: none';
+    screensharePoint.style = 'display: none';
   }
 }
 
