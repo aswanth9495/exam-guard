@@ -36,7 +36,7 @@ module.exports = {
         test: /\.wav$/,
         type: 'asset/resource',
         generator: {
-          filename: 'assets/audio/', // Specify where to store the .wav files in the output folder
+          filename: 'assets/audio/[name][hash][ext]', // Specify where to store the .wav files in the output folder
         },
       },
       {
