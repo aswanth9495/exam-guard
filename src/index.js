@@ -283,11 +283,9 @@ export default class Proctor {
         this.handleCompatibilitySuccess.bind(this),
         this.handleCompatibilityFailure.bind(this),
       );
-      showViolationWarning(
-        'System check failed',
-        'Please ensure all the required settings are enabled',
-        true,
-      );
+      if (this.proctoringInitialised && !isFullScreen()) {
+        requestFullScreen();
+      }
     }, { ...this.compatibilityCheckConfig, mockModeEnabled });
 
     if (this.screenshotConfig.enabled) {
