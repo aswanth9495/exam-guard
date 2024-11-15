@@ -77,7 +77,7 @@ export default class Proctor {
       disqualificationTimeout: 45000,
       memoryLimit: 200,
       showTimer: true,
-      buttonText: 'Continue',
+      buttonText: 'Confirm Settings',
       headingText: 'System Check: Configure Required Settings',
       ...compatibilityCheckConfig,
     };
