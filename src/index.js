@@ -26,7 +26,7 @@ import detectCopyPasteCut from './utils/violations/copyPasteCut';
 import detectExitTab from './utils/violations/exitTab';
 import detectRestrictedKeyEvents from './utils/violations/restrictedKeyEvent';
 import detectRightClickDisabled from './utils/violations/rightClick';
-import detectTabSwitch from './utils/violations/tabSwitch';
+import { detectTabSwitch } from './utils/violations/tabSwitch';
 import preventTextSelection from './utils/violations/textSelection';
 import {
   detectCtrlShiftI, detectAltTab, detectCmdH, detectCmdM, detectCtrlW,
@@ -326,6 +326,7 @@ export default class Proctor {
         this.config.browserBlur.disqualifyAfter,
         this.config.browserBlur.violationTimeout,
         this.disqualificationConfig.enabled,
+        this.config.tabSwitch.enabled,
       );
     }
 
