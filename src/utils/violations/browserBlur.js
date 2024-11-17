@@ -1,11 +1,19 @@
 import { VIOLATIONS } from '../constants';
 import beep from '../../assets/sound/beep.wav';
-import { removeTabSwitch, detectTabSwitch } from './tabSwitch';
 
 const beepSound = new Audio(beep);
 let beepInterval = null;
 let disqualificationTimeout = null;
 let violationTimeout = null;
+let isBrowserBlurred = false;
+
+export function getIsBrowserBlurred() {
+  return isBrowserBlurred;
+}
+
+export function setIsBrowserBlurred(value) {
+  isBrowserBlurred = value;
+}
 
 export default function detectBrowserBlur(
   handleViolation,
@@ -14,10 +22,9 @@ export default function detectBrowserBlur(
   disqualifyAfter,
   violationAfter,
   disqualificationEnabled = false,
-  isTabSwitchEnabled = false,
 ) {
   window.addEventListener('blur', () => {
-    if (isTabSwitchEnabled) removeTabSwitch();
+    setIsBrowserBlurred(true);
     violationTimeout = setTimeout(() => {
       handleViolation(VIOLATIONS.browserBlur, false);
     }, violationAfter);
@@ -30,7 +37,7 @@ export default function detectBrowserBlur(
       }, disqualifyAfter);
     }
     window.addEventListener('focus', () => {
-      if (isTabSwitchEnabled) detectTabSwitch(handleViolation);
+      setIsBrowserBlurred(false);
       if (beepInterval) {
         clearInterval(beepInterval);
         beepInterval = null;
