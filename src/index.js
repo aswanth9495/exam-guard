@@ -90,6 +90,7 @@ export default class Proctor {
       ...disqualificationConfig,
     };
     this.proctoringInitialised = false;
+    window.allowReload = false;
     this.config = {
       [VIOLATIONS.tabSwitch]: {
         name: VIOLATIONS.tabSwitch,
@@ -685,7 +686,7 @@ export default class Proctor {
 
   disqualifyUser() {
     if (!this.disqualificationConfig.enabled) return;
-
+    window.allowReload = true;
     this.sendEvents(); // To send any events before disqualifying the user
     // Show disqualification warning before calling the disqualified callback
     if (this.disqualificationConfig.showAlert) {
