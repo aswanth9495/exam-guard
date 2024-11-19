@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,6 +12,7 @@
     }
   </style>
 </head>
+
 <body>
   <h1>Proctoringss Library Test</h1>
   <!-- Image element to render the captured snapshot -->
@@ -24,8 +26,8 @@
   </div>
 
   <!-- Include the Webpack bundle -->
-   <!-- Using the latest CDN  -->
-   <script src="proctor.js"></script>
+  <!-- Using the latest CDN  -->
+  <script src="proctor.js"></script>
 
   <script>
     const proctor = new Proctor({
@@ -56,9 +58,10 @@
           }
         },
         onDisqualified: () => {
-          console.log('onDisqualified triggered')
+          console.log('onDisqualified triggered');
+          window.location.reload();
         }
-        
+
       }
     });
 
@@ -67,11 +70,12 @@
       proctor.initializeProctoring();
     })
 
-    
+
     // proctor.runCompatibilityChecks();
     proctor.on('violation', (violations, event) => {
       console.log('%c⧭', 'color: #ffa640', 'Violation detected', violations, event.detail);
     });
   </script>
 </body>
+
 </html>

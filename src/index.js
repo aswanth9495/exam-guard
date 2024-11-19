@@ -78,7 +78,7 @@ export default class Proctor {
       disqualificationTimeout: 45000,
       memoryLimit: 200,
       showTimer: true,
-      buttonText: 'Continue',
+      buttonText: 'Confirm Settings',
       headingText: 'System Check: Configure Required Settings',
       ...compatibilityCheckConfig,
     };
@@ -92,6 +92,7 @@ export default class Proctor {
       ...disqualificationConfig,
     };
     this.proctoringInitialised = false;
+    window.allowReload = false;
     this.config = {
       [VIOLATIONS.tabSwitch]: {
         name: VIOLATIONS.tabSwitch,
@@ -288,11 +289,9 @@ export default class Proctor {
         this.handleCompatibilitySuccess.bind(this),
         this.handleCompatibilityFailure.bind(this),
       );
-      showViolationWarning(
-        'System check failed',
-        'Please ensure all the required settings are enabled',
-        true,
-      );
+      if (this.proctoringInitialised && !isFullScreen()) {
+        requestFullScreen();
+      }
     }, { ...this.compatibilityCheckConfig, mockModeEnabled });
 
     if (this.screenshotConfig.enabled) {
@@ -705,7 +704,7 @@ export default class Proctor {
 
   disqualifyUser() {
     if (!this.disqualificationConfig.enabled) return;
-
+    window.allowReload = true;
     this.sendEvents(); // To send any events before disqualifying the user
     // Show disqualification warning before calling the disqualified callback
     if (this.disqualificationConfig.showAlert) {
