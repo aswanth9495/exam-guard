@@ -92,7 +92,7 @@ export default class Proctor {
       ...disqualificationConfig,
     };
     this.proctoringInitialised = false;
-    window.allowReload = false;
+    window.isUserDisqualified = false;
     this.config = {
       [VIOLATIONS.tabSwitch]: {
         name: VIOLATIONS.tabSwitch,
@@ -554,7 +554,7 @@ export default class Proctor {
         const failedCheck = results.find((result) => result.status === 'rejected');
 
         if (failedCheck) {
-          if (this.compatibilityCheckConfig.showAlert) {
+          if (this.compatibilityCheckConfig.showAlert && !window.isUserDisqualified) {
             showCompatibilityCheckModal(
               passedChecks,
               compatibilityChecks,
@@ -671,7 +671,7 @@ export default class Proctor {
       timestamp: `${new Date().toJSON().slice(0, 19).replace('T', ' ')} UTC`,
       disqualify: this.config[type].disqualify,
     };
-    if (this.config[type].showAlert) {
+    if (this.config[type].showAlert && !window.isUserDisqualified) {
       if (this.config[type].customAlertMessage) {
         showViolationWarning(
           'Warning',
@@ -704,7 +704,7 @@ export default class Proctor {
 
   disqualifyUser() {
     if (!this.disqualificationConfig.enabled) return;
-    window.allowReload = true;
+    window.isUserDisqualified = true;
     this.sendEvents(); // To send any events before disqualifying the user
     // Show disqualification warning before calling the disqualified callback
     if (this.disqualificationConfig.showAlert) {
