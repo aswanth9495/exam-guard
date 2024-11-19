@@ -12,8 +12,7 @@
   </style>
 </head>
 <body>
-  <h1>Proctoringss Library Test</h1>
-  <!-- Image element to render the captured snapshot -->
+  <h1>Proctoring Library Test</h1>
   <div>
     <h2>Captured Snapshot:</h2>
     <img id="snapshot" alt="Snapshot will appear here" style="max-width: 100%; height: auto;" />
@@ -22,14 +21,20 @@
     <h2>Captured Screenshot:</h2>
     <img id="screenshot" alt="Screenshot will appear here" style="max-width: 100%; height: auto;" />
   </div>
+  <div id="root"></div>
 
+  <!-- Add React and ReactDOM before proctor.js -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  
   <!-- Include the Webpack bundle -->
-   <!-- Using the latest CDN  -->
-   <script src="proctor.js"></script>
+  <!-- Using the latest CDN  -->
+  <script src="proctor.js"></script>
 
   <script>
-    const proctor = new Proctor({
-      eventsUrl: 'https://example.com/events', // Replace with your actual events URL
+    Proctor.initialize('root', {
+      baseUrl: 'https://api.example.com',
+      enableAllAlerts: true,
       config: {
         tabSwitch: {
           enabled: true,
@@ -37,12 +42,15 @@
           recordViolation: true,
         },
       },
-      enableAllAlerts: true,
+      snapshotConfig: {
+        enabled: true,
+        frequency: 15000,
+        resizeTo: { width: 160, height: 120 },
+      },
       callbacks: {
         onSnapshotSuccess: ({ blob }) => {
           const snapshotImg = document.getElementById('snapshot');
           if (snapshotImg) {
-            // Create a URL for the blob and set it as the src of the image element
             const imageUrl = URL.createObjectURL(blob);
             snapshotImg.src = imageUrl;
           }
@@ -50,7 +58,6 @@
         onScreenshotSuccess: ({ blob }) => {
           const screenshotImg = document.getElementById('screenshot');
           if (screenshotImg) {
-            // Create a URL for the blob and set it as the src of the image element
             const imageUrl = URL.createObjectURL(blob);
             screenshotImg.src = imageUrl;
           }
@@ -58,19 +65,7 @@
         onDisqualified: () => {
           console.log('onDisqualified triggered')
         }
-        
       }
-    });
-
-    document.addEventListener('click', () => {
-      if (proctor.proctoringInitialised) return;
-      proctor.initializeProctoring();
-    })
-
-    
-    // proctor.runCompatibilityChecks();
-    proctor.on('violation', (violations, event) => {
-      console.log('%c⧭', 'color: #ffa640', 'Violation detected', violations, event.detail);
     });
   </script>
 </body>

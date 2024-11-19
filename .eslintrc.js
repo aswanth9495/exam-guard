@@ -6,10 +6,14 @@ module.exports = {
   extends: [
     'eslint:recommended',
     'airbnb-base',
+    'plugin:react/recommended',
   ],
   parserOptions: {
-    ecmaVersion: 12,
+    ecmaVersion: 2020,
     sourceType: 'module',
+    ecmaFeatures: {
+      jsx: true,
+    },
   },
   ignorePatterns: ['dist/'],
   rules: {
@@ -18,4 +22,6 @@ module.exports = {
     'import/prefer-default-export': 'off',
     'no-underscore-dangle': 'off',
   },
+  parser: '@babel/eslint-parser',
+  plugins: ['react'],
 };

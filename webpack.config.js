@@ -9,19 +9,24 @@ module.exports = {
       name: 'Proctor',
       type: 'umd',
       umdNamedDefine: true,
-      export: 'default', // Ensure default export is used
+      export: 'default',
     },
     globalObject: 'this',
+  },
+  externals: {
+    react: 'React',
+    'react-dom': 'ReactDOM',
+    'react-dom/client': 'ReactDOM',
   },
   module: {
     rules: [
       {
-        test: /\.js$/,
+        test: /\.(js|jsx)$/,
         exclude: /node_modules/,
         use: {
           loader: 'babel-loader',
           options: {
-            presets: ['@babel/preset-env'],
+            presets: ['@babel/preset-react', '@babel/preset-env'],
           },
         },
       },
