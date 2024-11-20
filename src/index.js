@@ -1,6 +1,10 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
+import { Provider } from 'react-redux';
+
+import './styles/globals.css';
 import App from './App';
+import store from './store';
 
 class ProctorLibrary {
   static initialize(containerId, props = {}) {
@@ -21,11 +25,16 @@ class ProctorLibrary {
       callbacks: {},
       enableAllAlerts: true,
       headerOptions: {},
-      mockModeEnabled: false
+      mockModeEnabled: false,
+      additionalData: {}
     };
 
     const root = createRoot(container);
-    root.render(<App {...defaultProps} {...props} />);
+    root.render(
+      <Provider store={store}>
+        <App {...defaultProps} {...props} />
+      </Provider>
+    );
   }
 }
 

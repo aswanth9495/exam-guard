@@ -1,5 +1,9 @@
 import React, { useEffect, useState } from 'react';
 
+import { useDispatch } from '@/hooks/reduxhooks';
+import { setUser } from '@/store';
+import CompatibilityModal from '@/components/CompatibilityModal';
+
 const App = ({
   baseUrl,
   eventsConfig,
@@ -11,9 +15,11 @@ const App = ({
   callbacks,
   enableAllAlerts,
   headerOptions,
-  mockModeEnabled
+  mockModeEnabled,
+  additionalData
 }) => {
   const [status, setStatus] = useState('Initializing...');
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const initializeProctoring = async () => {
@@ -41,6 +47,10 @@ const App = ({
         
         await proctor.initializeProctoring();
         setStatus('Proctoring Active');
+
+        const userInfo = additionalData.userInfo;
+        dispatch(setUser(userInfo));
+
       } catch (error) {
         setStatus('Failed to initialize proctoring');
         console.error('Proctoring initialization failed:', error);
@@ -48,12 +58,10 @@ const App = ({
     };
 
     initializeProctoring();
-  }, []);
+  }, [dispatch]);
 
   return (
-    <div className="widget-container">
-      <h2>Proctoring Status: {status}</h2>
-    </div>
+    <CompatibilityModal />
   );
 };
 
