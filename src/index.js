@@ -5,7 +5,7 @@ import {
   MAX_EVENTS_BEFORE_SEND,
   SNAPSHOT_SCREENSHOT_FREQUENCY,
   VIOLATIONS,
-  DEFAULT_HEADERS_CONTENT_TYPE,
+  HEADER_CONTENT_TYPES,
   BROWSER_BLUR_WARNING,
 } from './utils/constants';
 import { dispatchGenericViolationEvent, dispatchViolationEvent } from './utils/events';
@@ -66,7 +66,7 @@ export default class Proctor {
     };
     this.headerOptions = {
       csrfToken: null,
-      contentType: DEFAULT_HEADERS_CONTENT_TYPE,
+      contentType: HEADER_CONTENT_TYPES.urlEncoded,
       ...headerOptions,
     };
     this.compatibilityCheckConfig = {
@@ -737,17 +737,28 @@ export default class Proctor {
     if (this.recordedViolationEvents.length === 0) return;
 
     const url = new URL(this.eventsConfig.endpoint, this.baseUrl).toString();
-    const payload = new URLSearchParams({
-      events: JSON.stringify(this.recordedViolationEvents),
-    });
+
+    let body;
+    const headers = {
+      'Content-Type': this.headerOptions.contentType,
+      'X-CSRF-TOKEN': this.headerOptions.csrfToken,
+    };
+
+    if (this.headerOptions.contentType === HEADER_CONTENT_TYPES.json) {
+      body = JSON.stringify({ events: this.recordedViolationEvents });
+    } else if (this.headerOptions.contentType === HEADER_CONTENT_TYPES.urlEncoded) {
+      body = new URLSearchParams({
+        events: JSON.stringify(this.recordedViolationEvents),
+      }).toString();
+    } else {
+      console.error('Unsupported content type:', this.headerOptions.contentType);
+      return;
+    }
 
     fetch(url, {
       method: 'POST',
-      headers: {
-        'Content-Type': this.headerOptions.contentType,
-        'X-CSRF-TOKEN': this.headerOptions.csrfToken,
-      },
-      body: payload.toString(),
+      headers,
+      body,
     }).then(() => {
       this.recordedViolationEvents = [];
     }).catch((error) => {
