@@ -1,11 +1,12 @@
-import { setupAlert, showViolationWarning, closeModal } from './utils/alert';
+import { setupAlert, showViolationWarning } from './utils/alert';
 import {
   DEFAULT_SCREENSHOT_RESIZE_OPTIONS,
   DEFAULT_SNAPSHOT_RESIZE_OPTIONS,
   MAX_EVENTS_BEFORE_SEND,
   SNAPSHOT_SCREENSHOT_FREQUENCY,
   VIOLATIONS,
-  DEFAULT_HEADERS_CONTENT_TYPE,
+  HEADER_CONTENT_TYPES,
+  BROWSER_BLUR_WARNING,
 } from './utils/constants';
 import { dispatchGenericViolationEvent, dispatchViolationEvent } from './utils/events';
 import {
@@ -65,7 +66,7 @@ export default class Proctor {
     };
     this.headerOptions = {
       csrfToken: null,
-      contentType: DEFAULT_HEADERS_CONTENT_TYPE,
+      contentType: HEADER_CONTENT_TYPES.urlEncoded,
       ...headerOptions,
     };
     this.compatibilityCheckConfig = {
@@ -85,12 +86,13 @@ export default class Proctor {
       enabled: true, // Enable when onDisqualify is added
       eventCountThreshold: 5, // Number of violations after which disqualification will occur
       showAlert: enableAllAlerts,
+      beepInterval: 2000,
       alertHeading: 'Disqualification Alert',
       alertMessage: 'You have been disqualified from the contest',
       ...disqualificationConfig,
     };
     this.proctoringInitialised = false;
-    window.allowReload = false;
+    window.isUserDisqualified = false;
     this.config = {
       [VIOLATIONS.tabSwitch]: {
         name: VIOLATIONS.tabSwitch,
@@ -106,6 +108,9 @@ export default class Proctor {
         showAlert: enableAllAlerts,
         recordViolation: true,
         disqualify: true,
+        customAlertMessage: BROWSER_BLUR_WARNING,
+        disqualifyAfter: 20000,
+        violationTimeout: 5000,
         ...config.browserBlur,
       },
       [VIOLATIONS.rightClick]: {
@@ -313,7 +318,14 @@ export default class Proctor {
     }
 
     if (this.config.browserBlur.enabled) {
-      detectBrowserBlur(this.handleViolation.bind(this));
+      detectBrowserBlur(
+        this.handleViolation.bind(this),
+        this.callbacks.onDisqualified,
+        this.disqualificationConfig.beepInterval,
+        this.config.browserBlur.disqualifyAfter,
+        this.config.browserBlur.violationTimeout,
+        this.disqualificationConfig.enabled,
+      );
     }
 
     if (this.config.rightClick.enabled) {
@@ -542,7 +554,7 @@ export default class Proctor {
         const failedCheck = results.find((result) => result.status === 'rejected');
 
         if (failedCheck) {
-          if (this.compatibilityCheckConfig.showAlert) {
+          if (this.compatibilityCheckConfig.showAlert && !window.isUserDisqualified) {
             showCompatibilityCheckModal(
               passedChecks,
               compatibilityChecks,
@@ -555,7 +567,6 @@ export default class Proctor {
           onFailure?.(failedCheck.reason, passedChecks);
         } else {
           hideCompatibilityModal();
-          closeModal();
           this.failedCompatibilityChecks = false;
           onSuccess?.(passedChecks);
         }
@@ -660,15 +671,22 @@ export default class Proctor {
       timestamp: `${new Date().toJSON().slice(0, 19).replace('T', ' ')} UTC`,
       disqualify: this.config[type].disqualify,
     };
-
-    if (this.config[type].showAlert) {
-      showViolationWarning(
-        'Warning',
-        `You performed a violation during the test. 
-         Repeating this action may result in disqualification 
-         and a failed test attempt.`,
-        false,
-      );
+    if (this.config[type].showAlert && !window.isUserDisqualified) {
+      if (this.config[type].customAlertMessage) {
+        showViolationWarning(
+          'Warning',
+          this.config[type].customAlertMessage,
+          false,
+        );
+      } else {
+        showViolationWarning(
+          'Warning',
+          `You performed a violation during the test. 
+           Repeating this action may result in disqualification 
+           and a failed test attempt.`,
+          false,
+        );
+      }
     }
     if (this.config[type].recordViolation) {
       this.recordViolation(violation);
@@ -686,7 +704,7 @@ export default class Proctor {
 
   disqualifyUser() {
     if (!this.disqualificationConfig.enabled) return;
-    window.allowReload = true;
+    window.isUserDisqualified = true;
     this.sendEvents(); // To send any events before disqualifying the user
     // Show disqualification warning before calling the disqualified callback
     if (this.disqualificationConfig.showAlert) {
@@ -719,17 +737,28 @@ export default class Proctor {
     if (this.recordedViolationEvents.length === 0) return;
 
     const url = new URL(this.eventsConfig.endpoint, this.baseUrl).toString();
-    const payload = new URLSearchParams({
-      events: JSON.stringify(this.recordedViolationEvents),
-    });
+
+    let body;
+    const headers = {
+      'Content-Type': this.headerOptions.contentType,
+      'X-CSRF-TOKEN': this.headerOptions.csrfToken,
+    };
+
+    if (this.headerOptions.contentType === HEADER_CONTENT_TYPES.json) {
+      body = JSON.stringify({ events: this.recordedViolationEvents });
+    } else if (this.headerOptions.contentType === HEADER_CONTENT_TYPES.urlEncoded) {
+      body = new URLSearchParams({
+        events: JSON.stringify(this.recordedViolationEvents),
+      }).toString();
+    } else {
+      console.error('Unsupported content type:', this.headerOptions.contentType);
+      return;
+    }
 
     fetch(url, {
       method: 'POST',
-      headers: {
-        'Content-Type': this.headerOptions.contentType,
-        'X-CSRF-TOKEN': this.headerOptions.csrfToken,
-      },
-      body: payload.toString(),
+      headers,
+      body,
     }).then(() => {
       this.recordedViolationEvents = [];
     }).catch((error) => {
