@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
-import { useDispatch } from '@/hooks/reduxhooks';
-import { setUser } from '@/store';
+import { useAppDispatch } from '@/hooks/reduxhooks';
+import { setUser } from '@/store/slices/userSlice';
 import CompatibilityModal from '@/components/CompatibilityModal';
 
 const App = ({
@@ -19,7 +19,7 @@ const App = ({
   additionalData
 }) => {
   const [status, setStatus] = useState('Initializing...');
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     const initializeProctoring = async () => {
