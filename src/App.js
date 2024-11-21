@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 
 import { useAppDispatch } from '@/hooks/reduxhooks';
-import { setUser } from '@/store/slices/userSlice';
+import { setAssessmentInfo } from '@/store/features/assessmentInfoSlice';
 import CompatibilityModal from '@/components/CompatibilityModal';
 
 const App = ({
@@ -16,9 +16,8 @@ const App = ({
   enableAllAlerts,
   headerOptions,
   mockModeEnabled,
-  additionalData
+  assessmentInfo,
 }) => {
-  const [status, setStatus] = useState('Initializing...');
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -36,23 +35,17 @@ const App = ({
           callbacks: {
             ...callbacks,
             onDisqualified: () => {
-              setStatus('Disqualified');
               callbacks?.onDisqualified?.();
-            }
+            },
           },
           enableAllAlerts,
           headerOptions,
-          mockModeEnabled
+          mockModeEnabled,
         });
-        
-        await proctor.initializeProctoring();
-        setStatus('Proctoring Active');
 
-        const userInfo = additionalData.userInfo;
-        dispatch(setUser(userInfo));
-
+        // await proctor.initializeProctoring();
+        dispatch(setAssessmentInfo(assessmentInfo));
       } catch (error) {
-        setStatus('Failed to initialize proctoring');
         console.error('Proctoring initialization failed:', error);
       }
     };
@@ -60,9 +53,7 @@ const App = ({
     initializeProctoring();
   }, [dispatch]);
 
-  return (
-    <CompatibilityModal />
-  );
+  return <CompatibilityModal />;
 };
 
 export default App;

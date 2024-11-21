@@ -1,8 +1,8 @@
 import { combineReducers } from '@reduxjs/toolkit';
-import userReducer from './slices/userSlice';
+import assessmentInfoReducer from '@/store/features/assessmentInfoSlice';
 
 export const rootReducer = combineReducers({
-  user: userReducer,
+  assessmentInfo: assessmentInfoReducer,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

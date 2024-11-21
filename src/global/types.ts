@@ -3,3 +3,9 @@ export interface RootState {
     name: string;
   };
 }
+
+export interface Step {
+  icon: React.ElementType;
+  title: string;
+  component: React.ReactNode;
+}

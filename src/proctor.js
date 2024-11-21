@@ -7,9 +7,15 @@ import {
   VIOLATIONS,
   DEFAULT_HEADERS_CONTENT_TYPE,
 } from './utils/constants';
-import { dispatchGenericViolationEvent, dispatchViolationEvent } from './utils/events';
 import {
-  addFullscreenKeyboardListener, detectFullScreen, isFullScreen, requestFullScreen,
+  dispatchGenericViolationEvent,
+  dispatchViolationEvent,
+} from './utils/events';
+import {
+  addFullscreenKeyboardListener,
+  detectFullScreen,
+  isFullScreen,
+  requestFullScreen,
 } from './utils/fullScreenBlocker';
 import {
   hideCompatibilityModal,
@@ -18,7 +24,10 @@ import {
 } from './utils/compatibilityModal';
 import { checkBandwidth } from './utils/network';
 import {
-  screenshareClickHandler, screenshareRequestHandler, isScreenShareValid, screenshareCleanup,
+  screenshareClickHandler,
+  screenshareRequestHandler,
+  isScreenShareValid,
+  screenshareCleanup,
 } from './utils/screenshotV2';
 import detectBrowserBlur from './utils/violations/browserBlur';
 import detectCopyPasteCut from './utils/violations/copyPasteCut';
@@ -28,8 +37,16 @@ import detectRightClickDisabled from './utils/violations/rightClick';
 import detectTabSwitch from './utils/violations/tabSwitch';
 import preventTextSelection from './utils/violations/textSelection';
 import {
-  detectCtrlShiftI, detectAltTab, detectCmdH, detectCmdM, detectCtrlW,
-  detectCmdW, detectCtrlQ, detectCtrlShiftC, detectCtrlShiftJ, detectCmdQ,
+  detectCtrlShiftI,
+  detectAltTab,
+  detectCmdH,
+  detectCmdM,
+  detectCtrlW,
+  detectCmdW,
+  detectCtrlQ,
+  detectCtrlShiftC,
+  detectCtrlShiftJ,
+  detectCmdQ,
 } from './utils/violations/keyEvents';
 
 import {
@@ -262,8 +279,10 @@ export default class Proctor {
       onScreenshotSuccess: callbacks.onScreenshotSuccess || (() => {}),
       onFullScreenEnabled: callbacks.onFullScreenEnabled || (() => {}),
       onFullScreenDisabled: callbacks.onFullScreenDisabled || (() => {}),
-      onCompatibilityCheckSuccess: callbacks.onCompatibilityCheckSuccess || (() => {}),
-      onCompatibilityCheckFail: callbacks.onCompatibilityCheckFail || (() => {}),
+      onCompatibilityCheckSuccess:
+        callbacks.onCompatibilityCheckSuccess || (() => {}),
+      onCompatibilityCheckFail:
+        callbacks.onCompatibilityCheckFail || (() => {}),
     };
     this.violationEvents = [];
     this.recordedViolationEvents = []; // Store events for batch sending
@@ -271,22 +290,26 @@ export default class Proctor {
     this.compatibilityCheckInterval = null;
     this.initializeProctoring = this.initializeProctoring.bind(this);
     this.runCompatibilityChecks = this.runCompatibilityChecks.bind(this);
-    this.runAdaptiveCompatibilityChecks = this.runAdaptiveCompatibilityChecks.bind(this);
+    this.runAdaptiveCompatibilityChecks =
+      this.runAdaptiveCompatibilityChecks.bind(this);
     this.initialFullScreen = false;
     setupAlert();
     if (this.snapshotConfig.enabled) {
       setupWebcam();
     }
     addFullscreenKeyboardListener();
-    setupCompatibilityCheckModal(() => {
-      this.runCompatibilityChecks(
-        this.handleCompatibilitySuccess.bind(this),
-        this.handleCompatibilityFailure.bind(this),
-      );
-      if (this.proctoringInitialised && !isFullScreen()) {
-        requestFullScreen();
-      }
-    }, { ...this.compatibilityCheckConfig, mockModeEnabled });
+    setupCompatibilityCheckModal(
+      () => {
+        this.runCompatibilityChecks(
+          this.handleCompatibilitySuccess.bind(this),
+          this.handleCompatibilityFailure.bind(this)
+        );
+        if (this.proctoringInitialised && !isFullScreen()) {
+          requestFullScreen();
+        }
+      },
+      { ...this.compatibilityCheckConfig, mockModeEnabled }
+    );
 
     if (this.screenshotConfig.enabled) {
       this.handleScreenshareClick();
@@ -391,7 +414,10 @@ export default class Proctor {
 
   startCompatibilityChecks() {
     if (!this.compatibilityCheckConfig.enable) return;
-    setTimeout(this.runAdaptiveCompatibilityChecks, this.compatibilityCheckConfig.frequency);
+    setTimeout(
+      this.runAdaptiveCompatibilityChecks,
+      this.compatibilityCheckConfig.frequency
+    );
   }
 
   runAdaptiveCompatibilityChecks() {
@@ -400,9 +426,10 @@ export default class Proctor {
     const { memoryLimit } = this.compatibilityCheckConfig;
 
     // Check memory usage via the browser's Performance API (for browsers that support it)
-    const memoryUsage = window.performance && window.performance.memory
-      ? window.performance.memory.usedJSHeapSize / 1024 / 1024 // in MB
-      : 0; // If memory data is not available, assume 0 (safe fallback)
+    const memoryUsage =
+      window.performance && window.performance.memory
+        ? window.performance.memory.usedJSHeapSize / 1024 / 1024 // in MB
+        : 0; // If memory data is not available, assume 0 (safe fallback)
 
     console.log('%c%s', 'color: #ff2525', 'Memory Usage (in MB):', memoryUsage);
 
@@ -411,24 +438,38 @@ export default class Proctor {
       // Run compatibility checks (e.g., webcam, network speed, etc.)
       this.runCompatibilityChecks(
         this.handleCompatibilitySuccess.bind(this),
-        this.handleCompatibilityFailure.bind(this),
+        this.handleCompatibilityFailure.bind(this)
       );
     }
 
     const duration = performance.now() - start;
 
     /* Debugging logs */
-    console.log('%c%s', 'color: #ff2525', 'Time take for running Compatibility checks (in ms):', duration);
+    console.log(
+      '%c%s',
+      'color: #ff2525',
+      'Time take for running Compatibility checks (in ms):',
+      duration
+    );
 
-    console.log('%c%s', 'color: #ff2525', 'Is CPU peformance fine ?: ', duration < this.compatibilityCheckConfig.cpuThreshold);
+    console.log(
+      '%c%s',
+      'color: #ff2525',
+      'Is CPU peformance fine ?: ',
+      duration < this.compatibilityCheckConfig.cpuThreshold
+    );
 
     // Adjust frequency based on system load
-    const delay = duration < this.compatibilityCheckConfig.cpuThreshold
-      ? this.compatibilityCheckConfig.frequency
-      : this.compatibilityCheckConfig.maxFrequency;
+    const delay =
+      duration < this.compatibilityCheckConfig.cpuThreshold
+        ? this.compatibilityCheckConfig.frequency
+        : this.compatibilityCheckConfig.maxFrequency;
 
     // Schedule the next check adaptively
-    this.compatibilityCheckTimeout = setTimeout(this.runAdaptiveCompatibilityChecks, delay);
+    this.compatibilityCheckTimeout = setTimeout(
+      this.runAdaptiveCompatibilityChecks,
+      delay
+    );
   }
 
   handleCompatibilitySuccess(passedChecks) {
@@ -453,7 +494,8 @@ export default class Proctor {
   runCompatibilityChecks(onSuccess, onFailure) {
     const compatibilityChecks = {
       webcam: this.snapshotConfig.enabled,
-      networkSpeed: this.snapshotConfig.enabled || this.screenshotConfig.enabled,
+      networkSpeed:
+        this.snapshotConfig.enabled || this.screenshotConfig.enabled,
       fullscreen: this.config[VIOLATIONS.fullScreen].enabled,
       screenshare: this.screenshotConfig.enabled,
     };
@@ -538,7 +580,9 @@ export default class Proctor {
     Promise.allSettled(compatibilityPromises)
       .then((results) => {
         // If any check fails, handle failure and return the updated object
-        const failedCheck = results.find((result) => result.status === 'rejected');
+        const failedCheck = results.find(
+          (result) => result.status === 'rejected'
+        );
 
         if (failedCheck) {
           if (this.compatibilityCheckConfig.showAlert) {
@@ -548,7 +592,8 @@ export default class Proctor {
               () => {
                 this.disqualifyUser();
               },
-              this.proctoringInitialised && this.compatibilityCheckConfig.showTimer,
+              this.proctoringInitialised &&
+                this.compatibilityCheckConfig.showTimer
             );
           }
           onFailure?.(failedCheck.reason, passedChecks);
@@ -566,7 +611,7 @@ export default class Proctor {
           () => {
             this.disqualifyUser();
           },
-          this.proctoringInitialised,
+          this.proctoringInitialised
         );
         // Handle any failure in individual checks
         onFailure?.(failedCheck, passedChecks);
@@ -615,7 +660,9 @@ export default class Proctor {
 
   handleScreenshareClick() {
     screenshareClickHandler.bind(this)({
-      onClick: () => { screenshareRequestHandler.bind(this)(); },
+      onClick: () => {
+        screenshareRequestHandler.bind(this)();
+      },
     });
   }
 
@@ -645,7 +692,7 @@ export default class Proctor {
     if (this.compatibilityCheckConfig.enable) {
       this.runCompatibilityChecks(
         this.handleCompatibilitySuccess.bind(this),
-        this.handleCompatibilityFailure.bind(this),
+        this.handleCompatibilityFailure.bind(this)
       );
     }
     this.callbacks.onFullScreenEnabled();
@@ -666,7 +713,7 @@ export default class Proctor {
         `You performed a violation during the test. 
          Repeating this action may result in disqualification 
          and a failed test attempt.`,
-        false,
+        false
       );
     }
     if (this.config[type].recordViolation) {
@@ -676,9 +723,11 @@ export default class Proctor {
     dispatchViolationEvent(type, violation);
     dispatchGenericViolationEvent(violation);
 
-    if (forceDisqualify
-      || (this.getViolationsCountForDisqualify()
-      >= this.disqualificationConfig.eventCountThreshold)) {
+    if (
+      forceDisqualify ||
+      this.getViolationsCountForDisqualify() >=
+        this.disqualificationConfig.eventCountThreshold
+    ) {
       this.disqualifyUser();
     }
   }
@@ -692,7 +741,7 @@ export default class Proctor {
       showViolationWarning(
         this.disqualificationConfig.alertHeading,
         this.disqualificationConfig.alertMessage,
-        true,
+        true
       );
     }
     this.callbacks.onDisqualified(); // Trigger disqualification callback
@@ -708,7 +757,10 @@ export default class Proctor {
     });
 
     // Check if the max threshold is exceeded
-    if (this.recordedViolationEvents.length >= this.eventsConfig.maxEventsBeforeSend) {
+    if (
+      this.recordedViolationEvents.length >=
+      this.eventsConfig.maxEventsBeforeSend
+    ) {
       this.sendEvents(); // Send the batch of events when threshold is reached
     }
   }
@@ -729,11 +781,13 @@ export default class Proctor {
         'X-CSRF-TOKEN': this.headerOptions.csrfToken,
       },
       body: payload.toString(),
-    }).then(() => {
-      this.recordedViolationEvents = [];
-    }).catch((error) => {
-      console.error('Failed to send event:', error);
-    });
+    })
+      .then(() => {
+        this.recordedViolationEvents = [];
+      })
+      .catch((error) => {
+        console.error('Failed to send event:', error);
+      });
   }
 
   handleWindowUnload() {
@@ -756,7 +810,8 @@ export default class Proctor {
   }
 
   getTotalViolationsCountByType(type) {
-    return this.violationEvents.filter((violation) => violation.type === type).length;
+    return this.violationEvents.filter((violation) => violation.type === type)
+      .length;
   }
 
   getTotalViolationsCount() {
@@ -768,7 +823,9 @@ export default class Proctor {
   }
 
   getViolationsCountForDisqualify() {
-    return this.violationEvents.filter((violation) => violation.disqualify === true).length;
+    return this.violationEvents.filter(
+      (violation) => violation.disqualify === true
+    ).length;
   }
 
   _cleanup() {

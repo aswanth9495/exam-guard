@@ -15,7 +15,7 @@
     </style>
   </head>
   <body>
-    <h1>Proctoring Library Test</h1>
+    <!-- <h1>Proctoring Library Test</h1>
     <div>
       <h2>Captured Snapshot:</h2>
       <img
@@ -31,7 +31,7 @@
         alt="Screenshot will appear here"
         style="max-width: 100%; height: auto"
       />
-    </div>
+    </div> -->
     <div id="root"></div>
 
     <!-- Add React and ReactDOM before proctor.js -->
@@ -44,10 +44,9 @@
       Proctor.initialize('root', {
         baseUrl: 'https://api.example.com',
         enableAllAlerts: true,
-        additionalData: {
-          userInfo: {
-            name: 'John Doe'
-          }
+        assessmentInfo: {
+          userName: 'John Doe',
+          assessmentName: 'Assessment 1',
         },
         config: {
           tabSwitch: {
