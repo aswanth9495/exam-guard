@@ -285,5 +285,5 @@ export function screenshareClickHandler({ onClick }) {
 }
 
 export function screenshareCleanup() {
-  this.stopScreenShare();
+  screenShareMonitor.stopScreenShare();
 }
