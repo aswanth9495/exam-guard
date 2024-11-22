@@ -26,7 +26,11 @@ module.exports = {
         use: {
           loader: 'babel-loader',
           options: {
-            presets: ['@babel/preset-react', '@babel/preset-env', '@babel/preset-typescript'],
+            presets: [
+              '@babel/preset-react',
+              '@babel/preset-env',
+              '@babel/preset-typescript',
+            ],
           },
         },
       },
@@ -62,13 +66,23 @@ module.exports = {
         ],
       },
       {
-        test: /\.scss$/,
+        test: /\.module\.scss$/,
         use: [
           'style-loader',
-          'css-loader', // Translates CSS into CommonJS
-          'sass-loader', // Compiles Sass to CSS
+          {
+            loader: 'css-loader',
+            options: {
+              modules: true,
+            },
+          },
+          'sass-loader',
         ],
+      },
+      {
+        test: /\.scss$/,
+        exclude: /\.module\.scss$/,
         include: path.resolve(__dirname, 'src/assets/styles'),
+        use: ['style-loader', 'css-loader', 'sass-loader'],
       },
       {
         test: /\.css$/,
@@ -80,7 +94,7 @@ module.exports = {
     extensions: ['.ts', '.tsx', '.js', '.jsx'],
     alias: {
       '@': path.resolve(__dirname, './src'),
-    }
+    },
   },
   mode: 'production',
   devServer: {

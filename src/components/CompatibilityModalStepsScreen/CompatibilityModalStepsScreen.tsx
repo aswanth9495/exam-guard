@@ -1,5 +1,8 @@
-import React, { useState } from 'react';
-import { Step } from '@/global/types';
+import React from 'react';
+
+import { STEPS } from '@/constants/workflow';
+import { setActiveStep } from '@/store/features/workflowSlice';
+import { useAppSelector, useAppDispatch } from '@/hooks/reduxhooks';
 
 interface StepItemProps {
   icon: React.ElementType;
@@ -41,22 +44,21 @@ const StepItem: React.FC<StepItemProps> = ({
   </div>
 );
 
-const CompatibilityModalStepsScreen: React.FC<{
-  steps: Record<string, Step>;
-  activeStep: number;
-  setActiveStep: (step: number) => void;
-}> = ({ steps, activeStep, setActiveStep }) => {
+const CompatibilityModalStepsScreen: React.FC = () => {
+  const activeStep = useAppSelector((state) => state.workflow.activeStep);
+  const dispatch = useAppDispatch();
+
   return (
     <div className='mt-12'>
-      {Object.entries(steps).map(([key, item], index) => (
+      {Object.entries(STEPS).map(([key, item], index) => (
         <StepItem
           key={key}
           icon={item.icon}
           title={item.title}
           step={key}
-          active={activeStep === Number(key)}
-          onClick={() => setActiveStep(Number(key))}
-          isLast={index === Object.keys(steps).length - 1}
+          active={activeStep === key}
+          onClick={() => dispatch(setActiveStep(key))}
+          isLast={index === Object.keys(STEPS).length - 1}
         />
       ))}
     </div>

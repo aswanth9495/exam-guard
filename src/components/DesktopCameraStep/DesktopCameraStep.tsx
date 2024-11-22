@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
-import StepHeader from '@/ui/stepHeader';
-import { Checkbox } from '@/ui/checkbox';
-import { Button } from '@/ui/button';
+
 import { ArrowRight } from 'lucide-react';
+import { Button } from '@/ui/Button';
+import { Checkbox } from '@/ui/Checkbox';
+import { nextStep } from '@/store/features/workflowSlice';
+import { useAppDispatch } from '@/hooks/reduxhooks';
+import StepHeader from '@/ui/StepHeader';
 
 const DesktopCameraStep = () => {
   const [isChecked, setIsChecked] = useState(false);
+  const dispatch = useAppDispatch();
 
   return (
     <div className='p-8 flex-1'>
@@ -37,7 +41,12 @@ const DesktopCameraStep = () => {
             camera and will be shared throughout the test.
           </label>
         </div>
-        <Button className='mt-8' variant='primary' disabled={!isChecked}>
+        <Button
+          className='mt-8'
+          variant='primary'
+          disabled={!isChecked}
+          onClick={() => dispatch(nextStep())}
+        >
           Proceed to next step
           <ArrowRight className='w-4 h-4' />
         </Button>

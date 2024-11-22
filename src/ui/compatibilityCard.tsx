@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Circle, CheckCircle, AlertTriangle } from 'lucide-react';
-import { Button } from '@/ui/button';
+import { Button } from '@/ui/Button';
+import Loader from '@/ui/Loader';
 
 export default function CompatibilityCard() {
   const [status, setStatus] = useState<'initial' | 'active' | 'error'>(
@@ -29,7 +30,7 @@ export default function CompatibilityCard() {
           ) : status === 'error' ? (
             <AlertTriangle className='text-red-500' />
           ) : (
-            <Circle className='text-blue-500' />
+            <Loader />
           )}
           <h2 className='text-lg'>Screen Sharing Permissions</h2>
         </div>

@@ -1,18 +1,27 @@
-import React from 'react';
+import { useEffect } from 'react';
 
-const StepLoader = ({
-  text,
-  isLoading,
-}: {
-  text: string;
-  isLoading: boolean;
-}) => (
-  <div className='mt-8 bg-slate-900 text-white p-6 rounded-lg'>
-    <div className='flex items-center gap-3'>
-      <div className='animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent' />
-      {text}
+export default function CircularLoader() {
+  useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    `;
+    document.head.appendChild(style);
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
+
+  return (
+    <div className='flex items-center justify-center bg-[#000B18]'>
+      <div className='relative h-8 w-8'>
+        <div className='absolute inset-0 rounded-full border-4 border-[##0080FF] opacity-25'></div>
+        <div className='absolute inset-0 rounded-full border-4 border-transparent border-t-[#0080FF] animate-[spin_1s_linear_infinite]'></div>
+      </div>
     </div>
-  </div>
-);
-
-export default StepLoader;
+  );
+}
