@@ -274,7 +274,7 @@ export async function screenshareRequestHandler() {
     frequency: this.screenshotConfig.frequency,
     resizeDimensions: this.screenshotConfig.resizeTo,
   });
-  this.enableFullScreen();
+  screenShareMonitor.enableFullScreen();
 }
 
 export function screenshareClickHandler({ onClick }) {
