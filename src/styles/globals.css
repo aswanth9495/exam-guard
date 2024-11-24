@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+/* To set 1rem = 10px  */
+html {
+  font-size: 10px;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -57,3 +62,4 @@
     @apply font-sans antialiased bg-background text-foreground;
   }
 }
+
