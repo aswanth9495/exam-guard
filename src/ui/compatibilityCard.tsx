@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { CheckCircle, AlertTriangle } from 'lucide-react';
-import { Button } from '@/ui/Buttonn';
-import Loader from '@/ui/Loaderr';
+import { Button } from '@/ui/button';
+import Loader from '@/ui/loader';
 import {
   screenshareRequestHandler,
   screenshareCleanup,

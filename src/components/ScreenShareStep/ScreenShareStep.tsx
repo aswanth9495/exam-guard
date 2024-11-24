@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 
-import { Button } from '@/ui/Buttonn';
-import { Checkbox } from '@/ui/Checkboxx';
+import { Button } from '@/ui/button';
+import { Checkbox } from '@/ui/checkbox';
 import { nextStep, acknowledgeStep } from '@/store/features/workflowSlice';
 import { useAppDispatch, useAppSelector } from '@/hooks/reduxhooks';
-import CompatibilityCard from '@/ui/CompatibilityCardd';
-import StepHeader from '@/ui/StepHeaderr';
+import CompatibilityCard from '@/ui/compatibilityCard';
+import StepHeader from '@/ui/stepHeader';
 
 const ScreenShareStep = () => {
   const dispatch = useAppDispatch();

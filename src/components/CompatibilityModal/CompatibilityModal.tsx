@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { useAppSelector } from '@/hooks/reduxhooks';
-import { Modal } from '@/ui/Modall';
+import { Modal } from '@/ui/modal';
 import { STEPS } from '@/constants/workflow';
 import CompatibilityModalHeader from '@/components/CompatibilityModalHeader';
 import CompatibilityModalStepsScreen from '@/components/CompatibilityModalStepsScreen';

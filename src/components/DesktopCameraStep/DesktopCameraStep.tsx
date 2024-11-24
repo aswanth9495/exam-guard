@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 
 import { ArrowRight } from 'lucide-react';
-import { Button } from '@/ui/Buttonn';
-import { Checkbox } from '@/ui/Checkboxx';
+import { Button } from '@/ui/button';
+import { Checkbox } from '@/ui/checkbox';
 import { nextStep } from '@/store/features/workflowSlice';
 import { useAppDispatch } from '@/hooks/reduxhooks';
-import StepHeader from '@/ui/StepHeaderr';
+import StepHeader from '@/ui/stepHeader';
 
 const DesktopCameraStep = () => {
   const [isChecked, setIsChecked] = useState(false);
