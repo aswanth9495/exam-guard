@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { useAppSelector } from '@/hooks/reduxhooks';
-import { Modal } from '@/ui/Modal';
+import { Modal } from '@/ui/Modall';
 import { STEPS } from '@/constants/workflow';
 import CompatibilityModalHeader from '@/components/CompatibilityModalHeader';
 import CompatibilityModalStepsScreen from '@/components/CompatibilityModalStepsScreen';
@@ -11,7 +11,7 @@ export default function CompatibilityModal() {
 
   return (
     <Modal isOpen={true} modalClassName='w-[90%] h-[90%] flex'>
-      <div className='bg-blue-50 p-8 pt-12 m-w-96 w-1/3'>
+      <div className='bg-blue-50 p-12 pt-16 m-w-96 w-1/3'>
         <CompatibilityModalHeader />
         <CompatibilityModalStepsScreen />
       </div>

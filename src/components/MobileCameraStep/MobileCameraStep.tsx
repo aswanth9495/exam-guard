@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 
 import { ArrowRight } from 'lucide-react';
-import { Button } from '@/ui/Button';
-import { Checkbox } from '@/ui/Checkbox';
+import { Button } from '@/ui/Buttonn';
+import { Checkbox } from '@/ui/Checkboxx';
 import { nextStep } from '@/store/features/workflowSlice';
 import { useAppDispatch } from '@/hooks/reduxhooks';
-import StepHeader from '@/ui/StepHeader';
+import StepHeader from '@/ui/StepHeaderr';
 
 const MobileCameraStep = () => {
   const [isChecked, setIsChecked] = useState(false);
@@ -19,11 +19,11 @@ const MobileCameraStep = () => {
         description='Test if screen share permissions are enabled. If not, follow the instructions below to enable them'
       />
       <div className='mt-8'>
-        <p className='text-gray-600 mt-8 text-xs italic text-sm'>
+        <p className='text-gray-600 mt-8 text-xs italic text-xs'>
           <strong>Please Note :</strong> You will need to set up screen sharing
           again when your test begins, as the environment will refresh.
         </p>
-        <div className='flex items-center gap-2 mt-6 text-sm'>
+        <div className='flex items-center gap-2 mt-6 text-xs'>
           <Checkbox
             id='confirm'
             checked={isChecked}
@@ -36,13 +36,13 @@ const MobileCameraStep = () => {
           </label>
         </div>
         <Button
-          className='mt-8'
+          className='mt-8 items-center'
           variant='primary'
           disabled={!isChecked}
           onClick={() => dispatch(nextStep())}
         >
           Proceed to next step
-          <ArrowRight className='w-4 h-4' />
+          <ArrowRight className='w-6 h-6' />
         </Button>
       </div>
     </div>

@@ -10,7 +10,7 @@ const StepHeader = ({
   description: string;
 }) => (
   <div>
-    <div className='text-sm text-gray-400'>STEP {stepNumber}</div>
+    <div className='text-xs text-gray-400'>STEP {stepNumber}</div>
     <h2 className='text-2xl font-bold mt-2'>{title}</h2>
     <p className='text-sm text-gray-600 italic mt-2'>{description}</p>
   </div>
