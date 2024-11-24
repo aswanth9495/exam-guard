@@ -2,6 +2,15 @@
 module.exports = {
   darkMode: ["class"],
   content: ['./src/**/*.{js,jsx,ts,tsx}', './public/index.html'],
+  plugins: [
+    function ({ addBase }) {
+      addBase({
+        'html': {
+          fontSize: '10px', // Set 1rem = 10px
+        },
+      });
+    },
+  ],
   theme: {
     extend: {
       colors: {
