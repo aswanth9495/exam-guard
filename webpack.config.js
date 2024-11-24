@@ -66,23 +66,28 @@ module.exports = {
         ],
       },
       {
+        test: /\.scss$/,
+        exclude: /\.module\.scss$/,
+        include: path.resolve(__dirname, 'src/assets/styles'),
+        use: ['style-loader', 'css-loader', 'sass-loader'],
+      },
+      {
         test: /\.module\.scss$/,
         use: [
           'style-loader',
           {
             loader: 'css-loader',
             options: {
-              modules: true,
+              modules: {
+                localIdentName: '[name]__[local]___[hash:base64:5]',
+                namedExport: false,
+              },
+              sourceMap: true,
             },
           },
           'sass-loader',
         ],
-      },
-      {
-        test: /\.scss$/,
-        exclude: /\.module\.scss$/,
-        include: path.resolve(__dirname, 'src/assets/styles'),
-        use: ['style-loader', 'css-loader', 'sass-loader'],
+        include: path.resolve(__dirname, 'src'),
       },
       {
         test: /\.css$/,
