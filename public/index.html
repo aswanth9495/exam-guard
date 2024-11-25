@@ -1,85 +1,77 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Proctoring Library Test</title>
-    <link
-      href="https://fonts.cdnfonts.com/css/source-sans-pro"
-      rel="stylesheet"
-    />
-    <style>
-      html {
-        font-family: 'Source Sans Pro', sans-serif;
-      }
-    </style>
-  </head>
-  <body>
-    <!-- <h1>Proctoring Library Test</h1>
-    <div>
-      <h2>Captured Snapshot:</h2>
-      <img
-        id="snapshot"
-        alt="Snapshot will appear here"
-        style="max-width: 100%; height: auto"
-      />
-    </div>
-    <div>
-      <h2>Captured Screenshot:</h2>
-      <img
-        id="screenshot"
-        alt="Screenshot will appear here"
-        style="max-width: 100%; height: auto"
-      />
-    </div> -->
-    <div id="root"></div>
 
-    <!-- Add React and ReactDOM before proctor.js -->
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Proctoring Library Test</title>
+  <link href="https://fonts.cdnfonts.com/css/source-sans-pro" rel="stylesheet" />
+  <style>
+    html {
+      font-family: 'Source Sans Pro', sans-serif;
+    }
+  </style>
+</head>
 
-    <!-- Include the Webpack bundle -->
-    <!-- Using the latest CDN  -->
-    <script src="proctor.js"></script>
+<body>
+  <h1>Proctoring Library Test</h1>
+  <div>
+    <h2>Captured Snapshot:</h2>
+    <img id="snapshot" alt="Snapshot will appear here" style="max-width: 100%; height: auto" />
+  </div>
+  <div>
+    <h2>Captured Screenshot:</h2>
+    <img id="screenshot" alt="Screenshot will appear here" style="max-width: 100%; height: auto" />
+  </div>
+  <div id="root"></div>
 
-    <script>
-      Proctor.initialize('root', {
-        baseUrl: 'https://api.example.com',
-        enableAllAlerts: true,
-        assessmentInfo: {
-          userName: 'John Doe',
-          assessmentName: 'Assessment 1',
-        },
-        config: {
-          tabSwitch: {
-            enabled: true,
-            showAlert: true,
-            recordViolation: true,
-          },
-        },
-        snapshotConfig: {
+  <!-- Add React and ReactDOM before proctor.js -->
+
+  <!-- Include the Webpack bundle -->
+  <!-- Using the latest CDN  -->
+  <script src="proctor.js"></script>
+
+  <script>
+    Proctor.initialize('root', {
+      baseUrl: 'https://api.example.com',
+      enableAllAlerts: true,
+      assessmentInfo: {
+        userName: 'John Doe',
+        assessmentName: 'Assessment 1',
+      },
+      config: {
+        tabSwitch: {
           enabled: true,
-          frequency: 15000,
-          resizeTo: { width: 160, height: 120 },
+          showAlert: true,
+          recordViolation: true,
         },
-        callbacks: {
-          onSnapshotSuccess: ({ blob }) => {
-            const snapshotImg = document.getElementById('snapshot');
-            if (snapshotImg) {
-              const imageUrl = URL.createObjectURL(blob);
-              snapshotImg.src = imageUrl;
-            }
-          },
-          onScreenshotSuccess: ({ blob }) => {
-            const screenshotImg = document.getElementById('screenshot');
-            if (screenshotImg) {
-              const imageUrl = URL.createObjectURL(blob);
-              screenshotImg.src = imageUrl;
-            }
-          },
-          onDisqualified: () => {
-            console.log('onDisqualified triggered');
-          },
+      },
+      snapshotConfig: {
+        enabled: true,
+        frequency: 15000,
+        resizeTo: { width: 160, height: 120 },
+      },
+      callbacks: {
+        onSnapshotSuccess: ({ blob }) => {
+          const snapshotImg = document.getElementById('snapshot');
+          if (snapshotImg) {
+            const imageUrl = URL.createObjectURL(blob);
+            snapshotImg.src = imageUrl;
+          }
         },
-      });
-    </script>
-  </body>
+        onScreenshotSuccess: ({ blob }) => {
+          const screenshotImg = document.getElementById('screenshot');
+          if (screenshotImg) {
+            const imageUrl = URL.createObjectURL(blob);
+            screenshotImg.src = imageUrl;
+          }
+        },
+        onDisqualified: () => {
+          console.log('onDisqualified triggered');
+        },
+      },
+    });
+  </script>
+</body>
+
 </html>

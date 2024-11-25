@@ -4,12 +4,16 @@ import { ArrowRight } from 'lucide-react';
 import { Button } from '@/ui/Button';
 import { Checkbox } from '@/ui/Checkbox';
 import { nextStep } from '@/store/features/workflowSlice';
-import { useAppDispatch } from '@/hooks/reduxhooks';
 import StepHeader from '@/ui/StepHeader';
+import { Tabs, Tab } from '@/ui/Tabs';
+import { useDispatch } from 'react-redux';
+import Pairing from './Pairing';
+import Orientation from './Orientation';
+import MobileCompatibility from './MobileCompatibility';
 
 const MobileCameraStep = () => {
   const [isChecked, setIsChecked] = useState(false);
-  const dispatch = useAppDispatch();
+  const dispatch = useDispatch()
 
   return (
     <div className='p-8 flex-1'>
@@ -18,16 +22,24 @@ const MobileCameraStep = () => {
         title='Mobile Camera Pairing Permissions'
         description='Test if screen share permissions are enabled. If not, follow the instructions below to enable them'
       />
+      <Tabs>
+        <Tab label="Scan Code & Pair Mobile" isActive={true}>
+          <Pairing />
+        </Tab>
+        <Tab label="Camera Orientation" >
+          <Orientation />
+        </Tab>
+        <Tab label="Mobile System Check">
+          <MobileCompatibility />
+        </Tab>
+      </Tabs>
       <div className='mt-8'>
-        <p className='text-gray-600 mt-8 text-xs italic text-sm'>
-          <strong>Please Note :</strong> You will need to set up screen sharing
-          again when your test begins, as the environment will refresh.
-        </p>
+
         <div className='flex items-center gap-2 mt-6 text-sm'>
           <Checkbox
             id='confirm'
             checked={isChecked}
-            onCheckedChange={(checked) => setIsChecked(checked as boolean)}
+            onCheckedChange={(checked) => setIsChecked(checked)}
           />
           <label htmlFor='confirm' className='text-xs text-gray-600'>
             By clicking on this, you confirm that your mobile phone is paired
@@ -50,3 +62,4 @@ const MobileCameraStep = () => {
 };
 
 export default MobileCameraStep;
+

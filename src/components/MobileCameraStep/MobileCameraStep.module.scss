@@ -1,0 +1,188 @@
+$divider-line-color: #eaeff4;
+$divider-text-color: #d6dee5;
+$copy-link-body-color: #91a1b7;
+$grey-text-color: #61738E;
+$snapshot-preview-bg-color: #F4F6F9;
+
+.pairingContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.qrCodeContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 2.4rem;
+
+  img {
+    height: 18.5rem;
+    min-width: 10rem;
+  }
+}
+
+.dividerLine {
+  background-color: $divider-line-color;
+  width: 0.1rem;
+  height: 4.3rem;
+}
+
+.divider {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.dividerText {
+  margin: 0.4rem;
+  color: $divider-text-color;
+}
+
+.copyLinkHeading {
+  font-size: 1.4rem;
+  font-weight: bold;
+}
+
+.copyLinkBody {
+  color: $copy-link-body-color;
+  font-size: 1.2rem;
+}
+
+.copyLinkContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-left: 2.4rem
+}
+
+.copyIcon {
+  margin-right: 0.5rem;
+}
+
+.copyLinkOption {
+  display: flex;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.copyLinkBox {
+  border-radius: 0.8rem;
+  border: 0.1rem solid $divider-text-color;
+  padding: 1.2rem 1.6rem;
+  white-space: nowrap;
+  overflow: hidden !important;
+  text-overflow: ellipsis;
+  width: 20rem;
+}
+
+.copyLinkText {
+  display: flex;
+  align-items: center;
+  font-size: 1.2rem;
+  color: $grey-text-color;
+  margin-left: 1rem;
+  cursor: pointer;
+}
+
+.demo {
+  display: flex;
+  justify-content: center;
+  margin-top: 2.4rem;
+
+  img {
+    width: 100%;
+    border-radius: 1.2rem;
+  }
+}
+
+.retrySnapshot {
+  @apply outline outline-2 font-bold outline-blue-500 text-blue-500 rounded w-full;
+  padding: 0.8rem 1.6rem;
+  margin-top: 1.2rem;
+  cursor: pointer;
+}
+
+.snapshotPreview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-width: 25rem;
+  min-height: 20rem;
+  background-color: $snapshot-preview-bg-color;
+  border-radius: 1.2rem;
+  flex: 1;
+}
+
+.orientationContainer {
+  display: flex;
+}
+
+.snapshotPreviewContainer {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding-right: 2.4rem;
+}
+
+.orientationInstructionsContainer {
+  flex: 1;
+}
+
+.referenceImage {
+  height: 6.4rem;
+  width: 6.4rem;
+
+  margin-right: 2.4rem;
+}
+
+.orientationInstructions {
+  margin-bottom: 3.2rem;
+}
+
+.orientationInstructionPoints {
+  list-style: disc;
+  padding-left: 2rem;
+  padding-top: 0.5rem;
+  font-style: italic;
+  color: $grey-text-color;
+  font-size: 1.2rem;
+}
+
+.orientationInstructionHeading {
+  font-style: italic;
+  font-size: 1.4rem;
+  font-weight: bold;
+}
+
+.referenceImageList {
+  display: flex;
+}
+
+
+.compatibilityTitle {
+  font-size: 1.8rem;
+  font-weight: 600;
+}
+
+.compatibilityBody {
+  color: $grey-text-color;
+  font-size: 1.6rem;
+  font-style: italic;
+  line-height: 2.6rem;
+}
+
+.compatibilityWarningIcon {
+  height: 4rem;
+  width: 4rem;
+}
+
+.compatibilityAlert {
+  @apply text-red-600 bg-red-100;
+  font-size: 1.4rem;
+  padding: 0.8rem 1.6rem;
+  margin: 4rem -4rem -4rem -4rem;
+  border-radius: 0 0 1.2rem 1.2rem;
+}
