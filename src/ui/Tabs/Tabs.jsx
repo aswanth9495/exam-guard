@@ -1,27 +1,29 @@
-import React, { useState } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
+
 import styles from './Tabs.module.scss';
 import Tab from './Tab';
 
-const Tabs = ({ children }) => {
-  const [activeTab, setActiveTab] = useState(0);
-
-  const handleTabClick = (index) => {
-    setActiveTab(index);
+const Tabs = ({ children, activeTab, onTabChange, className }) => {
+  const handleTabClick = (name) => {
+    if (onTabChange) onTabChange(name);
   };
 
   return (
-    <div className={styles.tabs}>
+    <div className={classNames(styles.tabs, {[className]: className })}>
       <div className={styles.tabList}>
-        {React.Children.map(children, (child, index) => 
+        {React.Children.map(children, (child) =>
           React.cloneElement(child, {
-            isActive: activeTab === index,
-            onClick: () => handleTabClick(index),
+            isActive: activeTab === child.props.name,
+            onClick: () => handleTabClick(child.props.name),
           })
         )}
       </div>
       <div className={styles.tabContent}>
-        {React.Children.toArray(children)[activeTab]?.props.children}
+        {React.Children.toArray(children).find(
+          (child) => child.props.name === activeTab
+        )?.props.children}
       </div>
     </div>
   );
@@ -29,6 +31,12 @@ const Tabs = ({ children }) => {
 
 Tabs.propTypes = {
   children: PropTypes.node.isRequired,
+  activeTab: PropTypes.string.isRequired,
+  onTabChange: PropTypes.func,
+};
+
+Tabs.defaultProps = {
+  onTabChange: null,
 };
 
 export default Tabs;

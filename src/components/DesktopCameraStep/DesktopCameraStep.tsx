@@ -12,7 +12,7 @@ const DesktopCameraStep = () => {
   const dispatch = useAppDispatch();
 
   return (
-    <div className='p-8 flex-1'>
+    <div className='p-8 flex-1 overflow-y-auto'>
       <StepHeader
         stepNumber='2'
         title='Desktop Camera Permissions'

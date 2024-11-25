@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import classNames from 'classnames';
 
 import styles from './MobileCameraStep.module.scss';
@@ -61,8 +61,17 @@ const failedUi = ({ title, description }) => {
 
 function MobileCompatibility({ 
   className, 
-  statusMap=DEFAULT_STATUS_MAP 
+  statusMap=DEFAULT_STATUS_MAP,
+  setShowDisclaimer,
 }) {
+
+  useEffect(() => {
+    setShowDisclaimer(true);
+    return () => {
+      setShowDisclaimer(false);
+    }
+  }, []);
+
   return (
     <div className={classNames('flex flex-col justify-between', { [className]: className })}> 
       <section>

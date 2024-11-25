@@ -29,3 +29,9 @@ export const COMPATIBILITY_CHECK_STATUSES = {
   default: 'default',
   failed: 'failed'
 }
+
+export const PAIRING_STEPS = {
+  pairing: 'pairing',
+  orientation: 'orientation',
+  mobileCompatibility: 'mobileCompatibility'
+};

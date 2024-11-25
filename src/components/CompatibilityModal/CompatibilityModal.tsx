@@ -10,7 +10,7 @@ export default function CompatibilityModal() {
   const activeStep = useAppSelector((state) => state.workflow.activeStep);
 
   return (
-    <Modal isOpen={true} modalClassName='w-[90%] h-[90%] flex'>
+    <Modal isOpen={true} modalClassName='w-[100%] h-[100%] flex'>
       <div className='bg-blue-50 p-12 pt-16 m-w-96 w-1/3'>
         <CompatibilityModalHeader />
         <CompatibilityModalStepsScreen />
