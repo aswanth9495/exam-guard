@@ -35,7 +35,10 @@ export function captureSnapshot({
 
 // Start taking Snapshots at regular intervals
 export function setupSnapshotCapture({
-  onSnapshotSuccess, onSnapshotFailure, frequency, resizeDimensions,
+  onSnapshotSuccess,
+  onSnapshotFailure,
+  frequency,
+  resizeDimensions,
 }) {
   setInterval(() => {
     captureSnapshot({ onSnapshotSuccess, onSnapshotFailure, resizeDimensions });
@@ -91,7 +94,7 @@ function checkForBlackFrame(
   stream,
   blackPixelThreshold,
   onWebcamEnabled,
-  onWebcamDisabled,
+  onWebcamDisabled
 ) {
   const canvas = document.createElement('canvas');
   const context = canvas.getContext('2d');
@@ -104,7 +107,9 @@ function checkForBlackFrame(
     const frame = context.getImageData(0, 0, canvas.width, canvas.height).data;
 
     if (isMostlyBlackFrame(frame, blackPixelThreshold)) {
-      onWebcamDisabled?.({ error: new Error('Mostly black video feed detected') });
+      onWebcamDisabled?.({
+        error: new Error('Mostly black video feed detected'),
+      });
       videoElement.pause();
       // eslint-disable-next-line no-param-reassign
       videoElement.srcObject = null;
@@ -117,14 +122,34 @@ function checkForBlackFrame(
   setTimeout(checkBlackFrame, 1000); // Delay to allow video to start
 }
 
-// Detect webcam and set up the stream
+// Add this new function
+export async function getAvailableCameras() {
+  try {
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    return devices
+      .filter((device) => device.kind === 'videoinput')
+      .map((device) => ({
+        id: device.deviceId,
+        label: device.label || `Camera ${device.deviceId.slice(0, 4)}...`,
+      }));
+  } catch (error) {
+    console.error('Error getting cameras:', error);
+    return [];
+  }
+}
+
+// Update the detectWebcam function to accept deviceId
 export function detectWebcam({
   onWebcamEnabled,
   onWebcamDisabled,
   optional,
-  blackPixelThreshold = 0.8, // 80% of the video should not be black
+  blackPixelThreshold = 0.8,
+  deviceId = null || '',
 }) {
-  navigator.mediaDevices.getUserMedia({ video: true })
+  navigator.mediaDevices
+    .getUserMedia({
+      video: deviceId ? { deviceId: { exact: deviceId } } : true,
+    })
     .then((stream) => {
       const videoElement = getVideoElement();
       if (videoElement) {
@@ -136,7 +161,7 @@ export function detectWebcam({
             stream,
             blackPixelThreshold,
             onWebcamEnabled,
-            onWebcamDisabled,
+            onWebcamDisabled
           );
         };
       }

@@ -6,12 +6,12 @@ import { Status } from '@/types/globals';
 const StepHeader = ({
   stepNumber,
   title,
-  description,
+  description = '',
   status = 'pending',
 }: {
   stepNumber: string;
   title: string;
-  description: string;
+  description?: string;
   status?: Status;
 }) => (
   <div className='flex items-center gap-4'>

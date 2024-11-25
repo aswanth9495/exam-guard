@@ -1,50 +1,55 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 import { ArrowRight } from 'lucide-react';
 import { Button } from '@/ui/Button';
 import { Checkbox } from '@/ui/Checkbox';
-import { nextStep } from '@/store/features/workflowSlice';
-import { useAppDispatch } from '@/hooks/reduxhooks';
+import { nextStep, setStepAcknowledged } from '@/store/features/workflowSlice';
+import { useAppDispatch, useAppSelector } from '@/hooks/reduxhooks';
+import { selectStep } from '@/store/features/workflowSlice';
 import StepHeader from '@/ui/StepHeader';
+import CameraCard from '@/ui/CameraCard';
 
 const DesktopCameraStep = () => {
-  const [isChecked, setIsChecked] = useState(false);
   const dispatch = useAppDispatch();
+  const { acknowledged, status } = useAppSelector((state) =>
+    selectStep(state, 'cameraShare')
+  );
+
+  const handleCheckboxChange = () => {
+    dispatch(
+      setStepAcknowledged({
+        step: 'cameraShare',
+        acknowledged: !acknowledged,
+      })
+    );
+  };
+
+  const canProceed = acknowledged && status === 'completed';
 
   return (
-    <div className='p-8 flex-1'>
+    <div className='p-12 flex-1'>
       <StepHeader
         stepNumber='2'
         title='Desktop Camera Permissions'
-        description='Select your desktop camera below, your camera feed will be continuously monitored throughout the test duration.'
+        status={status}
       />
-      {/* Add the UI Here */}
-      <div className='mt-8'>
-        <p className='text-gray-600 mt-8 text-xs italic text-xs'>
-          Need help on sharing camera permissions?{' '}
-          <a
-            className='text-blue-600'
-            href='https://support.google.com/chrome/answer/2693767?hl=en&co=GENIE.Platform%3DDesktop'
-          >
-            Click to view
-          </a>{' '}
-          setup guide
-        </p>
-        <div className='flex items-center gap-2 mt-6 text-xs'>
+      <div className='mt-12'>
+        <CameraCard />
+        <div className='flex items-center gap-2 mt-8 text-xs'>
           <Checkbox
             id='confirm'
-            checked={isChecked}
-            onCheckedChange={(checked) => setIsChecked(checked as boolean)}
+            checked={acknowledged}
+            onCheckedChange={handleCheckboxChange}
           />
           <label htmlFor='confirm' className='text-xs text-gray-600'>
-            By clicking on this, you confirm that you have shared access to your
-            camera and will be shared throughout the test.
+            By clicking on this, you confirm that you have enabled camera access
+            and it will remain enabled throughout the test.
           </label>
         </div>
         <Button
-          className='mt-8 items-center'
+          className='mt-12 items-center'
           variant='primary'
-          disabled={!isChecked}
+          disabled={!canProceed}
           onClick={() => dispatch(nextStep())}
         >
           Proceed to next step

@@ -41,6 +41,8 @@
   "homepage": "https://github.com/aswanth9495/exam-guard#readme",
   "dependencies": {
     "@radix-ui/react-checkbox": "^1.1.2",
+    "@radix-ui/react-dialog": "^1.1.2",
+    "@radix-ui/react-select": "^2.1.2",
     "@radix-ui/react-slot": "^1.1.0",
     "@reduxjs/toolkit": "^2.3.0",
     "axios": "^1.7.7",
