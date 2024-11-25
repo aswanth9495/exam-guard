@@ -7,12 +7,12 @@ const StepHeader = ({
   stepNumber,
   title,
   description,
-  status,
+  status = 'pending',
 }: {
   stepNumber: string;
   title: string;
   description: string;
-  status: Status;
+  status?: Status;
 }) => (
   <div className='flex items-center gap-4'>
     {status === 'completed' ? (
