@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 
 import { ArrowRight } from 'lucide-react';
-import { Button } from '@/ui/Button';
-import { Checkbox } from '@/ui/Checkbox';
+import { Button } from '@/ui/button';
+import { Checkbox } from '@/ui/checkbox';
 import { nextStep } from '@/store/features/workflowSlice';
-import StepHeader from '@/ui/StepHeader';
+import StepHeader from '@/ui/stepHeader';
 import { Tabs, Tab } from '@/ui/Tabs';
 import { useDispatch } from 'react-redux';
 import Pairing from './Pairing';
@@ -34,7 +34,6 @@ const MobileCameraStep = () => {
         </Tab>
       </Tabs>
       <div className='mt-8'>
-
         <div className='flex items-center gap-2 mt-6 text-sm'>
           <Checkbox
             id='confirm'
@@ -48,13 +47,13 @@ const MobileCameraStep = () => {
           </label>
         </div>
         <Button
-          className='mt-8'
+          className='mt-8 items-center'
           variant='primary'
           disabled={!isChecked}
           onClick={() => dispatch(nextStep())}
         >
           Proceed to next step
-          <ArrowRight className='w-4 h-4' />
+          <ArrowRight className='w-6 h-6' />
         </Button>
       </div>
     </div>

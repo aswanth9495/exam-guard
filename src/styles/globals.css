@@ -2,7 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* To set 1rem = 10px  */
 html {
   font-size: 10px;
 }
@@ -62,4 +61,3 @@ html {
     @apply font-sans antialiased bg-background text-foreground;
   }
 }
-

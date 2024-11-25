@@ -1,6 +1,16 @@
 import { useEffect } from 'react';
 
-export default function CircularLoader() {
+export default function Loader({
+  bgClassName,
+  ringClassName,
+  loaderClassName,
+  size = 'md',
+}: {
+  bgClassName?: string;
+  ringClassName?: string;
+  loaderClassName?: string;
+  size?: 'sm' | 'md' | 'lg';
+}) {
   useEffect(() => {
     const style = document.createElement('style');
     style.textContent = `
@@ -16,11 +26,23 @@ export default function CircularLoader() {
     };
   }, []);
 
+  const sizeMap = {
+    sm: 'h-12 w-12',
+    md: 'h-16 w-16',
+    lg: 'h-24 w-24',
+  };
+
+  const sizeClass = sizeMap[size];
+
   return (
-    <div className='flex items-center justify-center bg-[#000B18]'>
-      <div className='relative h-8 w-8'>
-        <div className='absolute inset-0 rounded-full border-4 border-[##0080FF] opacity-25'></div>
-        <div className='absolute inset-0 rounded-full border-4 border-transparent border-t-[#0080FF] animate-[spin_1s_linear_infinite]'></div>
+    <div className={`flex items-center justify-center pr-4 ${bgClassName}`}>
+      <div className={`relative ${sizeClass}`}>
+        <div
+          className={`absolute inset-0 rounded-full border-4 border-[#0080FF] opacity-25 ${ringClassName}`}
+        ></div>
+        <div
+          className={`absolute inset-0 rounded-full border-4 border-transparent border-t-[#0080FF] animate-[spin_1s_linear_infinite] ${loaderClassName}`}
+        ></div>
       </div>
     </div>
   );
