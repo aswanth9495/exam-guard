@@ -279,6 +279,7 @@ export default class Proctor {
     this.runCompatibilityChecks = this.runCompatibilityChecks.bind(this);
     this.runAdaptiveCompatibilityChecks = this.runAdaptiveCompatibilityChecks.bind(this);
     this.initialFullScreen = false;
+    this.mockModeEnabled = mockModeEnabled;
     setupAlert();
     if (this.snapshotConfig.enabled) {
       setupWebcam();
@@ -292,7 +293,7 @@ export default class Proctor {
       if (this.proctoringInitialised && !isFullScreen()) {
         requestFullScreen();
       }
-    }, { ...this.compatibilityCheckConfig, mockModeEnabled });
+    }, { ...this.compatibilityCheckConfig, mockModeEnabled: this.mockModeEnabled });
 
     if (this.screenshotConfig.enabled) {
       this.handleScreenshareClick();
