@@ -3,20 +3,32 @@ import { ArrowRight } from 'lucide-react';
 
 import { Button } from '@/ui/button';
 import { Checkbox } from '@/ui/checkbox';
-import { nextStep, acknowledgeStep } from '@/store/features/workflowSlice';
+import { nextStep, setStepAcknowledged } from '@/store/features/workflowSlice';
 import { useAppDispatch, useAppSelector } from '@/hooks/reduxhooks';
-import CompatibilityCard from '@/ui/compatibilityCard';
+import ScreenShareCard from '@/ui/ScreenShareCard';
 import StepHeader from '@/ui/stepHeader';
+import { selectStep } from '@/store/features/workflowSlice';
 
 const ScreenShareStep = () => {
   const dispatch = useAppDispatch();
-  const acknowledged = useAppSelector(
-    (state) => state.workflow.steps['1'].acknowledged
+  const { acknowledged, subStep } = useAppSelector((state) =>
+    selectStep(state, 'screenShare')
   );
 
   const handleCheckboxChange = () => {
-    dispatch(acknowledgeStep('1'));
+    dispatch(
+      setStepAcknowledged({
+        step: 'screenShare',
+        acknowledged: !acknowledged,
+      })
+    );
   };
+
+  const canProceed =
+    acknowledged &&
+    Object.values(subStep).every((substep) => substep.status === 'completed');
+
+  console.log(subStep.screenShare.status);
 
   return (
     <div className='p-12 flex-1'>
@@ -24,9 +36,10 @@ const ScreenShareStep = () => {
         stepNumber='1'
         title='Test your Screen Share Permissions'
         description='Test if screen share permissions are enabled. If not, follow the instructions below to enable them'
+        status={subStep.screenShare.status}
       />
       <div className='mt-12'>
-        <CompatibilityCard />
+        <ScreenShareCard />
         <p className='text-gray-600 mt-12 italic text-xs'>
           <strong>Please Note :</strong> You will need to set up screen sharing
           again when your test begins, as the environment will refresh.
@@ -45,7 +58,7 @@ const ScreenShareStep = () => {
         <Button
           className='mt-12 items-center'
           variant='primary'
-          disabled={!acknowledged}
+          disabled={!canProceed}
           onClick={() => dispatch(nextStep())}
         >
           Proceed to next step

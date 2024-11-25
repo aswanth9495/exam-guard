@@ -9,3 +9,29 @@ export interface Step {
   title: string;
   component: React.ReactNode;
 }
+
+export type Status = 'locked' | 'pending' | 'error' | 'completed';
+
+export interface SubStepState {
+  status: Status;
+  error: string;
+}
+
+export interface StepState {
+  locked: boolean;
+  acknowledged: boolean;
+  status: Status;
+  subStep: Record<string, SubStepState>;
+}
+
+export interface WorkflowState {
+  activeStep: WorkflowStepKey;
+  steps: {
+    screenShare: StepState;
+    cameraShare: StepState;
+    mobileCameraShare: StepState;
+    compatibilityChecks: StepState;
+  };
+}
+
+export type WorkflowStepKey = keyof WorkflowState['steps'];

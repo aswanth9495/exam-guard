@@ -1,18 +1,9 @@
-const ENTIRE_SCREEN_DISPLAY_SURFACE = 'monitor';
-const SCREEN_SHARE_READY_STATE = 'live';
-const ERRORS = {
-  FULL_MONITOR_NOT_SHARED: 'FULL_MONITOR_NOT_SHARED',
-  SCREEN_SHARE_STREAM_ENDED: 'SCREEN_SHARE_STREAM_ENDED',
-  SCREEN_SHARE_FAILED: 'SCREEN_SHARE_FAILED',
-  SCREEN_SHARE_DENIED: 'SCREEN_SHARE_DENIED',
-  ROLLING_WINDOW_STRATEGY_LENGTH_EXCEEDED:
-    'ROLLING_WINDOW_STRATEGY_LENGTH_EXCEEDED',
-};
-
-const STRATEGIES = {
-  RETRY_STRATEGY: 'RETRY_STRATEGY',
-  ROLLING_WINDOW_STRATEGY: 'ROLLING_WINDOW_STRATEGY',
-};
+import {
+  ENTIRE_SCREEN_DISPLAY_SURFACE,
+  SCREEN_SHARE_READY_STATE,
+  ERRORS,
+  STRATEGIES,
+} from '@/constants/screenshot';
 
 class ScreenShareMonitor {
   constructor(strategy = STRATEGIES.ROLLING_WINDOW_STRATEGY) {
@@ -326,4 +317,53 @@ export function screenshareClickHandler({ onClick }) {
 
 export function screenshareCleanup() {
   screenShareMonitor.stopScreenShare();
+}
+
+async function setupScreenshotCaptureFromScreenShareReact({
+  onScreenShareEnabled,
+  onScreenShareFailure,
+  onScreenShareEnd,
+  onScreenshotSuccess,
+  onScreenshotFailure,
+  frequency,
+  resizeDimensions,
+}) {
+  try {
+    const resp = await screenShareMonitor.requestScreenShare({
+      onSuccess: onScreenShareEnabled,
+      onFailure: onScreenShareFailure,
+      onEnd: onScreenShareEnd,
+    });
+
+    if (!resp) return;
+
+    const [isValid, error] = await screenShareMonitor.isScreenShareValid();
+    if (!isValid) {
+      onScreenShareFailure?.(error);
+      return;
+    }
+
+    onScreenShareEnabled?.();
+
+    screenShareMonitor.startScreenshotCapture({
+      onSuccess: onScreenshotSuccess,
+      onFailure: onScreenshotFailure,
+      interval: frequency,
+      resizeDimensions,
+    });
+  } catch (error) {
+    onScreenShareFailure?.();
+  }
+}
+
+export async function screenshareRequestHandlerReact() {
+  await setupScreenshotCaptureFromScreenShareReact({
+    onScreenShareEnabled: this.handleScreenShareSuccess.bind(this),
+    onScreenShareFailure: this.handleScreenShareFailure.bind(this),
+    onScreenShareEnd: this.handleScreenShareEnd.bind(this),
+    onScreenshotSuccess: this.handleScreenshotSuccess.bind(this),
+    onScreenshotFailure: this.handleScreenshotFailure.bind(this),
+    frequency: this.screenshotConfig.frequency,
+    resizeDimensions: this.screenshotConfig.resizeTo,
+  });
 }

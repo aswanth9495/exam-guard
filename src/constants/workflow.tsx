@@ -7,22 +7,22 @@ import MobileCameraStep from '@/components/MobileCameraStep';
 import SystemChecksStep from '@/components/SystemChecksStep';
 
 export const STEPS: Record<string, Step> = {
-  '1': {
+  screenShare: {
     icon: Monitor,
     title: 'Screen Share Permissions',
     component: <ScreenShareStep />,
   },
-  '2': {
+  cameraShare: {
     icon: Camera,
     title: 'Desktop Camera Permissions',
     component: <DesktopCameraStep />,
   },
-  '3': {
+  mobileCameraShare: {
     icon: Smartphone,
     title: 'Mobile Camera Pairing',
     component: <MobileCameraStep />,
   },
-  '4': {
+  compatibilityChecks: {
     icon: Settings,
     title: 'System Compatibility Checks',
     component: <SystemChecksStep />,
