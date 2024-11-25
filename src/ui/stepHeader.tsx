@@ -1,6 +1,6 @@
 import React from 'react';
 import { CheckCircle, AlertTriangle } from 'lucide-react';
-import Loader from '@/ui/loader';
+import Loader from '@/ui/Loader';
 import { Status } from '@/types/globals';
 
 const StepHeader = ({
