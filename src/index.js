@@ -766,6 +766,10 @@ export default class Proctor {
     });
   }
 
+  setMockModeEnabled(value) {
+    this.mockModeEnabled = value;
+  }
+
   handleWindowUnload() {
     // Send events when the user tries to exit or close the window/tab
     window.addEventListener('beforeunload', this._cleanup.bind(this));
