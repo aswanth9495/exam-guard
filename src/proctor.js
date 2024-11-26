@@ -290,7 +290,8 @@ export default class Proctor {
     this.compatibilityCheckInterval = null;
     this.initializeProctoring = this.initializeProctoring.bind(this);
     this.runCompatibilityChecks = this.runCompatibilityChecks.bind(this);
-    this.runAdaptiveCompatibilityChecks = this.runAdaptiveCompatibilityChecks.bind(this);
+    this.runAdaptiveCompatibilityChecks =
+      this.runAdaptiveCompatibilityChecks.bind(this);
     this.initialFullScreen = false;
     setupAlert();
     if (this.snapshotConfig.enabled) {
@@ -301,13 +302,13 @@ export default class Proctor {
       () => {
         this.runCompatibilityChecks(
           this.handleCompatibilitySuccess.bind(this),
-          this.handleCompatibilityFailure.bind(this),
+          this.handleCompatibilityFailure.bind(this)
         );
         if (this.proctoringInitialised && !isFullScreen()) {
           requestFullScreen();
         }
       },
-      { ...this.compatibilityCheckConfig, mockModeEnabled },
+      { ...this.compatibilityCheckConfig, mockModeEnabled }
     );
 
     if (this.screenshotConfig.enabled) {
@@ -415,7 +416,7 @@ export default class Proctor {
     if (!this.compatibilityCheckConfig.enable) return;
     setTimeout(
       this.runAdaptiveCompatibilityChecks,
-      this.compatibilityCheckConfig.frequency,
+      this.compatibilityCheckConfig.frequency
     );
   }
 
@@ -425,9 +426,10 @@ export default class Proctor {
     const { memoryLimit } = this.compatibilityCheckConfig;
 
     // Check memory usage via the browser's Performance API (for browsers that support it)
-    const memoryUsage = window.performance && window.performance.memory
-      ? window.performance.memory.usedJSHeapSize / 1024 / 1024 // in MB
-      : 0; // If memory data is not available, assume 0 (safe fallback)
+    const memoryUsage =
+      window.performance && window.performance.memory
+        ? window.performance.memory.usedJSHeapSize / 1024 / 1024 // in MB
+        : 0; // If memory data is not available, assume 0 (safe fallback)
 
     console.log('%c%s', 'color: #ff2525', 'Memory Usage (in MB):', memoryUsage);
 
@@ -436,7 +438,7 @@ export default class Proctor {
       // Run compatibility checks (e.g., webcam, network speed, etc.)
       this.runCompatibilityChecks(
         this.handleCompatibilitySuccess.bind(this),
-        this.handleCompatibilityFailure.bind(this),
+        this.handleCompatibilityFailure.bind(this)
       );
     }
 
@@ -447,25 +449,26 @@ export default class Proctor {
       '%c%s',
       'color: #ff2525',
       'Time take for running Compatibility checks (in ms):',
-      duration,
+      duration
     );
 
     console.log(
       '%c%s',
       'color: #ff2525',
       'Is CPU peformance fine ?: ',
-      duration < this.compatibilityCheckConfig.cpuThreshold,
+      duration < this.compatibilityCheckConfig.cpuThreshold
     );
 
     // Adjust frequency based on system load
-    const delay = duration < this.compatibilityCheckConfig.cpuThreshold
-      ? this.compatibilityCheckConfig.frequency
-      : this.compatibilityCheckConfig.maxFrequency;
+    const delay =
+      duration < this.compatibilityCheckConfig.cpuThreshold
+        ? this.compatibilityCheckConfig.frequency
+        : this.compatibilityCheckConfig.maxFrequency;
 
     // Schedule the next check adaptively
     this.compatibilityCheckTimeout = setTimeout(
       this.runAdaptiveCompatibilityChecks,
-      delay,
+      delay
     );
   }
 
@@ -578,7 +581,7 @@ export default class Proctor {
       .then((results) => {
         // If any check fails, handle failure and return the updated object
         const failedCheck = results.find(
-          (result) => result.status === 'rejected',
+          (result) => result.status === 'rejected'
         );
 
         if (failedCheck) {
@@ -589,8 +592,8 @@ export default class Proctor {
               () => {
                 this.disqualifyUser();
               },
-              this.proctoringInitialised
-                && this.compatibilityCheckConfig.showTimer,
+              this.proctoringInitialised &&
+                this.compatibilityCheckConfig.showTimer
             );
           }
           onFailure?.(failedCheck.reason, passedChecks);
@@ -608,7 +611,7 @@ export default class Proctor {
           () => {
             this.disqualifyUser();
           },
-          this.proctoringInitialised,
+          this.proctoringInitialised
         );
         // Handle any failure in individual checks
         onFailure?.(failedCheck, passedChecks);
@@ -689,7 +692,7 @@ export default class Proctor {
     if (this.compatibilityCheckConfig.enable) {
       this.runCompatibilityChecks(
         this.handleCompatibilitySuccess.bind(this),
-        this.handleCompatibilityFailure.bind(this),
+        this.handleCompatibilityFailure.bind(this)
       );
     }
     this.callbacks.onFullScreenEnabled();
@@ -710,7 +713,7 @@ export default class Proctor {
         `You performed a violation during the test. 
          Repeating this action may result in disqualification 
          and a failed test attempt.`,
-        false,
+        false
       );
     }
     if (this.config[type].recordViolation) {
@@ -721,9 +724,9 @@ export default class Proctor {
     dispatchGenericViolationEvent(violation);
 
     if (
-      forceDisqualify
-      || this.getViolationsCountForDisqualify()
-        >= this.disqualificationConfig.eventCountThreshold
+      forceDisqualify ||
+      this.getViolationsCountForDisqualify() >=
+        this.disqualificationConfig.eventCountThreshold
     ) {
       this.disqualifyUser();
     }
@@ -738,7 +741,7 @@ export default class Proctor {
       showViolationWarning(
         this.disqualificationConfig.alertHeading,
         this.disqualificationConfig.alertMessage,
-        true,
+        true
       );
     }
     this.callbacks.onDisqualified(); // Trigger disqualification callback
@@ -755,8 +758,8 @@ export default class Proctor {
 
     // Check if the max threshold is exceeded
     if (
-      this.recordedViolationEvents.length
-      >= this.eventsConfig.maxEventsBeforeSend
+      this.recordedViolationEvents.length >=
+      this.eventsConfig.maxEventsBeforeSend
     ) {
       this.sendEvents(); // Send the batch of events when threshold is reached
     }
@@ -821,7 +824,7 @@ export default class Proctor {
 
   getViolationsCountForDisqualify() {
     return this.violationEvents.filter(
-      (violation) => violation.disqualify === true,
+      (violation) => violation.disqualify === true
     ).length;
   }
 

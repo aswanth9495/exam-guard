@@ -1,6 +1,6 @@
 import React from 'react';
 import { Monitor, Camera, Smartphone, Settings } from 'lucide-react';
-import { Step } from '@/types/globals';
+import { Step } from '@/types/workflowTypes';
 import ScreenShareStep from '@/components/ScreenShareStep';
 import DesktopCameraStep from '@/components/DesktopCameraStep';
 import MobileCameraStep from '@/components/MobileCameraStep';

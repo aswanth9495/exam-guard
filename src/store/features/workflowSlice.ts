@@ -5,7 +5,7 @@ import {
   StepState,
   WorkflowState,
   WorkflowStepKey,
-} from '@/types/globals';
+} from '@/types/workflowTypes';
 
 const createSubStep = (): SubStepState => ({
   status: 'locked',

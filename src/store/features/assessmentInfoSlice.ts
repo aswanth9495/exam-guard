@@ -1,8 +1,10 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { AssessmentInfoState } from '@/types/common';
 
-const initialState = {
+const initialState: AssessmentInfoState = {
   userName: '',
   assessmentName: '',
+  proctor: null,
 };
 
 const assessmentInfoSlice = createSlice({
@@ -12,12 +14,22 @@ const assessmentInfoSlice = createSlice({
     setAssessmentInfo: (state, action) => {
       return {
         ...state,
-        ...action.payload,
+        userName: action.payload.userName,
+        assessmentName: action.payload.assessmentName,
+      };
+    },
+    setProctor: (state, action) => {
+      return {
+        ...state,
+        proctor: action.payload,
       };
     },
   },
 });
 
-export const { setAssessmentInfo } = assessmentInfoSlice.actions;
+export const { setAssessmentInfo, setProctor } = assessmentInfoSlice.actions;
 
 export default assessmentInfoSlice.reducer;
+
+export const selectProctor = (state: { assessmentInfo: AssessmentInfoState }) =>
+  state.assessmentInfo.proctor;

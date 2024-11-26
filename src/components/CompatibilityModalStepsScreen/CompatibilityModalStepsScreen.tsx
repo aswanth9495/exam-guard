@@ -4,7 +4,7 @@ import { CheckCircle, AlertTriangle, CheckIcon } from 'lucide-react';
 import { STEPS } from '@/constants/workflow';
 import { setActiveStep } from '@/store/features/workflowSlice';
 import { useAppSelector, useAppDispatch } from '@/hooks/reduxhooks';
-import { WorkflowStepKey, Status } from '@/types/globals';
+import { WorkflowStepKey, Status } from '@/types/workflowTypes';
 
 interface StepItemProps {
   icon: React.ElementType;
