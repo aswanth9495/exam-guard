@@ -6,7 +6,7 @@ import {
 } from '@/store/features/workflowSlice';
 import { ERROR_MESSAGES } from '@/constants/screenshot';
 
-export class CallbackHandlers {
+export class ScreenShareHandlers {
   private dispatch: AppDispatch;
 
   constructor(dispatch: AppDispatch) {

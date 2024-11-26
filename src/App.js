@@ -6,7 +6,8 @@ import {
   setProctor,
 } from '@/store/features/assessmentInfoSlice';
 import CompatibilityModal from '@/components/CompatibilityModal';
-import { CallbackHandlers } from '@/utils/callbackHandlers';
+import { ScreenShareHandlers } from '@/store/handlers/screenShare';
+import { WebcamHandlers } from '@/store/handlers/webcam';
 
 const App = ({
   baseUrl,
@@ -28,7 +29,8 @@ const App = ({
     const initializeProctoring = async () => {
       try {
         const Proctor = (await import('./proctor')).default;
-        const callbackHandlers = new CallbackHandlers(dispatch);
+        const screenShareHandlers = new ScreenShareHandlers(dispatch);
+        const webcamHandlers = new WebcamHandlers(dispatch);
 
         const proctor = new Proctor({
           baseUrl,
@@ -40,18 +42,18 @@ const App = ({
           compatibilityCheckConfig,
           callbacks: {
             ...callbacks,
-            onScreenShareSuccess: callbackHandlers.handleScreenShareSuccess,
-            onScreenShareFailure: callbackHandlers.handleScreenShareFailure,
-            onScreenShareEnd: callbackHandlers.handleScreenShareEnd,
-            onScreenshotSuccess: callbackHandlers.handleScreenshotSuccess,
-            onScreenshotFailure: callbackHandlers.handleScreenshotFailure,
-            // onDisqualified: callbacks.onDisqualified || (() => {}),
-            // onWebcamDisabled: callbacks.onWebcamDisabled || (() => {}),
-            // onWebcamEnabled: callbacks.onWebcamEnabled || (() => {}),
-            // onSnapshotSuccess: callbacks.onSnapshotSuccess || (() => {}),
-            // onSnapshotFailure: callbacks.onSnapshotFailure || (() => {}),
+            onScreenShareSuccess: screenShareHandlers.handleScreenShareSuccess,
+            onScreenShareFailure: screenShareHandlers.handleScreenShareFailure,
+            onScreenShareEnd: screenShareHandlers.handleScreenShareEnd,
+            onScreenshotSuccess: screenShareHandlers.handleScreenshotSuccess,
+            onScreenshotFailure: screenShareHandlers.handleScreenshotFailure,
+            onWebcamEnabled: webcamHandlers.onWebcamEnabled,
+            onWebcamDisabled: webcamHandlers.onWebcamDisabled,
+            onSnapshotSuccess: webcamHandlers.onSnapshotSuccess,
+            onSnapshotFailure: webcamHandlers.onSnapshotFailure,
             // onFullScreenEnabled: callbacks.onFullScreenEnabled || (() => {}),
             // onFullScreenDisabled: callbacks.onFullScreenDisabled || (() => {}),
+            // onDisqualified: callbacks.onDisqualified || (() => {}),
             // onCompatibilityCheckSuccess:
             //   callbacks.onCompatibilityCheckSuccess || (() => {}),
             // onCompatibilityCheckFail:
