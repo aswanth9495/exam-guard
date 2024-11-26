@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 
-import { Button } from '@/ui/button';
-import { Checkbox } from '@/ui/checkbox';
+import { Button } from '@/ui/Button';
+import { Checkbox } from '@/ui/Checkbox';
 import { nextStep, setStepAcknowledged } from '@/store/features/workflowSlice';
 import { useAppDispatch, useAppSelector } from '@/hooks/reduxhooks';
 import ScreenShareCard from '@/ui/ScreenShareCard';
-import StepHeader from '@/ui/stepHeader';
+import StepHeader from '@/ui/StepHeader';
 import { selectStep } from '@/store/features/workflowSlice';
 
 const ScreenShareStep = () => {
   const dispatch = useAppDispatch();
-  const { acknowledged, subStep } = useAppSelector((state) =>
+  const { acknowledged, status } = useAppSelector((state) =>
     selectStep(state, 'screenShare')
   );
 
@@ -24,11 +24,7 @@ const ScreenShareStep = () => {
     );
   };
 
-  const canProceed =
-    acknowledged &&
-    Object.values(subStep).every((substep) => substep.status === 'completed');
-
-  console.log(subStep.screenShare.status);
+  const canProceed = acknowledged && status === 'completed';
 
   return (
     <div className='p-12 flex-1'>
@@ -36,7 +32,7 @@ const ScreenShareStep = () => {
         stepNumber='1'
         title='Test your Screen Share Permissions'
         description='Test if screen share permissions are enabled. If not, follow the instructions below to enable them'
-        status={subStep.screenShare.status}
+        status={status}
       />
       <div className='mt-12'>
         <ScreenShareCard />

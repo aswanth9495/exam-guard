@@ -1,17 +1,17 @@
 import React from 'react';
 import { CheckCircle, AlertTriangle } from 'lucide-react';
-import Loader from '@/ui/loader';
+import Loader from '@/ui/Loader';
 import { Status } from '@/types/globals';
 
 const StepHeader = ({
   stepNumber,
   title,
-  description,
+  description = '',
   status = 'pending',
 }: {
   stepNumber: string;
   title: string;
-  description: string;
+  description?: string;
   status?: Status;
 }) => (
   <div className='flex items-center gap-4'>
