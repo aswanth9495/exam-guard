@@ -1,7 +1,7 @@
 $fullscreen-blocker-icon-bg-color: #851A2D;
 $fullscreen-blocker-bg-color: #A42137;
 $fullscreen-blocker-font-color: white; 
-$fullscreen-blocker-key-block-bg-color: #000000;
+$fullscreen-blocker-key-block-bg-color: #000;
 $fullscreen-blocker-icon-border-color: #0080FF;
 $warning-modal-icon-bg-color: #851A2D;
 
@@ -9,8 +9,7 @@ $warning-modal-icon-bg-color: #851A2D;
   display: none;
   width: 100%;
   height: 100vh;
-  position: fixed;
-  background-color: #ffffff !important;
+  background-color: #fff !important;
   z-index: 1000;
   text-align: center;
   position: fixed;
@@ -42,7 +41,7 @@ $warning-modal-icon-bg-color: #851A2D;
     background-color: $fullscreen-blocker-bg-color;
     color: $fullscreen-blocker-font-color;
     border-radius: 1.6rem;
-    box-shadow: 0 0.4rem 1.6rem 0px rgba(255, 142, 161, 0.50);
+    box-shadow: 0 0.4rem 1.6rem 0 rgb(255 142 161 / 50%);
   }
 
   &__title {
@@ -104,7 +103,6 @@ $warning-modal-icon-bg-color: #851A2D;
   }
 
   &__svg {
-    -webkit-transform: rotate(-90deg);
     transform: rotate(-90deg);
   }
 

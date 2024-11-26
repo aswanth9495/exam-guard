@@ -99,6 +99,7 @@ $snapshot-preview-bg-color: #F4F6F9;
 
 .retrySnapshot {
   @apply outline outline-2 font-bold outline-blue-500 text-blue-500 rounded w-full;
+
   padding: 0.8rem 1.6rem;
   margin-top: 1.2rem;
   cursor: pointer;
@@ -134,7 +135,6 @@ $snapshot-preview-bg-color: #F4F6F9;
 .referenceImage {
   height: 6.4rem;
   width: 6.4rem;
-
   margin-right: 2.4rem;
 }
 
@@ -181,8 +181,9 @@ $snapshot-preview-bg-color: #F4F6F9;
 
 .compatibilityAlert {
   @apply text-red-600 bg-red-100;
+
   font-size: 1.4rem;
   padding: 0.8rem 1.6rem;
-  margin: 4rem -4rem -4rem -4rem;
+  margin: 4rem -4rem -4rem;
   border-radius: 0 0 1.2rem 1.2rem;
 }

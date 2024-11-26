@@ -4,17 +4,9 @@ $warning-modal-icon-bg-color: #851a2d;
 $warning-modal-action-font-color: #a42137;
 $warning-modal-action-bg-color: white;
 
-// html, body {
-//   font-size: 10px;
-// }
-
-// * {
-//   box-sizing: border-box;
-// }
-
 .warning-modal {
   display: none;
-  padding: 1.6rem 2rem 2.4rem 2rem;
+  padding: 1.6rem 2rem 2.4rem;
   color: $warning-modal-font-color;
   border-radius: 1.6rem;
   background-color: $warning-modal-bg-color;
