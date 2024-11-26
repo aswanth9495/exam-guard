@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import classNames from 'classnames';
 
 import ReferenceImage from '@/ui/ReferenceImage';
-import { Button } from '@/ui/button';
-import { Checkbox } from '@/ui/checkbox';
+import { Button } from '@/ui/Button';
+import { Checkbox } from '@/ui/Checkbox';
 import { CameraOff, ArrowRight } from 'lucide-react';
 
 import styles from './MobileCameraStep.module.scss';

@@ -1,10 +1,10 @@
 import React, { useCallback, useState } from 'react';
 
 import { ArrowRight } from 'lucide-react';
-import { Button } from '@/ui/button';
-import { Checkbox } from '@/ui/checkbox';
+import { Button } from '@/ui/Button';
+import { Checkbox } from '@/ui/Checkbox';
 import { nextStep } from '@/store/features/workflowSlice';
-import StepHeader from '@/ui/stepHeader';
+import StepHeader from '@/ui/StepHeader';
 import { Tabs, Tab } from '@/ui/Tabs';
 import { useDispatch } from 'react-redux';
 import Pairing from './Pairing';

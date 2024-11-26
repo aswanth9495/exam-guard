@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { useDispatch } from 'react-redux';
 
-import { Button } from '@/ui/button';
-import { Checkbox } from '@/ui/checkbox';
+import { Button } from '@/ui/Button';
+import { Checkbox } from '@/ui/Checkbox';
 import { nextStep } from '@/store/features/workflowSlice';
-import StepHeader from '@/ui/stepHeader';
+import StepHeader from '@/ui/StepHeader';
 import CompatibilityStep from './CompatibilityStep';
 
 import styles from './SystemChecksStep.module.scss';
