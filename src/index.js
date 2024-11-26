@@ -16,6 +16,7 @@ import {
   hideCompatibilityModal,
   setupCompatibilityCheckModal,
   showCompatibilityCheckModal,
+  updateCompatibilityCheckModal,
 } from './utils/compatibilityModal';
 import { checkBandwidth } from './utils/network';
 import {
@@ -769,6 +770,7 @@ export default class Proctor {
 
   setMockModeEnabled(value) {
     this.mockModeEnabled = value;
+    updateCompatibilityCheckModal(this.mockModeEnabled);
   }
 
   handleWindowUnload() {
