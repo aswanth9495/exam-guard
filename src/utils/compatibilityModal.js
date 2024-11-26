@@ -65,7 +65,7 @@ export function updateCompatibilityCheckModal(mockModeEnabled = true) {
     newEle.innerHTML = screenshareInstruction;
   } else {
     targetEle = document.getElementById('compatibility-modal__screenshare-instructions');
-    newEle = document.createElement(screenshareButtonHtml);
+    newEle = document.createElement('div');
     newEle.innerHTML = screenshareButtonHtml;
   }
   if (targetEle) {
