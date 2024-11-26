@@ -94,7 +94,7 @@ function checkForBlackFrame(
   stream,
   blackPixelThreshold,
   onWebcamEnabled,
-  onWebcamDisabled
+  onWebcamDisabled,
 ) {
   const canvas = document.createElement('canvas');
   const context = canvas.getContext('2d');
@@ -161,7 +161,7 @@ export function detectWebcam({
             stream,
             blackPixelThreshold,
             onWebcamEnabled,
-            onWebcamDisabled
+            onWebcamDisabled,
           );
         };
       }

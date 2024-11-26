@@ -35,7 +35,7 @@ class ProctorLibrary {
         <Provider store={store}>
           <App {...defaultProps} {...props} />
         </Provider>
-      </React.StrictMode>
+      </React.StrictMode>,
     );
   }
 }

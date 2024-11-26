@@ -35,8 +35,7 @@ class ScreenShareMonitor {
     if (videoTracks.length === 0) return [false, ERRORS.SCREEN_SHARE_FAILED];
 
     const { readyState } = videoTracks[0];
-    if (readyState !== SCREEN_SHARE_READY_STATE)
-      return [false, ERRORS.SCREEN_SHARE_STREAM_ENDED];
+    if (readyState !== SCREEN_SHARE_READY_STATE) return [false, ERRORS.SCREEN_SHARE_STREAM_ENDED];
 
     const { displaySurface } = videoTracks[0].getSettings();
 
@@ -113,7 +112,7 @@ class ScreenShareMonitor {
                 await onFailure?.({ err });
               } else {
                 console.warn(
-                  `Retry attempt ${attempt} failed. Retrying in ${delay}ms.`
+                  `Retry attempt ${attempt} failed. Retrying in ${delay}ms.`,
                 );
                 // eslint-disable-next-line no-await-in-loop, no-loop-func
                 await new Promise((resolve) => {
@@ -126,7 +125,7 @@ class ScreenShareMonitor {
         } catch (err) {
           await onFailure?.({ err });
         }
-      }, interval)
+      }, interval),
     );
   }
 
@@ -179,17 +178,19 @@ class ScreenShareMonitor {
       setInterval(async () => {
         const blob = await this.captureScreenshot({ resizeDimensions });
         await insertInWindow(blob);
-      }, interval)
+      }, interval),
     );
 
     this.capturedIntervals.push(
       setInterval(async () => {
         await pushFromWindow();
-      }, interval / 2)
+      }, interval / 2),
     );
   }
 
-  startScreenshotCapture({ onSuccess, onFailure, interval, resizeDimensions }) {
+  startScreenshotCapture({
+    onSuccess, onFailure, interval, resizeDimensions,
+  }) {
     switch (this.strategy) {
       case STRATEGIES.RETRY_STRATEGY:
         this.useRetryStrategy({
@@ -276,8 +277,7 @@ async function setupScreenshotCaptureFromScreenShare({
     });
 
     if (!resp) return;
-    if (!screenShareMonitor.isScreenShareValid())
-      throw Error('Screenshare not valid');
+    if (!screenShareMonitor.isScreenShareValid()) throw Error('Screenshare not valid');
 
     onScreenShareEnabled?.();
 
@@ -308,7 +308,7 @@ export async function screenshareRequestHandler() {
 
 export function screenshareClickHandler({ onClick }) {
   const fullscreenShareButton = document.getElementById(
-    'fullscreen-share-button'
+    'fullscreen-share-button',
   );
   fullscreenShareButton.addEventListener('click', () => {
     onClick();

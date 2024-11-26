@@ -86,7 +86,7 @@ module.exports = {
             },
           },
           'sass-loader',
-          'postcss-loader'
+          'postcss-loader',
         ],
         include: path.resolve(__dirname, 'src'),
       },

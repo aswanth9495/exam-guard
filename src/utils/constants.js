@@ -27,11 +27,11 @@ export const DEFAULT_HEADERS_CONTENT_TYPE = 'application/x-www-form-urlencoded';
 export const COMPATIBILITY_CHECK_STATUSES = {
   success: 'success',
   default: 'default',
-  failed: 'failed'
-}
+  failed: 'failed',
+};
 
 export const PAIRING_STEPS = {
   pairing: 'pairing',
   orientation: 'orientation',
-  mobileCompatibility: 'mobileCompatibility'
+  mobileCompatibility: 'mobileCompatibility',
 };

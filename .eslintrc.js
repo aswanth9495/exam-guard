@@ -14,6 +14,10 @@ module.exports = {
     ecmaFeatures: {
       jsx: true,
     },
+    requireConfigFile: false, // Disable the need for a Babel config file
+    babelOptions: {
+      presets: ['@babel/preset-react'], // Add relevant presets
+    },
   },
   ignorePatterns: ['dist/'],
   rules: {
@@ -21,7 +25,16 @@ module.exports = {
     'no-console': 'off', // Example: Allow console statements
     'import/prefer-default-export': 'off',
     'no-underscore-dangle': 'off',
+    'react/prop-types': 'off', // Disables prop-types validation
+    'import/no-unresolved': 'off',
+    'import/extensions': 'off',
+    'no-restricted-exports': 'off',
   },
   parser: '@babel/eslint-parser',
   plugins: ['react'],
+  settings: {
+    react: {
+      version: 'detect', // Automatically detect the React version
+    },
+  },
 };

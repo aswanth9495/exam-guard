@@ -1,4 +1,7 @@
 /** @type {import('tailwindcss').Config} */
+
+const tailwindAnimate = require('tailwindcss-animate');
+
 module.exports = {
   darkMode: ['class'],
   content: ['./src/**/*.{js,jsx,ts,tsx}', './public/index.html'],
@@ -40,8 +43,8 @@ module.exports = {
         },
       },
       borderRadius: {
-        lg: `var(--radius)`,
-        md: `calc(var(--radius) - 2px)`,
+        lg: 'var(--radius)',
+        md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)',
       },
       fontSize: {
@@ -58,5 +61,5 @@ module.exports = {
       },
     },
   },
-  plugins: [require('tailwindcss-animate')],
+  plugins: [tailwindAnimate],
 };

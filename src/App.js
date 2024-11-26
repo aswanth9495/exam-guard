@@ -24,6 +24,7 @@ const App = ({
     const initializeProctoring = async () => {
       try {
         const Proctor = (await import('./proctor')).default;
+        // eslint-disable-next-line no-unused-vars
         const proctor = new Proctor({
           baseUrl,
           eventsConfig,
