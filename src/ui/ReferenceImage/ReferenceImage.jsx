@@ -6,17 +6,20 @@ import failedIcon from '../../assets/images/wavy-warning-icon.svg';
 
 import styles from './ReferenceImage.module.scss';
 
-function ReferenceImage({ className, imageSrc, failed = false, description }) {
+function ReferenceImage({
+  className, imageSrc, failed = false, description,
+}) {
   return (
     <div className={classNames({ [className]: className })}>
-      <div className={classNames(styles.container,
+      <div className={classNames(
+        styles.container,
         { [styles.success]: !failed },
         { [styles.failed]: failed },
-      { [className]: className },
+        { [className]: className },
       )}>
         <img src={imageSrc} alt="reference-image" />
-        {failed ? <img className={styles.icon} src={failedIcon} alt="failed" /> :
-        <img className={styles.icon} src={successIcon} alt="success" />}
+        {failed ? <img className={styles.icon} src={failedIcon} alt="failed" />
+          : <img className={styles.icon} src={successIcon} alt="success" />}
       </div>
       <div className={styles.description}>{description}</div>
     </div>

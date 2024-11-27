@@ -7,7 +7,7 @@ $snapshot-preview-bg-color: #F4F6F9;
 .pairingContainer {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-evenly;
 }
 
 .qrCodeContainer {
@@ -18,7 +18,8 @@ $snapshot-preview-bg-color: #F4F6F9;
 
   img {
     height: 18.5rem;
-    min-width: 10rem;
+    min-width: 18.5rem !important;
+    width: 18.5rem;
   }
 }
 
@@ -98,10 +99,9 @@ $snapshot-preview-bg-color: #F4F6F9;
 }
 
 .retrySnapshot {
-  @apply outline outline-2 font-bold outline-blue-500 text-blue-500 rounded w-full;
+  @apply font-bold text-blue-500 w-full;
 
   padding: 0.8rem 1.6rem;
-  margin-top: 1.2rem;
   cursor: pointer;
 }
 

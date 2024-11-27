@@ -21,6 +21,7 @@ export interface StepState {
   locked: boolean;
   acknowledged: boolean;
   status: Status;
+  activeSubStep: string;
   subStep: Record<string, SubStepState>;
 }
 

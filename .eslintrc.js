@@ -6,6 +6,7 @@ module.exports = {
   extends: [
     'eslint:recommended',
     'airbnb-base',
+    'airbnb/hooks',
     'plugin:react/recommended',
   ],
   parserOptions: {
@@ -31,10 +32,13 @@ module.exports = {
     'no-restricted-exports': 'off',
   },
   parser: '@babel/eslint-parser',
-  plugins: ['react'],
+  plugins: ['react', 'react-hooks'],
   settings: {
     react: {
       version: 'detect', // Automatically detect the React version
+    },
+    node: {
+      extensions: ['.js', '.jsx'],
     },
   },
 };
