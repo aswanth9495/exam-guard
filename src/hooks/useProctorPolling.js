@@ -17,7 +17,7 @@ const useProctorPolling = ({
 
   useEffect(() => {
     if (data) {
-      onDataUpdate?.();
+      onDataUpdate?.(data);
       const secondaryCameraChecks = data.checks?.secondary_camera.checks;
       Object.keys(secondaryCameraChecks).map((check) => {
         const checkData = secondaryCameraChecks[check];

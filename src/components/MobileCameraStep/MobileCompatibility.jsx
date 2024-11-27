@@ -1,12 +1,13 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import classNames from 'classnames';
 
+import { useDispatch } from 'react-redux';
 import styles from './MobileCameraStep.module.scss';
 import { COMPATIBILITY_CHECK_STATUSES } from '@/utils/constants';
 
 import warningIcon from '@/assets/images/red-warning.svg';
 import useProctorPolling from '@/hooks/useProctorPolling';
-import Loader from '@/ui/Loader';
+import { setStepStatus, setSubStepStatus } from '@/store/features/workflowSlice';
 
 const COMPATIBILITY_CHECK_DATA = {
   battery: {
@@ -59,23 +60,45 @@ function MobileCompatibility({
   className,
 }) {
   const [statusMap, setStatusMap] = useState(DEFAULT_STATUS_MAP);
+  const dispatch = useDispatch();
 
   const handleBatteryLow = useCallback(() => {
     console.log('%c⧭', 'color: #807160', 'gello');
     setStatusMap({
       battery: 'failed',
     });
-  }, []);
+    dispatch(setSubStepStatus({
+      step: 'mobileCameraShare',
+      subStep: 'systemChecks',
+      status: 'pending',
+    }));
+  }, [dispatch]);
 
   const handleBatteryNormal = useCallback(() => {
     setStatusMap({
       battery: 'success',
     });
-  }, []);
+    dispatch(setSubStepStatus({
+      step: 'mobileCameraShare',
+      subStep: 'systemChecks',
+      status: 'completed',
+    }));
+  }, [dispatch]);
+
+  const handleDataUpdate = useCallback((data) => {
+    console.log('%c⧭', 'color: #007300', data);
+    if (data.success) {
+      dispatch(setStepStatus({
+        step: 'mobileCameraShare',
+        status: 'completed',
+      }));
+    }
+  }, [dispatch]);
 
   useProctorPolling({
     onBatteryLow: handleBatteryLow,
     onBatteryNormal: handleBatteryNormal,
+    onDataUpdate: handleDataUpdate,
   });
   return (
     <div className={classNames('flex flex-col justify-between', { [className]: className })}>

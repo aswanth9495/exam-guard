@@ -4,7 +4,7 @@ import { ArrowRight } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Button } from '@/ui/Button';
 import { Checkbox } from '@/ui/Checkbox';
-import { nextStep, selectStep } from '@/store/features/workflowSlice';
+import { nextStep, selectStep, setStepAcknowledged } from '@/store/features/workflowSlice';
 import StepHeader from '@/ui/StepHeader';
 import { Tabs, Tab } from '@/ui/Tabs';
 import Pairing from './Pairing';
@@ -13,14 +13,23 @@ import MobileCompatibility from './MobileCompatibility';
 import { PAIRING_STEPS } from '@/utils/constants';
 
 const MobileCameraStep = () => {
-  const [isChecked, setIsChecked] = useState(false);
   const dispatch = useDispatch();
   const {
-    // acknowledged,
-    // status,
+    acknowledged,
+    status,
     subStep,
     activeSubStep,
   } = useSelector((state) => selectStep(state, 'mobileCameraShare'));
+  const canProceed = acknowledged && status === 'completed';
+
+  const handleCheckboxChange = () => {
+    dispatch(
+      setStepAcknowledged({
+        step: 'mobileCameraShare',
+        acknowledged: !acknowledged,
+      }),
+    );
+  };
 
   return (
     <div className='p-8 flex-1 overflow-y-auto'>
@@ -58,8 +67,8 @@ const MobileCameraStep = () => {
           <Checkbox
             className="mt-2 mr-2"
             id='confirm'
-            checked={isChecked}
-            onCheckedChange={(checked) => setIsChecked(checked)}
+            checked={acknowledged}
+            onCheckedChange={handleCheckboxChange}
           />
           <label htmlFor='confirm' className='text-xs text-gray-600'>
             By clicking on this, you confirm that your mobile phone is paired
@@ -70,7 +79,7 @@ const MobileCameraStep = () => {
         <Button
           className='mt-8 items-center'
           variant='primary'
-          disabled={!isChecked}
+          disabled={!canProceed}
           onClick={() => dispatch(nextStep())}
         >
           Proceed to next step
