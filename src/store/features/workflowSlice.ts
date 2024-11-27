@@ -27,7 +27,7 @@ const createStep = (subSteps: string[], locked = true): StepState => ({
 });
 
 const initialState: WorkflowState = {
-  activeStep: 'mobileCameraShare',
+  activeStep: 'screenShare',
   steps: {
     screenShare: createStep(['screenShare'], false),
     cameraShare: createStep(['cameraShare']),
