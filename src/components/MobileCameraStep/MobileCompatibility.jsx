@@ -62,11 +62,25 @@ function MobileCompatibility({
   const [statusMap, setStatusMap] = useState(DEFAULT_STATUS_MAP);
   const dispatch = useDispatch();
 
+  const setBatteryCheckFailed = useCallback(() => {
+    if (statusMap.battery === COMPATIBILITY_CHECK_STATUSES.default) {
+      setStatusMap({
+        battery: 'failed',
+      });
+    }
+  }, [statusMap]);
+
+  useEffect(() => {
+    let batteryCheckTimeout = null;
+    batteryCheckTimeout = setTimeout(() => {
+      setBatteryCheckFailed();
+    }, 10000);
+    return () => {
+      if (batteryCheckTimeout) clearTimeout(batteryCheckTimeout);
+    };
+  }, [setBatteryCheckFailed]);
+
   const handleBatteryLow = useCallback(() => {
-    console.log('%c⧭', 'color: #807160', 'gello');
-    setStatusMap({
-      battery: 'failed',
-    });
     dispatch(setSubStepStatus({
       step: 'mobileCameraShare',
       subStep: 'systemChecks',
@@ -86,7 +100,6 @@ function MobileCompatibility({
   }, [dispatch]);
 
   const handleDataUpdate = useCallback((data) => {
-    console.log('%c⧭', 'color: #007300', data);
     if (data.success) {
       dispatch(setStepStatus({
         step: 'mobileCameraShare',
