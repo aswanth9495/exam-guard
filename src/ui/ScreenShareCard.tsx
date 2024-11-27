@@ -3,98 +3,25 @@ import { Button } from '@/ui/Button';
 import { useAppSelector, useAppDispatch } from '@/hooks/reduxhooks';
 import {
   setSubStepStatus,
-  setSubStepError,
   selectSubStep,
   setStepStatus,
 } from '@/store/features/workflowSlice';
-import {
-  screenshareRequestHandlerReact,
-  screenshareCleanup,
-  isScreenShareValid,
-} from '@/utils/screenshotV2';
-import { ERRORS, ERROR_MESSAGES } from '@/constants/screenshot';
+import { screenshareCleanup } from '@/utils/screenshotV2';
 import { AlertTriangle } from 'lucide-react';
+import { selectProctor } from '@/store/features/assessmentInfoSlice';
 
 export default function ScreenShareCard() {
   const dispatch = useAppDispatch();
+  const proctor = useAppSelector((state) => selectProctor(state));
   const screenShareState = useAppSelector((state) =>
     selectSubStep(state, 'screenShare', 'screenShare')
   );
 
-  const handleScreenShareSuccess = () => {
-    dispatch(
-      setSubStepStatus({
-        step: 'screenShare',
-        subStep: 'screenShare',
-        status: 'completed',
-        clearError: true,
-      })
-    );
-    dispatch(
-      setStepStatus({
-        step: 'screenShare',
-        status: 'completed',
-      })
-    );
-  };
-
-  const handleScreenShareFailure = (errorCode: string) => {
-    const errorMessage =
-      ERROR_MESSAGES[errorCode as keyof typeof ERROR_MESSAGES] ||
-      'Screen share validation failed. Please try again.';
-
-    dispatch(
-      setSubStepError({
-        step: 'screenShare',
-        subStep: 'screenShare',
-        error: errorMessage,
-      })
-    );
-    dispatch(
-      setStepStatus({
-        step: 'screenShare',
-        status: 'error',
-      })
-    );
-  };
-
-  const handleScreenShareEnd = () => {
-    dispatch(
-      setSubStepStatus({
-        step: 'screenShare',
-        subStep: 'screenShare',
-        status: 'pending',
-        clearError: true,
-      })
-    );
-    dispatch(
-      setStepStatus({
-        step: 'screenShare',
-        status: 'pending',
-      })
-    );
-  };
-
   const handleShare = async () => {
     try {
-      await screenshareRequestHandlerReact.call({
-        handleScreenShareSuccess,
-        handleScreenShareFailure,
-        handleScreenShareEnd,
-        handleScreenshotSuccess: () =>
-          console.log('Screenshot captured successfully'),
-        handleScreenshotFailure: (err: any) =>
-          console.error('Screenshot capture failed', err),
-        screenshotConfig: {
-          frequency: 3000,
-          resizeTo: { width: 1280, height: 720 },
-        },
-      });
+      await proctor?.handleScreenshareRequest();
     } catch (error) {
       console.error('Error initiating screen share:', error);
-      const errorCode =
-        error instanceof Error ? error.message : ERRORS.SCREEN_SHARE_FAILED;
-      handleScreenShareFailure(errorCode);
     }
   };
 

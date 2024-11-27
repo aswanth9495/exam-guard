@@ -53,6 +53,7 @@ import {
   detectWebcam,
   setupSnapshotCapture,
   setupWebcam,
+  getAvailableCameras,
 } from './utils/webcam';
 
 import './assets/styles/alert.scss';
@@ -258,6 +259,7 @@ export default class Proctor {
       frequency: SNAPSHOT_SCREENSHOT_FREQUENCY, // 5s by default
       resizeTo: DEFAULT_SNAPSHOT_RESIZE_OPTIONS,
       optional: false,
+      deviceId: null,
       ...snapshotConfig,
     };
     this.screenshotConfig = {
@@ -403,6 +405,7 @@ export default class Proctor {
         onWebcamEnabled: this.handleWebcamEnabled.bind(this),
         onWebcamDisabled: this.handleWebcamDisabled.bind(this),
         optional: this.snapshotConfig.optional,
+        deviceId: this.snapshotConfig.deviceId,
       });
     }
 
@@ -665,6 +668,23 @@ export default class Proctor {
 
   async handleScreenshareRequest() {
     await screenshareRequestHandler.bind(this)();
+  }
+
+  handleWebcamRequest() {
+    detectWebcam({
+      onWebcamEnabled: this.handleWebcamEnabled.bind(this),
+      onWebcamDisabled: this.handleWebcamDisabled.bind(this),
+      optional: this.snapshotConfig.optional,
+      deviceId: this.snapshotConfig.deviceId,
+    });
+  }
+
+  async getWebcamDevices() {
+    return getAvailableCameras.bind(this)();
+  }
+
+  setWebcamDevice(deviceId) {
+    this.snapshotConfig.deviceId = deviceId;
   }
 
   handleScreenshotFailure() {

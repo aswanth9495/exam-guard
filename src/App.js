@@ -1,8 +1,13 @@
 import React, { useEffect } from 'react';
 
 import { useAppDispatch } from '@/hooks/reduxhooks';
-import { setAssessmentInfo } from '@/store/features/assessmentInfoSlice';
+import {
+  setAssessmentInfo,
+  setProctor,
+} from '@/store/features/assessmentInfoSlice';
 import CompatibilityModal from '@/components/CompatibilityModal';
+import { ScreenShareHandlers } from '@/store/handlers/screenShare';
+import { WebcamHandlers } from '@/store/handlers/webcam';
 
 const App = ({
   baseUrl,
@@ -24,7 +29,9 @@ const App = ({
     const initializeProctoring = async () => {
       try {
         const Proctor = (await import('./proctor')).default;
-        // eslint-disable-next-line no-unused-vars
+        const screenShareHandlers = new ScreenShareHandlers(dispatch);
+        const webcamHandlers = new WebcamHandlers(dispatch);
+
         const proctor = new Proctor({
           baseUrl,
           eventsConfig,
@@ -35,9 +42,22 @@ const App = ({
           compatibilityCheckConfig,
           callbacks: {
             ...callbacks,
-            onDisqualified: () => {
-              callbacks?.onDisqualified?.();
-            },
+            onScreenShareSuccess: screenShareHandlers.handleScreenShareSuccess,
+            onScreenShareFailure: screenShareHandlers.handleScreenShareFailure,
+            onScreenShareEnd: screenShareHandlers.handleScreenShareEnd,
+            onScreenshotSuccess: screenShareHandlers.handleScreenshotSuccess,
+            onScreenshotFailure: screenShareHandlers.handleScreenshotFailure,
+            onWebcamEnabled: webcamHandlers.onWebcamEnabled,
+            onWebcamDisabled: webcamHandlers.onWebcamDisabled,
+            onSnapshotSuccess: webcamHandlers.onSnapshotSuccess,
+            onSnapshotFailure: webcamHandlers.onSnapshotFailure,
+            // onFullScreenEnabled: callbacks.onFullScreenEnabled || (() => {}),
+            // onFullScreenDisabled: callbacks.onFullScreenDisabled || (() => {}),
+            // onDisqualified: callbacks.onDisqualified || (() => {}),
+            // onCompatibilityCheckSuccess:
+            //   callbacks.onCompatibilityCheckSuccess || (() => {}),
+            // onCompatibilityCheckFail:
+            //   callbacks.onCompatibilityCheckFail || (() => {}),
           },
           enableAllAlerts,
           headerOptions,
@@ -46,6 +66,7 @@ const App = ({
 
         // await proctor.initializeProctoring();
         dispatch(setAssessmentInfo(assessmentInfo));
+        dispatch(setProctor(proctor));
       } catch (error) {
         console.error('Proctoring initialization failed:', error);
       }

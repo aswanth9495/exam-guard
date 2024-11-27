@@ -122,7 +122,6 @@ function checkForBlackFrame(
   setTimeout(checkBlackFrame, 1000); // Delay to allow video to start
 }
 
-// Add this new function
 export async function getAvailableCameras() {
   try {
     const devices = await navigator.mediaDevices.enumerateDevices();
@@ -138,7 +137,6 @@ export async function getAvailableCameras() {
   }
 }
 
-// Update the detectWebcam function to accept deviceId
 export function detectWebcam({
   onWebcamEnabled,
   onWebcamDisabled,

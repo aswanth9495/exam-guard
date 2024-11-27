@@ -1,7 +1,7 @@
 import React from 'react';
 import { CheckCircle, AlertTriangle } from 'lucide-react';
 import Loader from '@/ui/Loader';
-import { Status } from '@/types/globals';
+import { Status } from '@/types/workflowTypes';
 
 const StepHeader = ({
   stepNumber,
