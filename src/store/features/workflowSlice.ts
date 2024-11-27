@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, current, PayloadAction } from '@reduxjs/toolkit';
 import {
   Status,
   SubStepState,
@@ -16,6 +16,7 @@ const createStep = (subSteps: string[], locked = true): StepState => ({
   locked,
   acknowledged: false,
   status: 'locked',
+  activeSubStep: subSteps.length > 0 ? subSteps[0] : '',
   subStep: subSteps.reduce(
     (acc, step) => ({
       ...acc,
@@ -59,7 +60,35 @@ const workflowSlice = createSlice({
         if (state.steps[nextStepKey].locked) {
           state.steps[nextStepKey].locked = false;
         }
+        if (state.steps[nextStepKey].subStep) {
+          const subSteps = Object.keys(state.steps[nextStepKey].subStep)
+          const firstSubStepKey = subSteps[0];
+          state.steps[nextStepKey].subStep[firstSubStepKey].status = 'pending';
+
+        }
         state.activeStep = nextStepKey;
+      }
+    },
+
+    nextSubStep(state) {
+      const currentStep = state.steps[state.activeStep];
+      const currentSubSteps = currentStep.subStep;
+      if (!currentSubSteps || Object.keys(currentSubSteps).length <= 0) {
+        return;
+      }
+    
+      const subSteps = Object.keys(currentSubSteps);
+      const currentSubStepIndex = subSteps.indexOf(currentStep.activeSubStep);
+    
+      if (currentSubStepIndex < subSteps.length - 1) {
+        // Update the status of the current active sub-step to "completed"
+        const currentSubStepKey = subSteps[currentSubStepIndex];
+        currentSubSteps[currentSubStepKey].status = 'completed';
+    
+        // Move to the next sub-step
+        const nextSubStepKey = subSteps[currentSubStepIndex + 1];
+        currentSubSteps[nextSubStepKey].status = 'pending';
+        currentStep.activeSubStep = nextSubStepKey;
       }
     },
 
@@ -143,6 +172,7 @@ const workflowSlice = createSlice({
 export const {
   setActiveStep,
   nextStep,
+  nextSubStep,
   setStepLocked,
   setStepAcknowledged,
   setStepStatus,

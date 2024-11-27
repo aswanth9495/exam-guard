@@ -31,7 +31,9 @@ export const COMPATIBILITY_CHECK_STATUSES = {
 };
 
 export const PAIRING_STEPS = {
-  pairing: 'pairing',
-  orientation: 'orientation',
-  mobileCompatibility: 'mobileCompatibility',
+  pairing: 'codeScan',
+  orientation: 'cameraPairing',
+  mobileCompatibility: 'systemChecks',
 };
+
+export const MIN_SNAPSHOT_COUNT = 3;
