@@ -486,8 +486,8 @@ export default class Proctor {
     // console.log('Compatibility checks passed:', passedChecks);
   }
 
-  handleCompatibilityFailure(failedCheck, passedChecks) {
-    this.callbacks.onCompatibilityCheckFail({ failedCheck, passedChecks });
+  handleCompatibilityFailure(passedChecks) {
+    this.callbacks.onCompatibilityCheckFail({ passedChecks });
   }
 
   stopCompatibilityChecks() {
@@ -661,7 +661,7 @@ export default class Proctor {
             //     && this.compatibilityCheckConfig.showTimer,
             // );
           }
-          onFailure?.(failedCheck.reason, passedChecks);
+          onFailure?.(passedChecks);
         } else {
           /* TODO: Remove the code to hide comp modal  */
           // hideCompatibilityModal();
@@ -670,7 +670,7 @@ export default class Proctor {
           onSuccess?.(passedChecks);
         }
       })
-      .catch((failedCheck) => {
+      .catch(() => {
         /* TODO: Remove the code to show comp modal  */
         // showCompatibilityCheckModal(
         //   passedChecks,
@@ -681,7 +681,7 @@ export default class Proctor {
         //   this.proctoringInitialised,
         // );
         // Handle any failure in individual checks
-        onFailure?.(failedCheck, passedChecks);
+        onFailure?.(passedChecks);
       });
   }
 
