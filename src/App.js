@@ -58,7 +58,7 @@ const App = ({
             // onDisqualified: callbacks.onDisqualified || (() => {}),
             // onCompatibilityCheckSuccess:
             //   callbacks.onCompatibilityCheckSuccess || (() => {}),
-            // onCompatibilityCheckFail:
+            // onCompatibilityCheckFail: (data) => { console.log('%c⧭', 'color: #e5de73', data); },
             //   callbacks.onCompatibilityCheckFail || (() => {}),
           },
           enableAllAlerts,
@@ -76,7 +76,11 @@ const App = ({
     };
 
     initializeProctoring();
-  }, [dispatch]);
+  }, [assessmentInfo, baseUrl,
+    callbacks, compatibilityCheckConfig,
+    config, dispatch, disqualificationConfig,
+    enableAllAlerts, eventsConfig,
+    headerOptions, mobilePairingConfig, mockModeEnabled, screenshotConfig, snapshotConfig]);
 
   return <CompatibilityModal />;
 };

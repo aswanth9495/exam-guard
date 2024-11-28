@@ -300,7 +300,7 @@ export default class Proctor {
     this.compatibilityCheckInterval = null;
     this.initializeProctoring = this.initializeProctoring.bind(this);
     this.runCompatibilityChecks = this.runCompatibilityChecks.bind(this);
-    this.startCompatibilityChecks = this.startCompatibilityChecks(this);
+    this.startCompatibilityChecks = this.startCompatibilityChecks.bind(this);
     this.runAdaptiveCompatibilityChecks = this.runAdaptiveCompatibilityChecks.bind(this);
     this.initialFullScreen = false;
     setupAlert();
