@@ -1,3 +1,4 @@
+/* eslint-disable prefer-promise-reject-errors */
 import { setupAlert, showViolationWarning, closeModal } from './utils/alert';
 import {
   DEFAULT_SCREENSHOT_RESIZE_OPTIONS,
@@ -60,6 +61,7 @@ import './assets/styles/alert.scss';
 import './assets/styles/fullScreenBlocker.scss';
 import './assets/styles/compatibility-modal.scss';
 import './assets/styles/webcam-blocker.scss';
+import { checkMobilePairingStatus } from './utils/mobilePairing';
 
 export default class Proctor {
   constructor({
@@ -74,6 +76,7 @@ export default class Proctor {
     enableAllAlerts = false,
     headerOptions = {},
     // mockModeEnabled = false,
+    mobilePairingConfig = {},
   }) {
     this.baseUrl = baseUrl;
     this.eventsConfig = {
@@ -106,6 +109,13 @@ export default class Proctor {
       alertHeading: 'Disqualification Alert',
       alertMessage: 'You have been disqualified from the contest',
       ...disqualificationConfig,
+    };
+    this.mobilePairingConfig = {
+      enabled: false,
+      defaultPayload: {},
+      endpoint: '',
+      baseUrl: '',
+      ...mobilePairingConfig,
     };
     this.proctoringInitialised = false;
     this.config = {
@@ -300,6 +310,7 @@ export default class Proctor {
     this.compatibilityCheckInterval = null;
     this.initializeProctoring = this.initializeProctoring.bind(this);
     this.runCompatibilityChecks = this.runCompatibilityChecks.bind(this);
+    this.startCompatibilityChecks = this.startCompatibilityChecks.bind(this);
     this.runAdaptiveCompatibilityChecks = this.runAdaptiveCompatibilityChecks.bind(this);
     this.initialFullScreen = false;
     setupAlert();
@@ -424,8 +435,9 @@ export default class Proctor {
 
   startCompatibilityChecks() {
     if (!this.compatibilityCheckConfig.enable) return;
+
     setTimeout(
-      this.runAdaptiveCompatibilityChecks,
+      this.runAdaptiveCompatibilityChecks.bind(this),
       this.compatibilityCheckConfig.frequency,
     );
   }
@@ -443,7 +455,6 @@ export default class Proctor {
     console.log('%c%s', 'color: #ff2525', 'Memory Usage (in MB):', memoryUsage);
 
     if (memoryUsage < memoryLimit) {
-      console.log('%c⧭', 'color: #bfffc8', 'Running compatibility check');
       // Run compatibility checks (e.g., webcam, network speed, etc.)
       this.runCompatibilityChecks(
         this.handleCompatibilitySuccess.bind(this),
@@ -485,18 +496,24 @@ export default class Proctor {
     // console.log('Compatibility checks passed:', passedChecks);
   }
 
-  handleCompatibilityFailure(failedCheck, passedChecks) {
-    this.callbacks.onCompatibilityCheckFail({ failedCheck, passedChecks });
+  handleCompatibilityFailure(passedChecks) {
+    this.callbacks.onCompatibilityCheckFail({ passedChecks });
   }
 
   stopCompatibilityChecks() {
     if (this.compatibilityCheckInterval) {
       clearInterval(this.compatibilityCheckInterval);
     }
+  }
 
-    if (this.disqualificationTimeout) {
-      clearTimeout(this.disqualificationTimeout);
-    }
+  checkMobileCompatiblity({ onSuccess, onFailure }) {
+    checkMobilePairingStatus({
+      baseUrl: this.mobilePairingConfig.baseUrl,
+      endpoint: this.mobilePairingConfig.endpoint,
+      defaultPayload: this.mobilePairingConfig.defaultPayload,
+      onSuccess,
+      onFailure,
+    });
   }
 
   runCompatibilityChecks(onSuccess, onFailure) {
@@ -507,6 +524,9 @@ export default class Proctor {
         this.snapshotConfig.enabled || this.screenshotConfig.enabled,
       fullscreen: this.config[VIOLATIONS.fullScreen].enabled,
       browser: this.config[VIOLATIONS.chromeBrowser].enabled,
+      mobileSnapshot: this.mobilePairingConfig.enabled,
+      mobileBattery: this.mobilePairingConfig.enabled,
+      mobileSetup: this.mobilePairingConfig.enabled,
     };
 
     // Initialize object to store the result of passed checks
@@ -516,6 +536,9 @@ export default class Proctor {
       fullscreen: false,
       screenshare: false,
       browser: false,
+      mobileSnapshot: false,
+      mobileBattery: false,
+      mobileSetup: false,
     };
 
     // Array to store all compatibility promises
@@ -599,6 +622,49 @@ export default class Proctor {
       compatibilityPromises.push(screenshareCheck);
     }
 
+    if (compatibilityChecks.mobileBattery
+      || compatibilityChecks.mobileSetup
+      || compatibilityChecks.mobileSnapshot) {
+      const mobilePairingCheck = new Promise((resolve, reject) => {
+        this.checkMobileCompatiblity({
+          onSuccess: (data) => {
+            if (data.success) {
+              passedChecks.mobileBattery = true;
+              passedChecks.mobileSnapshot = true;
+              passedChecks.mobileSetup = true;
+              resolve({ success: true, checks: passedChecks });
+            } else {
+              const secondaryCameraChecks = data.checks?.secondary_camera.checks;
+              Object.keys(secondaryCameraChecks).forEach((check) => {
+                const checkData = secondaryCameraChecks[check];
+                switch (check) {
+                  case 'setup':
+                    passedChecks.mobileSetup = checkData?.success || false;
+                    break;
+                  case 'snapshot':
+                    passedChecks.mobileSnapshot = checkData?.success || false;
+                    break;
+                  case 'battery':
+                    passedChecks.mobileBattery = checkData?.success || false;
+                    break;
+                  default:
+                    break;
+                }
+              });
+              reject({ success: false, checks: passedChecks });
+            }
+          },
+          onFailure: () => {
+            passedChecks.mobileBattery = false;
+            passedChecks.mobileSnapshot = false;
+            passedChecks.mobileSetup = false;
+            reject({ success: false, checks: passedChecks });
+          },
+        });
+      });
+      compatibilityPromises.push(mobilePairingCheck);
+    }
+
     // Wait for all compatibility checks to complete
     Promise.allSettled(compatibilityPromises)
       .then((results) => {
@@ -609,6 +675,7 @@ export default class Proctor {
 
         if (failedCheck) {
           if (this.compatibilityCheckConfig.showAlert) {
+            /* TODO: Remove the code to show comp modal  */
             // showCompatibilityCheckModal(
             //   passedChecks,
             //   compatibilityChecks,
@@ -619,15 +686,17 @@ export default class Proctor {
             //     && this.compatibilityCheckConfig.showTimer,
             // );
           }
-          onFailure?.(failedCheck.reason, passedChecks);
+          onFailure?.(passedChecks);
         } else {
+          /* TODO: Remove the code to hide comp modal  */
           // hideCompatibilityModal();
           closeModal();
           this.failedCompatibilityChecks = false;
           onSuccess?.(passedChecks);
         }
       })
-      .catch((failedCheck) => {
+      .catch(() => {
+        /* TODO: Remove the code to show comp modal  */
         // showCompatibilityCheckModal(
         //   passedChecks,
         //   compatibilityChecks,
@@ -637,7 +706,7 @@ export default class Proctor {
         //   this.proctoringInitialised,
         // );
         // Handle any failure in individual checks
-        onFailure?.(failedCheck, passedChecks);
+        onFailure?.(passedChecks);
       });
   }
 

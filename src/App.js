@@ -23,6 +23,7 @@ const App = ({
   snapshotConfig,
   screenshotConfig,
   compatibilityCheckConfig,
+  mobilePairingConfig,
   callbacks,
   enableAllAlerts,
   headerOptions,
@@ -48,6 +49,7 @@ const App = ({
           snapshotConfig,
           screenshotConfig,
           compatibilityCheckConfig,
+          mobilePairingConfig,
           callbacks: {
             ...callbacks,
             onScreenShareSuccess: screenShareHandlers.handleScreenShareSuccess,
@@ -136,6 +138,7 @@ const App = ({
     enableProctoring,
     eventsConfig,
     headerOptions,
+    mobilePairingConfig,
     mockModeEnabled,
     screenshotConfig,
     snapshotConfig,

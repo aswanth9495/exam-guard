@@ -33,7 +33,7 @@
 
   <script>
     Proctor.initialize('root', {
-      baseUrl: 'https://api.example.com',
+      baseUrl: 'http://localhost:3000',
       enableAllAlerts: true,
       assessmentInfo: {
         userName: 'John Doe',
@@ -52,6 +52,15 @@
         resizeTo: { width: 160, height: 120 },
       },
       enableProctoring: true,
+      mobilePairingConfig: {
+        baseUrl: 'http://localhost:3000/api/',
+        enabled: true,
+        defaultPayload: {
+          'api_context[id]': 16884,
+          'api_context[type]': 'interviewbit_test',
+        },
+        endpoint: 'v3/proctoring/dual_camera/poll',
+      },
       callbacks: {
         onSnapshotSuccess: ({ blob }) => {
           const snapshotImg = document.getElementById('snapshot');
