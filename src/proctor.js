@@ -819,6 +819,7 @@ export default class Proctor {
 
   handleScreenShareSuccess() {
     this.callbacks.onScreenShareSuccess();
+    this.enableFullScreen();
   }
 
   handleScreenShareFailure() {
