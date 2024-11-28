@@ -5,19 +5,21 @@ import {
   StepState,
   WorkflowState,
   WorkflowStepKey,
+  StepEnableConfig,
 } from '@/types/workflowTypes';
 
 const createSubStep = (): SubStepState => ({
   status: 'locked',
   error: '',
+  enabled: true,
 });
 
 const createStep = (subSteps: string[], locked = true): StepState => ({
   locked,
   acknowledged: false,
-  status: 'locked',
   activeSubStep: subSteps.length > 0 ? subSteps[0] : '',
-  subStep: subSteps.reduce(
+  enabled: true,
+  subSteps: subSteps.reduce(
     (acc, step) => ({
       ...acc,
       [step]: createSubStep(),
@@ -27,6 +29,7 @@ const createStep = (subSteps: string[], locked = true): StepState => ({
 });
 
 const initialState: WorkflowState = {
+  modalOpen: false,
   activeStep: 'screenShare',
   steps: {
     screenShare: createStep(['screenShare'], false),
@@ -50,20 +53,28 @@ const workflowSlice = createSlice({
   reducers: {
     setActiveStep(state, action: PayloadAction<WorkflowStepKey>) {
       state.activeStep = action.payload;
+      state.steps[action.payload].locked = false;
+      state.modalOpen = true;
     },
 
     nextStep(state) {
       const steps = Object.keys(state.steps) as WorkflowStepKey[];
       const currentIndex = steps.indexOf(state.activeStep);
-      if (currentIndex < steps.length - 1) {
-        const nextStepKey = steps[currentIndex + 1];
+      
+      // Find the next enabled step
+      const nextEnabledStepIndex = steps.findIndex((step, index) => 
+        index > currentIndex && state.steps[step].enabled
+      );
+
+      if (nextEnabledStepIndex !== -1) {
+        const nextStepKey = steps[nextEnabledStepIndex];
         if (state.steps[nextStepKey].locked) {
           state.steps[nextStepKey].locked = false;
         }
-        if (state.steps[nextStepKey].subStep) {
-          const subSteps = Object.keys(state.steps[nextStepKey].subStep)
+        if (state.steps[nextStepKey].subSteps) {
+          const subSteps = Object.keys(state.steps[nextStepKey].subSteps)
           const firstSubStepKey = subSteps[0];
-          state.steps[nextStepKey].subStep[firstSubStepKey].status = 'pending';
+          state.steps[nextStepKey].subSteps[firstSubStepKey].status = 'pending';
 
         }
         state.activeStep = nextStepKey;
@@ -72,7 +83,7 @@ const workflowSlice = createSlice({
 
     nextSubStep(state) {
       const currentStep = state.steps[state.activeStep];
-      const currentSubSteps = currentStep.subStep;
+      const currentSubSteps = currentStep.subSteps;
       if (!currentSubSteps || Object.keys(currentSubSteps).length <= 0) {
         return;
       }
@@ -114,17 +125,6 @@ const workflowSlice = createSlice({
       state.steps[step].acknowledged = acknowledged;
     },
 
-    setStepStatus(
-      state,
-      action: PayloadAction<{
-        step: WorkflowStepKey;
-        status: Status;
-      }>
-    ) {
-      const { step, status } = action.payload;
-      state.steps[step].status = status;
-    },
-
     setSubStepStatus(
       state,
       action: PayloadAction<{
@@ -135,9 +135,9 @@ const workflowSlice = createSlice({
       }>
     ) {
       const { step, subStep, status, clearError } = action.payload;
-      state.steps[step].subStep[subStep].status = status;
+      state.steps[step].subSteps[subStep].status = status;
       if (clearError) {
-        state.steps[step].subStep[subStep].error = '';
+        state.steps[step].subSteps[subStep].error = '';
       }
     },
 
@@ -150,8 +150,8 @@ const workflowSlice = createSlice({
       }>
     ) {
       const { step, subStep, error } = action.payload;
-      state.steps[step].subStep[subStep].status = 'error';
-      state.steps[step].subStep[subStep].error = error;
+      state.steps[step].subSteps[subStep].status = 'error';
+      state.steps[step].subSteps[subStep].error = error;
     },
 
     resetStep(
@@ -161,8 +161,27 @@ const workflowSlice = createSlice({
       }>
     ) {
       const { step } = action.payload;
-      const subStepKeys = Object.keys(state.steps[step].subStep);
+      const subStepKeys = Object.keys(state.steps[step].subSteps);
       state.steps[step] = createStep(subStepKeys);
+    },
+
+    setBulkStepEnabled(
+      state,
+      action: PayloadAction<StepEnableConfig[]>
+    ) {
+      action.payload.forEach(({ step, enabled, subSteps }) => {
+        state.steps[step].enabled = enabled;
+        
+        if (subSteps) {
+          Object.entries(subSteps).forEach(([subStep, isEnabled]) => {
+            state.steps[step].subSteps[subStep].enabled = isEnabled;
+          });
+        }
+      });
+    },
+
+    setModalOpen(state, action: PayloadAction<boolean>) {
+      state.modalOpen = action.payload;
     },
 
     resetAll: () => initialState,
@@ -175,9 +194,10 @@ export const {
   nextSubStep,
   setStepLocked,
   setStepAcknowledged,
-  setStepStatus,
   setSubStepStatus,
   setSubStepError,
+  setBulkStepEnabled,
+  setModalOpen,
   resetStep,
   resetAll,
 } = workflowSlice.actions;
@@ -193,7 +213,7 @@ export const selectSubStep = (
   state: { workflow: WorkflowState },
   step: WorkflowStepKey,
   subStep: string
-) => state.workflow.steps[step].subStep[subStep];
+) => state.workflow.steps[step].subSteps[subStep];
 
 export const selectActiveStep = (state: { workflow: WorkflowState }) =>
   state.workflow.steps[state.workflow.activeStep];

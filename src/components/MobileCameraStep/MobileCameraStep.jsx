@@ -1,26 +1,32 @@
-import React, { useCallback, useState } from 'react';
+import React from 'react';
 
 import { ArrowRight } from 'lucide-react';
-import { useDispatch, useSelector } from 'react-redux';
 import { Button } from '@/ui/Button';
 import { Checkbox } from '@/ui/Checkbox';
+import { evaluateParentStepStatus } from '@/utils/evaluateParentStepStatus';
 import { nextStep, selectStep, setStepAcknowledged } from '@/store/features/workflowSlice';
-import StepHeader from '@/ui/StepHeader';
-import { Tabs, Tab } from '@/ui/Tabs';
-import Pairing from './Pairing';
-import Orientation from './Orientation';
-import MobileCompatibility from './MobileCompatibility';
 import { PAIRING_STEPS } from '@/utils/constants';
+import { Tabs, Tab } from '@/ui/Tabs';
+import { useAppDispatch, useAppSelector } from '@/hooks/reduxhooks';
+import MobileCompatibility from './MobileCompatibility';
+import Orientation from './Orientation';
+import Pairing from './Pairing';
+import StepHeader from '@/ui/StepHeader';
 
 const MobileCameraStep = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const {
     acknowledged,
-    status,
-    subStep,
+    subSteps,
     activeSubStep,
-  } = useSelector((state) => selectStep(state, 'mobileCameraShare'));
-  const canProceed = acknowledged && status === 'completed';
+  } = useAppSelector((state) => selectStep(state, 'mobileCameraShare'));
+
+  const areAllSubstepsCompleted = Object.values(subSteps).every(
+    (step) => step.status === 'completed',
+  );
+
+  const status = evaluateParentStepStatus(Object.values(subSteps));
+  const canProceed = acknowledged && areAllSubstepsCompleted;
 
   const handleCheckboxChange = () => {
     dispatch(
@@ -43,7 +49,7 @@ const MobileCameraStep = () => {
         <Tab label="Scan Code & Pair Mobile"
           name={PAIRING_STEPS.pairing}
           isDisabled
-          isCompleted={subStep[PAIRING_STEPS.pairing].status === 'completed'}
+          isCompleted={subSteps[PAIRING_STEPS.pairing].status === 'completed'}
         >
           <Pairing />
         </Tab>
@@ -51,14 +57,14 @@ const MobileCameraStep = () => {
           label="Camera Orientation"
           name={PAIRING_STEPS.orientation}
           isDisabled
-          isCompleted={subStep[PAIRING_STEPS.orientation].status === 'completed'}
+          isCompleted={subSteps[PAIRING_STEPS.orientation].status === 'completed'}
         >
           <Orientation />
         </Tab>
         <Tab label="Mobile System Check"
           name={PAIRING_STEPS.mobileCompatibility}
           isDisabled
-          isCompleted={subStep[PAIRING_STEPS.mobileCompatibility].status === 'completed'}
+          isCompleted={subSteps[PAIRING_STEPS.mobileCompatibility].status === 'completed'}
         >
           <MobileCompatibility />
         </Tab>
@@ -73,7 +79,7 @@ const MobileCameraStep = () => {
           />
           <label htmlFor='confirm' className='text-xs text-gray-600'>
             By clicking on this, you confirm that your mobile phone is paired
-            and will remain charged during the test. If disconnected, you'll
+            and will remain charged during the test. If disconnected, you&apos;ll
             need to reconnect before being able to continue with the test.
           </label>
         </div>

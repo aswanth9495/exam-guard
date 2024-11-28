@@ -2,10 +2,10 @@ import { AppDispatch } from '@/store/store';
 import {
   setSubStepStatus,
   setSubStepError,
-  setStepStatus,
+  setActiveStep,
 } from '@/store/features/workflowSlice';
 
-export class WebcamHandlers {
+export default class WebcamHandlers {
   private dispatch: AppDispatch;
 
   constructor(dispatch: AppDispatch) {
@@ -25,12 +25,6 @@ export class WebcamHandlers {
         clearError: true,
       })
     );
-    this.dispatch(
-      setStepStatus({
-        step: 'cameraShare',
-        status: 'completed',
-      })
-    );
   }
 
   onWebcamDisabled() {
@@ -41,12 +35,7 @@ export class WebcamHandlers {
         error: 'Failed to access camera',
       })
     );
-    this.dispatch(
-      setStepStatus({
-        step: 'cameraShare',
-        status: 'error',
-      })
-    );
+    this.dispatch(setActiveStep('cameraShare'));
   }
 
   onSnapshotSuccess() {
