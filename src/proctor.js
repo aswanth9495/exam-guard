@@ -75,6 +75,7 @@ export default class Proctor {
     headerOptions = {},
     mockModeEnabled = false,
     mobilePairingConfig = {},
+    qrCodeConfig = {},
   }) {
     this.baseUrl = baseUrl;
     this.eventsConfig = {
@@ -114,6 +115,12 @@ export default class Proctor {
       endpoint: '',
       baseUrl: '',
       ...mobilePairingConfig,
+    };
+    this.qrCodeConfig = {
+      defaultPayload: {},
+      endpoint: '',
+      baseUrl: '',
+      ...qrCodeConfig,
     };
     this.proctoringInitialised = false;
     this.config = {

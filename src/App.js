@@ -23,6 +23,7 @@ const App = ({
   headerOptions,
   mockModeEnabled,
   assessmentInfo,
+  qrCodeConfig,
 }) => {
   const dispatch = useAppDispatch();
 
@@ -64,7 +65,10 @@ const App = ({
           enableAllAlerts,
           headerOptions,
           mockModeEnabled,
+          qrCodeConfig,
         });
+
+        // console.log('%c⧭', 'color: #ffa280');
         /* uncomment this in case you want the comp checks to run in intervals */
         // proctor?.startCompatibilityChecks();
         // await proctor.initializeProctoring();
@@ -76,11 +80,11 @@ const App = ({
     };
 
     initializeProctoring();
-  }, [assessmentInfo, baseUrl,
-    callbacks, compatibilityCheckConfig,
-    config, dispatch, disqualificationConfig,
-    enableAllAlerts, eventsConfig,
-    headerOptions, mobilePairingConfig, mockModeEnabled, screenshotConfig, snapshotConfig]);
+  }, [assessmentInfo, baseUrl, callbacks,
+    compatibilityCheckConfig, config, dispatch,
+    disqualificationConfig, enableAllAlerts, eventsConfig,
+    headerOptions, mobilePairingConfig, mockModeEnabled,
+    qrCodeConfig, screenshotConfig, snapshotConfig]);
 
   return <CompatibilityModal />;
 };

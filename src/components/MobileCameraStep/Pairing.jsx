@@ -2,11 +2,12 @@ import React, { useCallback, useRef, useState } from 'react';
 import classNames from 'classnames';
 
 import { Copy } from 'lucide-react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useGetQrCodeQuery } from '@/services/mobilePairingService';
 import Loader from '@/ui/Loader';
 import useProctorPolling from '@/hooks/useProctorPolling';
 import { nextSubStep } from '@/store/features/workflowSlice';
+import { selectProctor } from '@/store/features/assessmentInfoSlice';
 
 import styles from './MobileCameraStep.module.scss';
 
@@ -14,11 +15,18 @@ function Pairing({ className }) {
   const dispatch = useDispatch();
   const [copySuccess, setCopySuccess] = useState(false);
   const copyLinkBoxRef = useRef(null);
+  const proctor = useSelector((state) => selectProctor(state));
+  const qrCodePayload = proctor?.qrCodeConfig?.defaultPayload || {};
+  const qrCodeEndpoint = proctor?.qrCodeConfig?.endpoint;
+
   const {
     data,
     isFetching: isQrCodeLoading,
     isError: qrCodeError,
-  } = useGetQrCodeQuery({ testId: 16884 });
+  } = useGetQrCodeQuery({
+    endpoint: qrCodeEndpoint,
+    payload: qrCodePayload,
+  });
 
   const handleSetupSuccess = useCallback(() => {
     dispatch(nextSubStep());

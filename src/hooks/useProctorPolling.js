@@ -1,5 +1,8 @@
 import { useEffect } from 'react';
+import { useSelector } from 'react-redux';
+
 import { useGetPollingDataQuery } from '@/services/mobilePairingService'; // Adjust path as needed
+import { selectProctor } from '@/store/features/assessmentInfoSlice';
 
 const useProctorPolling = ({
   onSetupSuccess,
@@ -10,8 +13,14 @@ const useProctorPolling = ({
   onSnapshotFailure,
   onDataUpdate,
 }, pollingInterval = 5000) => {
+  const proctor = useSelector((state) => selectProctor(state));
+  const pollingPayload = proctor?.mobilePairingConfig?.defaultPayload || {};
+  const pollingEndpoint = proctor?.mobilePairingConfig?.endpoint || {};
   // `pollingInterval` specifies how often to fetch data
-  const { data, isFetching, refetch } = useGetPollingDataQuery({ testId: 16884 }, {
+  const { data, isFetching, refetch } = useGetPollingDataQuery({
+    endpoint: pollingEndpoint,
+    payload: pollingPayload,
+  }, {
     pollingInterval,
   });
 

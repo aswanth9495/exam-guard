@@ -52,13 +52,21 @@
         resizeTo: { width: 160, height: 120 },
       },
       mobilePairingConfig: {
-        baseUrl: 'http://localhost:3000/api/',
+        baseUrl: 'http://localhost:3000/',
         enabled: true,
         defaultPayload: {
           'api_context[id]': 16884,
           'api_context[type]': 'interviewbit_test',
         },
-        endpoint: 'v3/proctoring/dual_camera/poll',
+        endpoint: 'api/v3/proctoring/dual_camera/poll',
+      },
+      qrCodeConfig: {
+        baseUrl: 'http://localhost:3000/',
+        defaultPayload: {
+          'api_context[id]': 16884,
+          'api_context[type]': 'interviewbit_test',
+        },
+        endpoint: 'api/v3/proctoring/dual_camera/qr_code',
       },
       callbacks: {
         onSnapshotSuccess: ({ blob }) => {
