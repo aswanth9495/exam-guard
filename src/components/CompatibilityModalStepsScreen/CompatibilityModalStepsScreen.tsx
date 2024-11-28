@@ -1,10 +1,10 @@
 import React from 'react';
-import { CheckCircle, AlertTriangle, CheckIcon } from 'lucide-react';
+import { Check, AlertTriangle } from 'lucide-react';
 
-import { STEPS } from '@/constants/workflow';
-import { setActiveStep } from '@/store/features/workflowSlice';
+import { evaluateParentStepStatus } from '@/utils/evaluateParentStepStatus';
 import { useAppSelector, useAppDispatch } from '@/hooks/reduxhooks';
-import { WorkflowStepKey, Status } from '@/types/workflowTypes';
+import { setActiveStep } from '@/store/features/workflowSlice';
+import { Step, WorkflowStepKey, Status } from '@/types/workflowTypes';
 
 interface StepItemProps {
   icon: React.ElementType;
@@ -33,7 +33,7 @@ const StepItem: React.FC<StepItemProps> = ({
       <div
         className={`rounded-full p-5 ${
           status === 'completed'
-            ? 'bg-green-500 text-white'
+            ? 'bg-blue-900 text-white'
             : status === 'error'
               ? 'bg-red-500 text-white'
               : active
@@ -42,7 +42,7 @@ const StepItem: React.FC<StepItemProps> = ({
         }`}
       >
         {status === 'completed' ? (
-          <CheckCircle className='w-8 h-8' />
+          <Check className='w-8 h-8' />
         ) : status === 'error' ? (
           <AlertTriangle className='w-8 h-8' />
         ) : (
@@ -68,16 +68,19 @@ const StepItem: React.FC<StepItemProps> = ({
   </div>
 );
 
-const CompatibilityModalStepsScreen: React.FC = () => {
+const CompatibilityModalStepsScreen: React.FC<{
+  step_data: Record<string, Step>;
+}> = ({ step_data }) => {
   const activeStep = useAppSelector((state) => state.workflow.activeStep);
   const steps = useAppSelector((state) => state.workflow.steps);
   const dispatch = useAppDispatch();
 
   return (
     <div className='mt-16'>
-      {Object.entries(STEPS).map(([key, item], index) => {
+      {Object.entries(step_data).map(([key, item], index) => {
         const stepData = steps[key as WorkflowStepKey];
         const isClickable = !stepData.locked;
+        const status = evaluateParentStepStatus(Object.values(stepData.subSteps));
 
         return (
           <StepItem
@@ -89,8 +92,8 @@ const CompatibilityModalStepsScreen: React.FC = () => {
             onClick={() =>
               isClickable && dispatch(setActiveStep(key as WorkflowStepKey))
             }
-            isLast={index === Object.keys(STEPS).length - 1}
-            status={stepData.status}
+            isLast={index === Object.keys(step_data).length - 1}
+            status={status}
           />
         );
       })}
