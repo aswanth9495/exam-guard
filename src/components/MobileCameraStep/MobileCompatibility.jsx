@@ -1,13 +1,13 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import classNames from 'classnames';
 
-import { useDispatch } from 'react-redux';
-import styles from './MobileCameraStep.module.scss';
 import { COMPATIBILITY_CHECK_STATUSES } from '@/utils/constants';
 
-import warningIcon from '@/assets/images/red-warning.svg';
+import { setSubStepStatus } from '@/store/features/workflowSlice';
+import { useAppDispatch } from '@/hooks/reduxhooks';
+import styles from './MobileCameraStep.module.scss';
 import useProctorPolling from '@/hooks/useProctorPolling';
-import { setStepStatus, setSubStepStatus } from '@/store/features/workflowSlice';
+import warningIcon from '@/assets/images/red-warning.svg';
 
 const COMPATIBILITY_CHECK_DATA = {
   battery: {
@@ -60,7 +60,7 @@ function MobileCompatibility({
   className,
 }) {
   const [statusMap, setStatusMap] = useState(DEFAULT_STATUS_MAP);
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const setBatteryCheckFailed = useCallback(() => {
     if (statusMap.battery === COMPATIBILITY_CHECK_STATUSES.default) {
@@ -101,12 +101,13 @@ function MobileCompatibility({
 
   const handleDataUpdate = useCallback((data) => {
     if (data.success) {
-      dispatch(setStepStatus({
-        step: 'mobileCameraShare',
-        status: 'completed',
-      }));
+      // dispatch(setStepStatus({
+      //   step: 'mobileCameraShare',
+      //   status: 'completed',
+      // }));
+      console.log('Update status to completed');
     }
-  }, [dispatch]);
+  }, []);
 
   useProctorPolling({
     onBatteryLow: handleBatteryLow,

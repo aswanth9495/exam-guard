@@ -3,15 +3,17 @@ import { ArrowRight } from 'lucide-react';
 
 import { Button } from '@/ui/Button';
 import { Checkbox } from '@/ui/Checkbox';
+import { evaluateParentStepStatus } from '@/utils/evaluateParentStepStatus';
 import { nextStep, setStepAcknowledged } from '@/store/features/workflowSlice';
+import { SubStepState } from '@/types/workflowTypes';
+import { selectStep } from '@/store/features/workflowSlice';
 import { useAppDispatch, useAppSelector } from '@/hooks/reduxhooks';
 import ScreenShareCard from '@/ui/ScreenShareCard';
 import StepHeader from '@/ui/StepHeader';
-import { selectStep } from '@/store/features/workflowSlice';
 
 const ScreenShareStep = () => {
   const dispatch = useAppDispatch();
-  const { acknowledged, status } = useAppSelector((state) =>
+  const { acknowledged, subSteps } = useAppSelector((state) =>
     selectStep(state, 'screenShare')
   );
 
@@ -24,7 +26,13 @@ const ScreenShareStep = () => {
     );
   };
 
-  const canProceed = acknowledged && status === 'completed';
+  const areAllSubstepsCompleted = Object.values(subSteps).every(
+    (subStep: SubStepState) => subStep.status === 'completed'
+  );
+
+  const status = evaluateParentStepStatus(Object.values(subSteps));
+
+  const canProceed = acknowledged && areAllSubstepsCompleted;
 
   return (
     <div className='p-12 flex-1'>

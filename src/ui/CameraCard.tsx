@@ -13,7 +13,6 @@ import { useAppSelector, useAppDispatch } from '@/hooks/reduxhooks';
 import {
   selectSubStep,
   setSubStepError,
-  setStepStatus,
 } from '@/store/features/workflowSlice';
 import { selectProctor } from '@/store/features/assessmentInfoSlice';
 import CameraGuideDialog from './CameraGuideDialog';
@@ -50,12 +49,6 @@ export default function CameraSelector() {
             step: 'cameraShare',
             subStep: 'cameraShare',
             error: 'Camera permission denied',
-          }),
-        );
-        dispatch(
-          setStepStatus({
-            step: 'cameraShare',
-            status: 'error',
           }),
         );
       }

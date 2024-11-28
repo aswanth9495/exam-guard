@@ -1,12 +1,12 @@
 import { AppDispatch } from '@/store/store';
+import { ERROR_MESSAGES } from '@/constants/screenshot';
 import {
   setSubStepStatus,
   setSubStepError,
-  setStepStatus,
+  setActiveStep,
 } from '@/store/features/workflowSlice';
-import { ERROR_MESSAGES } from '@/constants/screenshot';
 
-export class ScreenShareHandlers {
+export default class ScreenShareHandlers {
   private dispatch: AppDispatch;
 
   constructor(dispatch: AppDispatch) {
@@ -22,12 +22,6 @@ export class ScreenShareHandlers {
         clearError: true,
       })
     );
-    this.dispatch(
-      setStepStatus({
-        step: 'screenShare',
-        status: 'completed',
-      })
-    );
   };
 
   handleScreenShareFailure = (errorCode: string) => {
@@ -35,17 +29,12 @@ export class ScreenShareHandlers {
       ERROR_MESSAGES[errorCode as keyof typeof ERROR_MESSAGES] ||
       'Screen share validation failed. Please try again.';
 
+    this.dispatch(setActiveStep('screenShare'));
     this.dispatch(
       setSubStepError({
         step: 'screenShare',
         subStep: 'screenShare',
         error: errorMessage,
-      })
-    );
-    this.dispatch(
-      setStepStatus({
-        step: 'screenShare',
-        status: 'error',
       })
     );
   };
@@ -57,12 +46,6 @@ export class ScreenShareHandlers {
         subStep: 'screenShare',
         status: 'pending',
         clearError: true,
-      })
-    );
-    this.dispatch(
-      setStepStatus({
-        step: 'screenShare',
-        status: 'pending',
       })
     );
   };

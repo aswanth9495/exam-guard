@@ -9,17 +9,19 @@ export type Status = 'locked' | 'pending' | 'error' | 'completed';
 export interface SubStepState {
   status: Status;
   error: string;
+  enabled: boolean;
 }
 
 export interface StepState {
   locked: boolean;
+  enabled: boolean;
   acknowledged: boolean;
-  status: Status;
   activeSubStep: string;
-  subStep: Record<string, SubStepState>;
+  subSteps: Record<string, SubStepState>;
 }
 
 export interface WorkflowState {
+  modalOpen: boolean;
   activeStep: WorkflowStepKey;
   steps: {
     screenShare: StepState;
@@ -28,5 +30,13 @@ export interface WorkflowState {
     compatibilityChecks: StepState;
   };
 }
+
+export type StepEnableConfig = {
+  step: WorkflowStepKey;
+  enabled: boolean;
+  subSteps?: {
+    [key: string]: boolean;
+  };
+};
 
 export type WorkflowStepKey = keyof WorkflowState['steps'];

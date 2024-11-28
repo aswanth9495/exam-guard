@@ -5,9 +5,15 @@ import {
   setAssessmentInfo,
   setProctor,
 } from '@/store/features/assessmentInfoSlice';
+
+import {
+  setBulkStepEnabled,
+  setModalOpen,
+} from '@/store/features/workflowSlice';
+import CompatibilityHandlers from '@/store/handlers/compatibility';
 import CompatibilityModal from '@/components/CompatibilityModal';
-import { ScreenShareHandlers } from '@/store/handlers/screenShare';
-import { WebcamHandlers } from '@/store/handlers/webcam';
+import ScreenShareHandlers from '@/store/handlers/screenShare';
+import WebcamHandlers from '@/store/handlers/webcam';
 
 const App = ({
   baseUrl,
@@ -23,6 +29,7 @@ const App = ({
   headerOptions,
   mockModeEnabled,
   assessmentInfo,
+  enableProctoring = false,
 }) => {
   const dispatch = useAppDispatch();
 
@@ -32,6 +39,7 @@ const App = ({
         const Proctor = (await import('./proctor')).default;
         const screenShareHandlers = new ScreenShareHandlers(dispatch);
         const webcamHandlers = new WebcamHandlers(dispatch);
+        const compatibilityHandlers = new CompatibilityHandlers(dispatch);
 
         const proctor = new Proctor({
           baseUrl,
@@ -53,34 +61,88 @@ const App = ({
             onWebcamDisabled: webcamHandlers.onWebcamDisabled,
             onSnapshotSuccess: webcamHandlers.onSnapshotSuccess,
             onSnapshotFailure: webcamHandlers.onSnapshotFailure,
-            // onFullScreenEnabled: callbacks.onFullScreenEnabled || (() => {}),
-            // onFullScreenDisabled: callbacks.onFullScreenDisabled || (() => {}),
-            // onDisqualified: callbacks.onDisqualified || (() => {}),
-            // onCompatibilityCheckSuccess:
-            //   callbacks.onCompatibilityCheckSuccess || (() => {}),
-            // onCompatibilityCheckFail: (data) => { console.log('%c⧭', 'color: #e5de73', data); },
-            //   callbacks.onCompatibilityCheckFail || (() => {}),
+            onFullScreenEnabled: compatibilityHandlers.handleFullScreenEnabled,
+            onFullScreenDisabled:
+              compatibilityHandlers.handleFullScreenDisabled,
+            onDisqualified: compatibilityHandlers.handleDisqualified,
+            onCompatibilityCheckSuccess:
+              compatibilityHandlers.handleCompatibilityCheckSuccess,
+            onCompatibilityCheckFail:
+              compatibilityHandlers.handleCompatibilityCheckFail,
           },
           enableAllAlerts,
           headerOptions,
           mockModeEnabled,
         });
-        /* uncomment this in case you want the comp checks to run in intervals */
-        // proctor?.startCompatibilityChecks();
-        // await proctor.initializeProctoring();
+
+        if (enableProctoring) {
+          await proctor.initializeProctoring();
+          dispatch(setModalOpen(false));
+        } else {
+          dispatch(setModalOpen(true));
+        }
+
         dispatch(setAssessmentInfo(assessmentInfo));
         dispatch(setProctor(proctor));
+        dispatch(
+          setBulkStepEnabled([
+            {
+              step: 'screenShare',
+              enabled: true,
+              subSteps: {
+                screenShare: true,
+              },
+            },
+            {
+              step: 'cameraShare',
+              enabled: true,
+              subSteps: {
+                cameraShare: true,
+              },
+            },
+            {
+              step: 'mobileCameraShare',
+              enabled: false,
+              subSteps: {
+                codeScan: true,
+                cameraPairing: true,
+                systemChecks: true,
+              },
+            },
+            {
+              step: 'compatibilityChecks',
+              enabled: true,
+              subSteps: {
+                systemChecks: true,
+                networkChecks: true,
+                fullScreenCheck: true,
+              },
+            },
+          ]),
+        );
       } catch (error) {
         console.error('Proctoring initialization failed:', error);
       }
     };
 
     initializeProctoring();
-  }, [assessmentInfo, baseUrl,
-    callbacks, compatibilityCheckConfig,
-    config, dispatch, disqualificationConfig,
-    enableAllAlerts, eventsConfig,
-    headerOptions, mobilePairingConfig, mockModeEnabled, screenshotConfig, snapshotConfig]);
+  }, [
+    assessmentInfo,
+    baseUrl,
+    callbacks,
+    compatibilityCheckConfig,
+    config,
+    dispatch,
+    disqualificationConfig,
+    enableAllAlerts,
+    enableProctoring,
+    eventsConfig,
+    headerOptions,
+    mobilePairingConfig,
+    mockModeEnabled,
+    screenshotConfig,
+    snapshotConfig,
+  ]);
 
   return <CompatibilityModal />;
 };

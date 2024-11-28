@@ -2,13 +2,13 @@ import React from 'react';
 import { Button } from '@/ui/Button';
 import { useAppSelector, useAppDispatch } from '@/hooks/reduxhooks';
 import {
-  setSubStepStatus,
+  setSubStepError,
   selectSubStep,
-  setStepStatus,
 } from '@/store/features/workflowSlice';
 import { screenshareCleanup } from '@/utils/screenshotV2';
 import { AlertTriangle } from 'lucide-react';
 import { selectProctor } from '@/store/features/assessmentInfoSlice';
+import { ERROR_MESSAGES } from '@/constants/screenshot';
 
 export default function ScreenShareCard() {
   const dispatch = useAppDispatch();
@@ -28,17 +28,10 @@ export default function ScreenShareCard() {
   const handleStop = () => {
     screenshareCleanup();
     dispatch(
-      setSubStepStatus({
+      setSubStepError({
         step: 'screenShare',
         subStep: 'screenShare',
-        status: 'pending',
-        clearError: true,
-      })
-    );
-    dispatch(
-      setStepStatus({
-        step: 'screenShare',
-        status: 'pending',
+        error: ERROR_MESSAGES.SCREEN_SHARE_DENIED,
       })
     );
   };

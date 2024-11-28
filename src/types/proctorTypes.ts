@@ -81,6 +81,7 @@ export interface Proctor {
   initializeProctoring(): Promise<void>;
   enableFullScreen(): void;
   handleScreenshareRequest(): Promise<void>;
+  handleCompatibilityChecks(): void;
   handleWebcamRequest(): Promise<void>;
   handleScreenshareStop(): void;
   getWebcamDevices(): Promise<Array<{ id: string; label: string }>>;
