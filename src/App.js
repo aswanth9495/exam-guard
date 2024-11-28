@@ -17,6 +17,7 @@ const App = ({
   snapshotConfig,
   screenshotConfig,
   compatibilityCheckConfig,
+  mobilePairingConfig,
   callbacks,
   enableAllAlerts,
   headerOptions,
@@ -40,6 +41,7 @@ const App = ({
           snapshotConfig,
           screenshotConfig,
           compatibilityCheckConfig,
+          mobilePairingConfig,
           callbacks: {
             ...callbacks,
             onScreenShareSuccess: screenShareHandlers.handleScreenShareSuccess,
@@ -63,7 +65,8 @@ const App = ({
           headerOptions,
           mockModeEnabled,
         });
-
+        /* uncomment this in case you want the comp checks to run in intervals */
+        // proctor?.startCompatibilityChecks();
         // await proctor.initializeProctoring();
         dispatch(setAssessmentInfo(assessmentInfo));
         dispatch(setProctor(proctor));
