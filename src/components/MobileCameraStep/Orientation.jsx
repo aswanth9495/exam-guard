@@ -2,12 +2,12 @@ import React, { useCallback, useState } from 'react';
 import classNames from 'classnames';
 
 import { useDispatch } from 'react-redux';
+import { ArrowRight } from 'lucide-react';
 import ReferenceImage from '@/ui/ReferenceImage';
 import { Button } from '@/ui/Button';
 import { Checkbox } from '@/ui/Checkbox';
 import useProctorPolling from '@/hooks/useProctorPolling';
 import { MIN_SNAPSHOT_COUNT } from '@/utils/constants';
-
 import styles from './MobileCameraStep.module.scss';
 import Loader from '@/ui/Loader';
 import ProgressBar from '@/ui/ProgressBar';
