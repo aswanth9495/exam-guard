@@ -1,13 +1,12 @@
 import React, { useCallback, useState } from 'react';
 import classNames from 'classnames';
 
-import { CameraOff, ArrowRight } from 'lucide-react';
 import { useDispatch } from 'react-redux';
 import ReferenceImage from '@/ui/ReferenceImage';
 import { Button } from '@/ui/Button';
 import { Checkbox } from '@/ui/Checkbox';
 import useProctorPolling from '@/hooks/useProctorPolling';
-import { PAIRING_STEPS, MIN_SNAPSHOT_COUNT } from '@/utils/constants';
+import { MIN_SNAPSHOT_COUNT } from '@/utils/constants';
 
 import styles from './MobileCameraStep.module.scss';
 import Loader from '@/ui/Loader';
@@ -97,7 +96,7 @@ function Orientation({ className }) {
                 {parseInt((snapShotCount / MIN_SNAPSHOT_COUNT) * 100, 10)}%
               </span>
             </div>}
-          {snapshotToShow && <button
+          {snapshotToShow && snapshotCollected && <button
             type="button"
             className={styles.retrySnapshot}
             onClick={handleRetry}
