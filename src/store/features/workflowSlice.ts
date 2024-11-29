@@ -1,4 +1,4 @@
-import { createSlice, current, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import {
   Status,
   SubStepState,
@@ -29,6 +29,7 @@ const createStep = (subSteps: string[], locked = true): StepState => ({
 });
 
 const initialState: WorkflowState = {
+  enableProctoring: false,
   modalOpen: false,
   activeStep: 'screenShare',
   steps: {
@@ -45,6 +46,7 @@ const initialState: WorkflowState = {
       'fullScreenCheck',
     ]),
   },
+  onWorkflowComplete: () => {},
 };
 
 const workflowSlice = createSlice({
@@ -61,7 +63,6 @@ const workflowSlice = createSlice({
       const steps = Object.keys(state.steps) as WorkflowStepKey[];
       const currentIndex = steps.indexOf(state.activeStep);
       
-      // Find the next enabled step
       const nextEnabledStepIndex = steps.findIndex((step, index) => 
         index > currentIndex && state.steps[step].enabled
       );
@@ -75,9 +76,14 @@ const workflowSlice = createSlice({
           const subSteps = Object.keys(state.steps[nextStepKey].subSteps)
           const firstSubStepKey = subSteps[0];
           state.steps[nextStepKey].subSteps[firstSubStepKey].status = 'pending';
-
         }
         state.activeStep = nextStepKey;
+      } else {
+        state.modalOpen = false;
+        state.enableProctoring = true;
+        if (state.onWorkflowComplete) {
+          state.onWorkflowComplete();
+        }
       }
     },
 
@@ -139,6 +145,20 @@ const workflowSlice = createSlice({
       if (clearError) {
         state.steps[step].subSteps[subStep].error = '';
       }
+
+      if (state.enableProctoring) {
+        const allCompleted = Object.entries(state.steps).every(([_, stepState]) => {
+          if (!stepState.enabled) return true;
+          
+          return Object.values(stepState.subSteps).every(
+            subStep => subStep.enabled && subStep.status === 'completed'
+          );
+        });
+
+        if (allCompleted) {
+          state.modalOpen = false;
+        }
+      }
     },
 
     setSubStepError(
@@ -184,6 +204,26 @@ const workflowSlice = createSlice({
       state.modalOpen = action.payload;
     },
 
+    setEnableProctoring(
+      state,
+      action: PayloadAction<boolean>
+    ) {
+      state.enableProctoring = action.payload;
+
+      if (action.payload) {
+        Object.keys(state.steps).forEach((step) => {
+          state.steps[step as WorkflowStepKey].locked = false;
+        });
+      }
+    },
+
+    setOnWorkflowComplete(
+      state,
+      action: PayloadAction<() => void>
+    ) {
+      state.onWorkflowComplete = action.payload;
+    },
+
     resetAll: () => initialState,
   },
 });
@@ -200,6 +240,8 @@ export const {
   setModalOpen,
   resetStep,
   resetAll,
+  setEnableProctoring,
+  setOnWorkflowComplete,
 } = workflowSlice.actions;
 
 export default workflowSlice.reducer;

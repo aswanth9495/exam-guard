@@ -21,6 +21,7 @@ export interface StepState {
 }
 
 export interface WorkflowState {
+  enableProctoring: boolean;
   modalOpen: boolean;
   activeStep: WorkflowStepKey;
   steps: {
@@ -29,6 +30,7 @@ export interface WorkflowState {
     mobileCameraShare: StepState;
     compatibilityChecks: StepState;
   };
+  onWorkflowComplete: () => void;
 }
 
 export type StepEnableConfig = {

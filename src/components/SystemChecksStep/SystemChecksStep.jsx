@@ -16,6 +16,7 @@ const SystemChecksStep = () => {
   const { acknowledged, subSteps } = useAppSelector((state) => (
     selectStep(state, 'compatibilityChecks')
   ));
+  const { enableProctoring } = useAppSelector((state) => state.workflow);
 
   useEffect(() => {
     if (proctor) {
@@ -50,27 +51,31 @@ const SystemChecksStep = () => {
       />
       <div className='mt-8'>
         <SystemCheckCard />
-        <div className='flex items-start gap-2 mt-6 text-xs'>
-          <Checkbox
-            id='confirm'
-            className='mt-2 mr-2'
-            checked={acknowledged}
-            onCheckedChange={handleCheckboxChange}
-          />
-          <label htmlFor='confirm' className='text-xs text-gray-600'>
-            By clicking, you confirm that all your compatibility checks remains
-            same. Failure to maintain proper setup may result in interruption.
-          </label>
-        </div>
-        <Button
-          className='mt-8 items-center'
-          variant='primary'
-          disabled={!canProceed}
-          onClick={() => dispatch(nextStep())}
-        >
-          Proceed to next step
-          <ArrowRight className='w-6 h-6' />
-        </Button>
+        {!enableProctoring && (
+          <>
+            <div className='flex items-start gap-2 mt-6 text-xs'>
+              <Checkbox
+                id='confirm'
+                className='mt-2 mr-2'
+                checked={acknowledged}
+                onCheckedChange={handleCheckboxChange}
+              />
+              <label htmlFor='confirm' className='text-xs text-gray-600'>
+                By clicking, you confirm that all your compatibility checks remains
+                same. Failure to maintain proper setup may result in interruption.
+              </label>
+            </div>
+            <Button
+              className='mt-8 items-center'
+              variant='primary'
+              disabled={!canProceed}
+              onClick={() => dispatch(nextStep())}
+            >
+              Proceed to next step
+              <ArrowRight className='w-6 h-6' />
+            </Button>
+          </>
+        )}
       </div>
     </div>
   );

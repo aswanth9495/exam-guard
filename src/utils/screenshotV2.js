@@ -12,13 +12,14 @@ class ScreenShareMonitor {
     this.strategy = strategy;
   }
 
-  async requestScreenShare({ onSuccess, onFailure, onEnd }) {
+  async requestScreenShare({ onFailure, onEnd }) {
     try {
       this.mediaStream = await navigator.mediaDevices.getDisplayMedia({
         video: { displaySurface: 'monitor' },
       });
       this.listenScreenShareEnd({ onEnd });
-      onSuccess?.({ stream: this.mediaStream });
+      // TODO: Do we need this?
+      // onSuccess?.({ stream: this.mediaStream });
 
       return true;
     } catch (err) {
@@ -313,6 +314,7 @@ async function setupScreenshotCaptureFromScreenShareNew({
   if (success) return;
 
   try {
+    console.log('requesting screen share');
     const resp = await screenShareMonitor.requestScreenShare({
       onSuccess: onScreenShareEnabled,
       onFailure: onScreenShareFailure,
