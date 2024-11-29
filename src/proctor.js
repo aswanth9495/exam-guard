@@ -886,12 +886,12 @@ export default class Proctor {
   }
 
   handleFullScreenEnabled() {
-    if (this.compatibilityCheckConfig.enable) {
-      this.runCompatibilityChecks(
-        this.handleCompatibilitySuccess.bind(this),
-        this.handleCompatibilityFailure.bind(this),
-      );
-    }
+    // if (this.compatibilityCheckConfig.enable) {
+    //   this.runCompatibilityChecks(
+    //     this.handleCompatibilitySuccess.bind(this),
+    //     this.handleCompatibilityFailure.bind(this),
+    //   );
+    // }
     this.callbacks.onFullScreenEnabled();
   }
 
@@ -900,6 +900,10 @@ export default class Proctor {
       onFullScreenEnabled: this.handleFullScreenEnabled.bind(this),
       onFullScreenDisabled: this.handleFullScreenDisabled.bind(this),
     });
+    this.runCompatibilityChecks(
+      this.handleCompatibilitySuccess.bind(this),
+      this.handleCompatibilityFailure.bind(this),
+    );
   }
 
   handleViolation(type, value = null, forceDisqualify = false) {
