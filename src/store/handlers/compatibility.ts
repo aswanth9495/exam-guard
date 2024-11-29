@@ -4,9 +4,10 @@ import {
   setSubStepStatus,
   setSubStepError,
   setActiveStep,
+  setModalOpen,
 } from '@/store/features/workflowSlice';
 
-const CHECK_TO_STEP_MAP: Record<string, { step: string, subStep: string }> = {
+const CHECK_TO_STEP_MAP: Record<string, { step: string; subStep: string }> = {
   screenshare: { step: 'screenShare', subStep: 'screenShare' },
   webcam: { step: 'cameraShare', subStep: 'cameraShare' },
   browser: { step: 'compatibilityChecks', subStep: 'systemChecks' },
@@ -28,7 +29,7 @@ export default class CompatibilityHandlers {
         subStep: 'fullScreenCheck',
         status: 'completed',
         clearError: true,
-      })
+      }),
     );
   };
 
@@ -39,7 +40,7 @@ export default class CompatibilityHandlers {
         step: 'compatibilityChecks',
         subStep: 'fullScreenCheck',
         status: 'error',
-      })
+      }),
     );
   };
 
@@ -54,46 +55,59 @@ export default class CompatibilityHandlers {
         step: 'compatibilityChecks',
         subStep: 'systemChecks',
         error: errorMessage,
-      })
+      }),
     );
   };
 
   handleCompatibilityCheckSuccess = () => {
-    Object.values(CHECK_TO_STEP_MAP).forEach(mapping => {
+    Object.values(CHECK_TO_STEP_MAP).forEach((mapping) => {
       this.dispatch(
         setSubStepStatus({
-          step: mapping.step as 'compatibilityChecks' | 'cameraShare' | 'screenShare',
+          step: mapping.step as
+            | 'compatibilityChecks'
+            | 'cameraShare'
+            | 'screenShare',
           subStep: mapping.subStep,
           status: 'completed',
           clearError: true,
-        })
+        }),
       );
     });
   };
 
-  handleCompatibilityCheckFail = (errorCode: { 
+  handleCompatibilityCheckFail = (errorCode: {
     passedChecks: Record<string, boolean>;
   }) => {
     let hasSetActiveStep = false;
-    
-    Object.keys(CHECK_TO_STEP_MAP).forEach(check => {
+
+    Object.keys(CHECK_TO_STEP_MAP).forEach((check) => {
       if (!(check in errorCode.passedChecks)) return;
-      
+
       const passed = errorCode.passedChecks[check];
       const mapping = CHECK_TO_STEP_MAP[check];
-      
+
       if (mapping) {
         this.dispatch(
           setSubStepStatus({
-            step: mapping.step as 'compatibilityChecks' | 'cameraShare' | 'screenShare',
+            step: mapping.step as
+              | 'compatibilityChecks'
+              | 'cameraShare'
+              | 'screenShare',
             subStep: mapping.subStep,
             status: passed ? 'completed' : 'error',
             clearError: true,
-          })
+          }),
         );
 
         if (!passed && !hasSetActiveStep) {
-          this.dispatch(setActiveStep(mapping.step as 'compatibilityChecks' | 'cameraShare' | 'screenShare'));
+          this.dispatch(
+            setActiveStep(
+              mapping.step as
+                | 'compatibilityChecks'
+                | 'cameraShare'
+                | 'screenShare',
+            ),
+          );
           hasSetActiveStep = true;
         }
       }

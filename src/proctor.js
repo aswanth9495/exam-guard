@@ -538,14 +538,14 @@ export default class Proctor {
 
     // Initialize object to store the result of passed checks
     const passedChecks = {
-      webcam: false,
-      networkSpeed: false,
-      fullscreen: false,
       screenshare: false,
-      browser: false,
+      webcam: false,
       mobileSnapshot: false,
       mobileBattery: false,
       mobileSetup: false,
+      browser: false,
+      networkSpeed: false,
+      fullscreen: false,
     };
 
     // Array to store all compatibility promises
@@ -819,10 +819,11 @@ export default class Proctor {
 
   handleScreenShareSuccess() {
     this.callbacks.onScreenShareSuccess();
+    this.enableFullScreen();
   }
 
-  handleScreenShareFailure() {
-    this.callbacks.onScreenShareFailure();
+  handleScreenShareFailure(errorCode) {
+    this.callbacks.onScreenShareFailure(errorCode);
   }
 
   handleScreenShareEnd() {
