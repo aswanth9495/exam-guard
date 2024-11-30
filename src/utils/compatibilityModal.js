@@ -56,6 +56,23 @@ export function setIconsForChecks(passedChecks = {}, checks = {}) {
   }
 }
 
+export function updateCompatibilityCheckModal(mockModeEnabled = true) {
+  let targetEle;
+  let newEle;
+  if (mockModeEnabled) {
+    targetEle = document.getElementById('fullscreen-share-button');
+    newEle = document.createElement('div');
+    newEle.innerHTML = screenshareInstruction;
+  } else {
+    targetEle = document.getElementById('compatibility-modal__screenshare-instructions');
+    newEle = document.createElement('div');
+    newEle.innerHTML = screenshareButtonHtml;
+  }
+  if (targetEle) {
+    targetEle.parentNode.replaceChild(newEle, targetEle);
+  }
+}
+
 export function setupCompatibilityCheckModal(onContinueClick, config = {}) {
   if (!config.enable) {
     return;
