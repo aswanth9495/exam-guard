@@ -1,10 +1,11 @@
-import React, { useEffect } from 'react';
+import React from 'react';
+// import React, { useEffect } from 'react';
 import { ArrowRight } from 'lucide-react';
 
 import { Button } from '@/ui/Button';
 import { Checkbox } from '@/ui/Checkbox';
 import { evaluateParentStepStatus } from '@/utils/evaluateParentStepStatus';
-import { selectProctor } from '@/store/features/assessmentInfoSlice';
+// import { selectProctor } from '@/store/features/assessmentInfoSlice';
 import { selectStep, nextStep, setStepAcknowledged } from '@/store/features/workflowSlice';
 import { useAppDispatch, useAppSelector } from '@/hooks/reduxhooks';
 import StepHeader from '@/ui/StepHeader';
@@ -12,17 +13,17 @@ import SystemCheckCard from '@/ui/SystemCheckCard';
 
 const SystemChecksStep = () => {
   const dispatch = useAppDispatch();
-  const proctor = useAppSelector((state) => selectProctor(state));
+  // const proctor = useAppSelector((state) => selectProctor(state));
   const { acknowledged, subSteps } = useAppSelector((state) => (
     selectStep(state, 'compatibilityChecks')
   ));
   const { enableProctoring } = useAppSelector((state) => state.workflow);
 
-  useEffect(() => {
-    if (proctor) {
-      proctor?.handleCompatibilityChecks();
-    }
-  }, [proctor]);
+  // useEffect(() => {
+  //   if (proctor) {
+  //     proctor?.handleCompatibilityChecks();
+  //   }
+  // }, [proctor]);
 
   const handleCheckboxChange = () => {
     dispatch(

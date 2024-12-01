@@ -18,6 +18,7 @@ import {
   isFullScreen,
   requestFullScreen,
 } from './utils/fullScreenBlocker';
+import { sendCompatibilityEvents } from './utils/compatibility';
 // import {
 //   hideCompatibilityModal,
 //   setupCompatibilityCheckModal,
@@ -101,6 +102,9 @@ export default class Proctor {
       showTimer: true,
       buttonText: 'Confirm Settings',
       headingText: 'System Check: Configure Required Settings',
+      defaultPayload: {},
+      endpoint: '',
+      baseUrl: '',
       ...compatibilityCheckConfig,
     };
     this.disqualificationConfig = {
@@ -294,22 +298,22 @@ export default class Proctor {
       ...screenshotConfig,
     };
     this.callbacks = {
-      onDisqualified: callbacks.onDisqualified || (() => {}),
-      onWebcamDisabled: callbacks.onWebcamDisabled || (() => {}),
-      onWebcamEnabled: callbacks.onWebcamEnabled || (() => {}),
-      onSnapshotSuccess: callbacks.onSnapshotSuccess || (() => {}),
-      onSnapshotFailure: callbacks.onSnapshotFailure || (() => {}),
-      onScreenShareSuccess: callbacks.onScreenShareSuccess || (() => {}),
-      onScreenShareFailure: callbacks.onScreenShareFailure || (() => {}),
-      onScreenShareEnd: callbacks.onScreenShareEnd || (() => {}),
-      onScreenshotFailure: callbacks.onScreenshotFailure || (() => {}),
-      onScreenshotSuccess: callbacks.onScreenshotSuccess || (() => {}),
-      onFullScreenEnabled: callbacks.onFullScreenEnabled || (() => {}),
-      onFullScreenDisabled: callbacks.onFullScreenDisabled || (() => {}),
+      onDisqualified: callbacks.onDisqualified || (() => { }),
+      onWebcamDisabled: callbacks.onWebcamDisabled || (() => { }),
+      onWebcamEnabled: callbacks.onWebcamEnabled || (() => { }),
+      onSnapshotSuccess: callbacks.onSnapshotSuccess || (() => { }),
+      onSnapshotFailure: callbacks.onSnapshotFailure || (() => { }),
+      onScreenShareSuccess: callbacks.onScreenShareSuccess || (() => { }),
+      onScreenShareFailure: callbacks.onScreenShareFailure || (() => { }),
+      onScreenShareEnd: callbacks.onScreenShareEnd || (() => { }),
+      onScreenshotFailure: callbacks.onScreenshotFailure || (() => { }),
+      onScreenshotSuccess: callbacks.onScreenshotSuccess || (() => { }),
+      onFullScreenEnabled: callbacks.onFullScreenEnabled || (() => { }),
+      onFullScreenDisabled: callbacks.onFullScreenDisabled || (() => { }),
       onCompatibilityCheckSuccess:
-        callbacks.onCompatibilityCheckSuccess || (() => {}),
+        callbacks.onCompatibilityCheckSuccess || (() => { }),
       onCompatibilityCheckFail:
-        callbacks.onCompatibilityCheckFail || (() => {}),
+        callbacks.onCompatibilityCheckFail || (() => { }),
     };
     this.violationEvents = [];
     this.recordedViolationEvents = []; // Store events for batch sending
@@ -499,11 +503,22 @@ export default class Proctor {
   }
 
   handleCompatibilitySuccess(passedChecks) {
+    sendCompatibilityEvents(
+      passedChecks,
+      this.compatibilityCheckConfig.baseUrl,
+      this.compatibilityCheckConfig.endpoint,
+      this.compatibilityCheckConfig.defaultPayload,
+    );
     this.callbacks.onCompatibilityCheckSuccess({ passedChecks });
-    // console.log('Compatibility checks passed:', passedChecks);
   }
 
   handleCompatibilityFailure(passedChecks) {
+    sendCompatibilityEvents(
+      passedChecks,
+      this.compatibilityCheckConfig.baseUrl,
+      this.compatibilityCheckConfig.endpoint,
+      this.compatibilityCheckConfig.defaultPayload,
+    );
     this.callbacks.onCompatibilityCheckFail({ passedChecks });
   }
 
@@ -934,7 +949,7 @@ export default class Proctor {
     if (
       forceDisqualify
       || this.getViolationsCountForDisqualify()
-        >= this.disqualificationConfig.eventCountThreshold
+      >= this.disqualificationConfig.eventCountThreshold
     ) {
       this.disqualifyUser();
     }

@@ -69,6 +69,13 @@
         },
         endpoint: 'api/v3/proctoring/dual_camera/qr_code',
       },
+      compatibilityCheckConfig: {
+        baseUrl: 'http://localhost:3000/',
+        defaultPayload: {
+          'test_id': 16884,
+        },
+        endpoint: 'api/v3/proctoring/dual_camera/events'
+      },
       callbacks: {
         onSnapshotSuccess: ({ blob }) => {
           const snapshotImg = document.getElementById('snapshot');
