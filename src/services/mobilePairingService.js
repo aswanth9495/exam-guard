@@ -3,7 +3,7 @@ import {
 } from '@reduxjs/toolkit/query/react';
 
 const baseMobilePairingQuery = fetchBaseQuery({
-  baseUrl: 'http://localhost:3000/',
+  baseUrl: window.location.origin,
 });
 
 const mobilePairingService = createApi({
