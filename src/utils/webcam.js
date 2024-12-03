@@ -20,9 +20,10 @@ export function captureSnapshot({
     canvas.height = videoElement.videoHeight;
     ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
 
-    const imageSrc = canvas.toDataURL('image/png');
+    // Get the image source as a data URL
+    const imageSrc = canvas.toDataURL('image/jpeg', 0.7); // Initial compression to reduce base64 size
 
-    // Resize image using ImageUtils
+    // Use the resizeImage function to resize and return a smaller blob
     resizeImage(imageSrc, resizeDimensions)
       .then((blob) => {
         onSnapshotSuccess?.({ blob });
@@ -30,6 +31,8 @@ export function captureSnapshot({
       .catch((error) => {
         onSnapshotFailure?.({ error });
       });
+  } else {
+    onSnapshotFailure?.({ error: new Error('No video element found') });
   }
 }
 
