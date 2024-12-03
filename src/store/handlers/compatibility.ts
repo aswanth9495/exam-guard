@@ -4,7 +4,6 @@ import {
   setSubStepStatus,
   setSubStepError,
   setActiveStep,
-  setModalOpen,
 } from '@/store/features/workflowSlice';
 
 const CHECK_TO_STEP_MAP: Record<string, { step: string; subStep: string }> = {
@@ -13,6 +12,9 @@ const CHECK_TO_STEP_MAP: Record<string, { step: string; subStep: string }> = {
   browser: { step: 'compatibilityChecks', subStep: 'systemChecks' },
   networkSpeed: { step: 'compatibilityChecks', subStep: 'networkChecks' },
   fullscreen: { step: 'compatibilityChecks', subStep: 'fullScreenCheck' },
+  mobileSetup: { step: 'mobileCameraShare', subStep: 'codeScan' },
+  mobileSnapshot: { step: 'mobileCameraShare', subStep: 'cameraPairing' },
+  mobileBattery: { step: 'mobileCameraShare', subStep: 'systemChecks' },
 };
 
 export default class CompatibilityHandlers {
