@@ -63,10 +63,6 @@ export default function CompatibilityModal() {
       .every(([, stepData]) => 
         Object.values(stepData?.subSteps ?? {}).every(substep => substep.status === 'completed')
       );
-
-    if (allSubstepsCompleted) {
-      dispatch(setModalOpen(false));
-    }
   }, [steps, enabledSteps, enableProctoring, modalOpen, dispatch]);
 
   return (
