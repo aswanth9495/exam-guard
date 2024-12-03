@@ -1,9 +1,10 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { Monitor, Camera, Smartphone, Settings } from 'lucide-react';
 
-import { useAppSelector } from '@/hooks/reduxhooks';
+import { useAppDispatch, useAppSelector } from '@/hooks/reduxhooks';
 import { Modal } from '@/ui/Modal';
 import { Step, WorkflowStepKey } from '@/types/workflowTypes';
+import { setModalOpen } from '@/store/features/workflowSlice';
 import CompatibilityModalHeader from '@/components/CompatibilityModalHeader';
 import CompatibilityModalStepsScreen from '@/components/CompatibilityModalStepsScreen';
 import DesktopCameraStep from '@/components/DesktopCameraStep';
@@ -36,6 +37,7 @@ const ALL_STEPS: Record<string, Step> = {
 };
 
 export default function CompatibilityModal() {
+  const dispatch = useAppDispatch();
   const { activeStep, enableProctoring, steps, modalOpen } = useAppSelector(
     (state) => state.workflow,
   );
@@ -52,12 +54,27 @@ export default function CompatibilityModal() {
     );
   }, [steps]);
 
+  // Precautionary check to ensure that the modal is closed if all substeps are completed
+  useEffect(() => {
+    if (!enableProctoring || !modalOpen) return;
+
+    const allSubstepsCompleted = Object.entries(steps)
+      .filter(([key]) => steps[key as WorkflowStepKey]?.enabled)
+      .every(([, stepData]) => 
+        Object.values(stepData?.subSteps ?? {}).every(substep => substep.status === 'completed')
+      );
+
+    if (allSubstepsCompleted) {
+      dispatch(setModalOpen(false));
+    }
+  }, [steps, enabledSteps, enableProctoring, modalOpen, dispatch]);
+
   return (
     <Modal
       isOpen={modalOpen}
       modalClassName='w-[100%] h-[100%] flex flex-col items-stretch'
     >
-      {enableProctoring && activeStep && (
+      {modalOpen && enableProctoring && activeStep && (
         <DisqualificationTimerBar
           activeStep={activeStep}
           modalOpen={modalOpen}
@@ -68,7 +85,7 @@ export default function CompatibilityModal() {
           <CompatibilityModalHeader />
           <CompatibilityModalStepsScreen step_data={enabledSteps} />
         </div>
-        {enabledSteps[activeStep].component}
+        {enabledSteps[activeStep]?.component}
       </div>
     </Modal>
   );

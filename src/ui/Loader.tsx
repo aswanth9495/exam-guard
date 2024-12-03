@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
 
 export default function Loader({
-  bgClassName,
-  ringClassName,
-  loaderClassName,
+  bgClassName = '',
+  ringClassName = '',
+  loaderClassName = '',
   size = 'md',
 }: {
   bgClassName?: string;

@@ -5,19 +5,18 @@ const LINK_SPEED_THRESHOLD = 400;
 export async function checkBandwidth() {
   return new Promise((resolve, reject) => {
     const download = new Image();
-    const startTime = (new Date()).getTime();
+    const startTime = performance.now(); // More precise timing
 
     download.onload = function onload() {
-      const endTime = (new Date()).getTime();
-      const duration = (endTime - startTime) / 1000;
+      const duration = (performance.now() - startTime) / 1000;
       const imageSizeInBytes = download.width * download.height * 4;
       const imageSizeInKilobits = (imageSizeInBytes * 8) / 1024;
-      const userDownloadSpeed = imageSizeInKilobits / duration;
+      const speedKbps = (imageSizeInKilobits) / duration;
 
-      resolve(userDownloadSpeed < LINK_SPEED_THRESHOLD);
+      resolve(speedKbps < LINK_SPEED_THRESHOLD);
     };
 
     download.onerror = reject;
-    download.src = imageLocation;
+    download.src = `${imageLocation}?t=${Date.now()}`;
   });
 }

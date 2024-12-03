@@ -13,9 +13,9 @@ const Modal = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      'fixed inset-0 bg-black/50 flex items-center justify-center p-4',
+      'fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50',
       isOpen ? '' : 'hidden',
-      containerClassName
+      containerClassName,
     )}
     {...props}
   >

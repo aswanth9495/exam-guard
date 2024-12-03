@@ -11,7 +11,7 @@ import {
 const createSubStep = (): SubStepState => ({
   status: 'locked',
   error: '',
-  enabled: true,
+  enabled: false,
 });
 
 const createStep = (subSteps: string[], locked = true): StepState => ({
@@ -80,7 +80,6 @@ const workflowSlice = createSlice({
         state.activeStep = nextStepKey;
       } else {
         state.modalOpen = false;
-        state.enableProctoring = true;
         if (state.onWorkflowComplete) {
           state.onWorkflowComplete();
         }

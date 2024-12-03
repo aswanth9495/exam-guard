@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 
 import { useAppDispatch, useAppSelector } from '@/hooks/reduxhooks';
 import {
@@ -11,9 +11,11 @@ import {
   setModalOpen,
   setEnableProctoring,
   setOnWorkflowComplete,
+  setActiveStep,
 } from '@/store/features/workflowSlice';
 import CompatibilityHandlers from '@/store/handlers/compatibility';
 import CompatibilityModal from '@/components/CompatibilityModal';
+import Proctor from '@/proctor';
 import ScreenShareHandlers from '@/store/handlers/screenShare';
 import WebcamHandlers from '@/store/handlers/webcam';
 
@@ -39,87 +41,124 @@ const App = ({
     (state) => state.workflow,
   );
 
+  const proctor = useMemo(() => {
+    const screenShareHandlers = new ScreenShareHandlers(dispatch);
+    const webcamHandlers = new WebcamHandlers(dispatch);
+    const compatibilityHandlers = new CompatibilityHandlers(dispatch);
+
+    return new Proctor({
+      baseUrl,
+      eventsConfig,
+      disqualificationConfig,
+      config,
+      snapshotConfig,
+      screenshotConfig,
+      compatibilityCheckConfig,
+      mobilePairingConfig,
+      callbacks: {
+        onScreenShareSuccess: (...args) => {
+          callbacks?.onScreenShareSuccess?.(...args);
+          screenShareHandlers.handleScreenShareSuccess(...args);
+        },
+        onScreenShareFailure: (...args) => {
+          callbacks?.onScreenShareFailure?.(...args);
+          screenShareHandlers.handleScreenShareFailure(...args);
+        },
+        onScreenShareEnd: (...args) => {
+          callbacks?.onScreenShareEnd?.(...args);
+          screenShareHandlers.handleScreenShareEnd(...args);
+        },
+        onScreenshotSuccess: (...args) => {
+          callbacks?.onScreenshotSuccess?.(...args);
+          screenShareHandlers.handleScreenshotSuccess(...args);
+        },
+        onScreenshotFailure: (...args) => {
+          callbacks?.onScreenshotFailure?.(...args);
+          screenShareHandlers.handleScreenshotFailure(...args);
+        },
+        onWebcamEnabled: (...args) => {
+          callbacks?.onWebcamEnabled?.(...args);
+          webcamHandlers.onWebcamEnabled(...args);
+        },
+        onWebcamDisabled: (...args) => {
+          callbacks?.onWebcamDisabled?.(...args);
+          webcamHandlers.onWebcamDisabled(...args);
+        },
+        onSnapshotSuccess: (...args) => {
+          callbacks?.onSnapshotSuccess?.(...args);
+          webcamHandlers.onSnapshotSuccess(...args);
+        },
+        onSnapshotFailure: (...args) => {
+          callbacks?.onSnapshotFailure?.(...args);
+          webcamHandlers.onSnapshotFailure(...args);
+        },
+        onFullScreenEnabled: (...args) => {
+          callbacks?.onFullScreenEnabled?.(...args);
+          compatibilityHandlers.handleFullScreenEnabled(...args);
+        },
+        onFullScreenDisabled: (...args) => {
+          callbacks?.onFullScreenDisabled?.(...args);
+          compatibilityHandlers.handleFullScreenDisabled(...args);
+        },
+        onDisqualified: (...args) => {
+          callbacks?.onDisqualified?.(...args);
+          compatibilityHandlers.handleDisqualified(...args);
+        },
+        onCompatibilityCheckSuccess: (...args) => {
+          callbacks?.onCompatibilityCheckSuccess?.(...args);
+          compatibilityHandlers.handleCompatibilityCheckSuccess(...args);
+        },
+        onCompatibilityCheckFail: (...args) => {
+          callbacks?.onCompatibilityCheckFail?.(...args);
+          compatibilityHandlers.handleCompatibilityCheckFail(...args);
+        },
+      },
+      enableAllAlerts,
+      headerOptions,
+      mockModeEnabled,
+      qrCodeConfig,
+    });
+  }, [
+    baseUrl,
+    callbacks,
+    compatibilityCheckConfig,
+    config,
+    dispatch,
+    disqualificationConfig,
+    enableAllAlerts,
+    eventsConfig,
+    headerOptions,
+    mobilePairingConfig,
+    mockModeEnabled,
+    qrCodeConfig,
+    screenshotConfig,
+    snapshotConfig,
+  ]);
+
+  const steps = useMemo(
+    () => [
+      { step: 'screenShare', enabled: screenshotConfig.enabled ?? true },
+      { step: 'cameraShare', enabled: snapshotConfig.enabled ?? true },
+      {
+        step: 'mobileCameraShare',
+        enabled: mobilePairingConfig.enabled ?? true,
+      },
+      {
+        step: 'compatibilityChecks',
+        enabled: compatibilityCheckConfig.enable ?? true,
+      },
+    ],
+    [
+      screenshotConfig.enabled,
+      snapshotConfig.enabled,
+      mobilePairingConfig.enabled,
+      compatibilityCheckConfig.enable,
+    ],
+  );
+
   useEffect(() => {
     const initializeProctoring = async () => {
       try {
-        const Proctor = (await import('./proctor')).default;
-        const screenShareHandlers = new ScreenShareHandlers(dispatch);
-        const webcamHandlers = new WebcamHandlers(dispatch);
-        const compatibilityHandlers = new CompatibilityHandlers(dispatch);
-
-        const proctor = new Proctor({
-          baseUrl,
-          eventsConfig,
-          disqualificationConfig,
-          config,
-          snapshotConfig,
-          screenshotConfig,
-          compatibilityCheckConfig,
-          mobilePairingConfig,
-          callbacks: {
-            onScreenShareSuccess: (...args) => {
-              callbacks?.onScreenShareSuccess?.(...args);
-              screenShareHandlers.handleScreenShareSuccess(...args);
-            },
-            onScreenShareFailure: (...args) => {
-              callbacks?.onScreenShareFailure?.(...args);
-              screenShareHandlers.handleScreenShareFailure(...args);
-            },
-            onScreenShareEnd: (...args) => {
-              callbacks?.onScreenShareEnd?.(...args);
-              screenShareHandlers.handleScreenShareEnd(...args);
-            },
-            onScreenshotSuccess: (...args) => {
-              callbacks?.onScreenshotSuccess?.(...args);
-              screenShareHandlers.handleScreenshotSuccess(...args);
-            },
-            onScreenshotFailure: (...args) => {
-              callbacks?.onScreenshotFailure?.(...args);
-              screenShareHandlers.handleScreenshotFailure(...args);
-            },
-            onWebcamEnabled: (...args) => {
-              callbacks?.onWebcamEnabled?.(...args);
-              webcamHandlers.onWebcamEnabled(...args);
-            },
-            onWebcamDisabled: (...args) => {
-              callbacks?.onWebcamDisabled?.(...args);
-              webcamHandlers.onWebcamDisabled(...args);
-            },
-            onSnapshotSuccess: (...args) => {
-              callbacks?.onSnapshotSuccess?.(...args);
-              webcamHandlers.onSnapshotSuccess(...args);
-            },
-            onSnapshotFailure: (...args) => {
-              callbacks?.onSnapshotFailure?.(...args);
-              webcamHandlers.onSnapshotFailure(...args);
-            },
-            onFullScreenEnabled: (...args) => {
-              callbacks?.onFullScreenEnabled?.(...args);
-              compatibilityHandlers.handleFullScreenEnabled(...args);
-            },
-            onFullScreenDisabled: (...args) => {
-              callbacks?.onFullScreenDisabled?.(...args);
-              compatibilityHandlers.handleFullScreenDisabled(...args);
-            },
-            onDisqualified: (...args) => {
-              callbacks?.onDisqualified?.(...args);
-              compatibilityHandlers.handleDisqualified(...args);
-            },
-            onCompatibilityCheckSuccess: (...args) => {
-              callbacks?.onCompatibilityCheckSuccess?.(...args);
-              compatibilityHandlers.handleCompatibilityCheckSuccess(...args);
-            },
-            onCompatibilityCheckFail: (...args) => {
-              callbacks?.onCompatibilityCheckFail?.(...args);
-              compatibilityHandlers.handleCompatibilityCheckFail(...args);
-            },
-          },
-          enableAllAlerts,
-          headerOptions,
-          mockModeEnabled,
-          qrCodeConfig,
-        });
-
         if (enableProctoring || enableProctoringState) {
           await proctor.initializeProctoring();
           dispatch(setModalOpen(false));
@@ -127,29 +166,14 @@ const App = ({
           dispatch(setModalOpen(true));
         }
         dispatch(setAssessmentInfo(assessmentInfo));
-        dispatch(setEnableProctoring(enableProctoring || enableProctoringState));
+        dispatch(
+          setEnableProctoring(enableProctoring || enableProctoringState),
+        );
         dispatch(setOnWorkflowComplete(callbacks?.onWorkflowComplete));
         dispatch(setProctor(proctor));
-        dispatch(
-          setBulkStepEnabled([
-            {
-              step: 'screenShare',
-              enabled: screenshotConfig.enabled ?? true,
-            },
-            {
-              step: 'cameraShare',
-              enabled: snapshotConfig.enabled ?? true,
-            },
-            {
-              step: 'mobileCameraShare',
-              enabled: mobilePairingConfig.enabled ?? true,
-            },
-            {
-              step: 'compatibilityChecks',
-              enabled: compatibilityCheckConfig.enable ?? true,
-            },
-          ]),
-        );
+        const firstEnabledStep = steps.find(({ enabled }) => enabled)?.step ?? 'screenShare';
+        dispatch(setActiveStep(firstEnabledStep));
+        dispatch(setBulkStepEnabled(steps));
       } catch (error) {
         console.error('Proctoring initialization failed:', error);
       }
@@ -171,9 +195,11 @@ const App = ({
     headerOptions,
     mobilePairingConfig,
     mockModeEnabled,
+    proctor,
     qrCodeConfig,
     screenshotConfig,
     snapshotConfig,
+    steps,
   ]);
 
   return <CompatibilityModal />;

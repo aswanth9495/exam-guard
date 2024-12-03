@@ -30,6 +30,7 @@ import {
   screenshareRequestHandler,
   isScreenShareValid,
   screenshareCleanup,
+  // setScreenShareQueueManager,
 } from './utils/screenshotV2';
 import detectBrowserBlur from './utils/violations/browserBlur';
 import detectCopyPasteCut from './utils/violations/copyPasteCut';
@@ -63,6 +64,8 @@ import './assets/styles/fullScreenBlocker.scss';
 import './assets/styles/compatibility-modal.scss';
 import './assets/styles/webcam-blocker.scss';
 import { checkMobilePairingStatus } from './utils/mobilePairing';
+import { getBrowserInfo } from './utils/browser';
+// import { getIndexDbBufferInstance } from './utils/indexDbBuffer';
 
 export default class Proctor {
   constructor({
@@ -130,14 +133,6 @@ export default class Proctor {
     };
     this.proctoringInitialised = false;
     this.config = {
-      [VIOLATIONS.chromeBrowser]: {
-        name: VIOLATIONS.chromeBrowser,
-        enabled: true,
-        showAlert: enableAllAlerts,
-        recordViolation: true,
-        disqualify: true,
-        ...config.chromeBrowser,
-      },
       [VIOLATIONS.tabSwitch]: {
         name: VIOLATIONS.tabSwitch,
         enabled: true,
@@ -337,6 +332,16 @@ export default class Proctor {
       setupWebcam();
     }
     addFullscreenKeyboardListener();
+    // this.queueManager = getIndexDbBufferInstance(
+    //   {
+    //     screenshot: (data) => this.callbacks.onScreenshotSuccess(data),
+    //     webcam: (data) => this.callbacks.onSnapshotSuccess(data),
+    //   },
+    //   {
+    //     networkCheckInterval: 5000,
+    //   },
+    // );
+    // setScreenShareQueueManager(this.queueManager);
     // setupCompatibilityCheckModal(
     //   () => {
     //     this.runCompatibilityChecks(
@@ -553,7 +558,7 @@ export default class Proctor {
       networkSpeed:
         this.snapshotConfig.enabled || this.screenshotConfig.enabled,
       fullscreen: this.config[VIOLATIONS.fullScreen].enabled,
-      browser: this.config[VIOLATIONS.chromeBrowser].enabled,
+      browser: true,
       mobileSnapshot: this.mobilePairingConfig.enabled,
       mobileBattery: this.mobilePairingConfig.enabled,
       mobileSetup: this.mobilePairingConfig.enabled,
@@ -593,8 +598,8 @@ export default class Proctor {
 
     // Browser check
     const browserCheck = new Promise((resolve, reject) => {
-      const isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
-      if (!isChrome) {
+      const browserInfo = getBrowserInfo();
+      if (!browserInfo.isSupported) {
         // eslint-disable-next-line prefer-promise-reject-errors
         reject('browser');
       } else {
@@ -757,91 +762,23 @@ export default class Proctor {
     });
 
     this.callbacks.onWebcamEnabled();
-  }
-
-  runSystemChecks(onSuccess, onFailure) {
-    const compatibilityChecks = {
-      networkSpeed:
-        this.snapshotConfig.enabled || this.screenshotConfig.enabled,
-      fullscreen: this.config[VIOLATIONS.fullScreen].enabled,
-      browser: this.config[VIOLATIONS.chromeBrowser].enabled,
-    };
-
-    const passedChecks = {
-      networkSpeed: false,
-      fullscreen: false,
-      browser: false,
-    };
-
-    // Array to store all compatibility promises
-    const compatibilityPromises = [];
-
-    // Browser check
-    const browserCheck = new Promise((resolve, reject) => {
-      const isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
-      if (!isChrome) {
-        // eslint-disable-next-line prefer-promise-reject-errors
-        reject('browser');
-      } else {
-        passedChecks.browser = true;
-        resolve('browser');
-      }
-    });
-    compatibilityPromises.push(browserCheck);
-
-    // Network speed check
-    if (compatibilityChecks.networkSpeed) {
-      const networkCheck = checkBandwidth()
-        .then((isLowBandwidth) => {
-          if (isLowBandwidth) {
-            // eslint-disable-next-line prefer-promise-reject-errors
-            return Promise.reject('network_speed');
-          }
-          passedChecks.networkSpeed = true; // Update passed checks
-          return 'network_speed';
-        })
-        // eslint-disable-next-line prefer-promise-reject-errors
-        .catch(() => Promise.reject('network_speed'));
-
-      compatibilityPromises.push(networkCheck);
+    if (this.proctoringInitialised) {
+      this.runCompatibilityChecks(
+        this.handleCompatibilitySuccess.bind(this),
+        this.handleCompatibilityFailure.bind(this),
+      );
     }
-
-    // Full screen check
-    if (compatibilityChecks.fullscreen) {
-      const fullScreenCheck = new Promise((resolve, reject) => {
-        if (!isFullScreen()) {
-          // eslint-disable-next-line prefer-promise-reject-errors
-          reject('fullscreen');
-        } else {
-          passedChecks.fullscreen = true; // Update passed checks
-          resolve('fullscreen');
-        }
-      });
-      compatibilityPromises.push(fullScreenCheck);
-    }
-
-    // Wait for all compatibility checks to complete
-    Promise.allSettled(compatibilityPromises)
-      .then((results) => {
-        // If any check fails, handle failure and return the updated object
-        const failedCheck = results.find(
-          (result) => result.status === 'rejected',
-        );
-
-        if (failedCheck) {
-          onFailure?.(failedCheck.reason, passedChecks);
-        } else {
-          onSuccess?.(passedChecks);
-        }
-      })
-      .catch((failedCheck) => {
-        onFailure?.(failedCheck, passedChecks);
-      });
   }
 
   handleScreenShareSuccess() {
     this.callbacks.onScreenShareSuccess();
     this.enableFullScreen();
+    if (this.proctoringInitialised) {
+      this.runCompatibilityChecks(
+        this.handleCompatibilitySuccess.bind(this),
+        this.handleCompatibilityFailure.bind(this),
+      );
+    }
   }
 
   handleScreenShareFailure(errorCode) {
@@ -1063,5 +1000,6 @@ export default class Proctor {
     this.sendEvents();
     this.stopCompatibilityChecks();
     screenshareCleanup();
+    // this.queueManager.cleanup();
   }
 }

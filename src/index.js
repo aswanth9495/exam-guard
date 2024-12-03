@@ -14,6 +14,8 @@ class ProctorLibrary {
       return;
     }
 
+    container.className = 'proctor-library-root';
+
     const defaultProps = {
       baseUrl: window.location.origin,
       eventsConfig: {},
@@ -34,7 +36,7 @@ class ProctorLibrary {
       <React.StrictMode>
         <Provider store={store}>
           <App {...defaultProps} {...props} />
-        </Provider>
+      </Provider>
       </React.StrictMode>,
     );
   }

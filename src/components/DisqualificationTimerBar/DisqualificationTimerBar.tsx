@@ -65,9 +65,9 @@ const DisqualificationTimerBar: React.FC<DisqualificationTimerBarProps> = ({
           {formatTime(timeLeft)}
         </span>
       </div>
-      <div className='absolute top-0 left-0 h-full w-full bg-[#FFEBEF] rounded-t-2xl'>
+      <div className='absolute top-0 left-0 h-full w-full bg-[#FFEBEF] rounded-t-2xl overflow-hidden'>
         <div
-          className='h-full bg-[#E22D4C] transition-all duration-1000 ease-linear rounded-t-2xl'
+          className='h-full bg-[#E22D4C] transition-all duration-1000 ease-linear'
           style={{ width: `${100 - (timeLeft / time) * 100}%` }}
         />
       </div>

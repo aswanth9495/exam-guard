@@ -8,20 +8,20 @@
   <link href="https://fonts.cdnfonts.com/css/source-sans-pro" rel="stylesheet" />
   <style>
     html {
-      font-family: 'Source Sans Pro', sans-serif;
+      font-size: 10px;
     }
   </style>
 </head>
 
 <body>
-  <h1>Proctoring Library Test</h1>
-  <div>
-    <h2>Captured Snapshot:</h2>
-    <img id="snapshot" alt="Snapshot will appear here" style="max-width: 100%; height: auto" />
+  <h1 class="text-3xl font-bold mb-4">Proctoring Library Test</h1>
+  <div class="mb-4">
+    <h2 class="text-2xl font-semibold mb-2">Captured Snapshot:</h2>
+    <img id="snapshot" alt="Snapshot will appear here" class="max-w-full h-auto" />
   </div>
-  <div>
-    <h2>Captured Screenshot:</h2>
-    <img id="screenshot" alt="Screenshot will appear here" style="max-width: 100%; height: auto" />
+  <div class="mb-4">
+    <h2 class="text-2xl font-semibold mb-2">Captured Screenshot:</h2>
+    <img id="screenshot" alt="Screenshot will appear here" class="max-w-full h-auto" />
   </div>
   <div id="root"></div>
 
@@ -48,10 +48,10 @@
       },
       snapshotConfig: {
         enabled: true,
-        frequency: 15000,
+        frequency: 3000,
         resizeTo: { width: 160, height: 120 },
       },
-      enableProctoring: true,
+      enableProctoring: false,
       mobilePairingConfig: {
         baseUrl: 'http://localhost:3000/',
         enabled: true,
@@ -77,7 +77,11 @@
         endpoint: 'api/v3/proctoring/dual_camera/events'
       },
       callbacks: {
+        onWorkflowComplete: () => {
+          console.error('onWorkflowComplete triggered');
+        },
         onSnapshotSuccess: ({ blob }) => {
+          console.log('onSnapshotSuccess', blob);
           const snapshotImg = document.getElementById('snapshot');
           if (snapshotImg) {
             const imageUrl = URL.createObjectURL(blob);
@@ -85,6 +89,7 @@
           }
         },
         onScreenshotSuccess: ({ blob }) => {
+          console.log('onScreenshotSuccess', blob);
           const screenshotImg = document.getElementById('screenshot');
           if (screenshotImg) {
             const imageUrl = URL.createObjectURL(blob);
