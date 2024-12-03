@@ -4,6 +4,7 @@ import {
   setSubStepStatus,
   setSubStepError,
   setActiveStep,
+  setModalOpen,
 } from '@/store/features/workflowSlice';
 
 const CHECK_TO_STEP_MAP: Record<string, { step: string; subStep: string }> = {
@@ -75,6 +76,7 @@ export default class CompatibilityHandlers {
         }),
       );
     });
+    this.dispatch(setModalOpen(false));
   };
 
   handleCompatibilityCheckFail = (errorCode: {
@@ -114,5 +116,6 @@ export default class CompatibilityHandlers {
         }
       }
     });
+    this.dispatch(setModalOpen(true));
   };
 }
