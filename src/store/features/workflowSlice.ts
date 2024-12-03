@@ -197,6 +197,11 @@ const workflowSlice = createSlice({
           });
         }
       });
+
+      const firstEnabledStep = action.payload.find(({ enabled }) => enabled)?.step;
+      if (firstEnabledStep) {
+        state.activeStep = firstEnabledStep;
+      }
     },
 
     setModalOpen(state, action: PayloadAction<boolean>) {

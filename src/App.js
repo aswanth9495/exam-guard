@@ -11,7 +11,6 @@ import {
   setModalOpen,
   setEnableProctoring,
   setOnWorkflowComplete,
-  setActiveStep,
 } from '@/store/features/workflowSlice';
 import CompatibilityHandlers from '@/store/handlers/compatibility';
 import CompatibilityModal from '@/components/CompatibilityModal';
@@ -171,8 +170,6 @@ const App = ({
         );
         dispatch(setOnWorkflowComplete(callbacks?.onWorkflowComplete));
         dispatch(setProctor(proctor));
-        const firstEnabledStep = steps.find(({ enabled }) => enabled)?.step ?? 'screenShare';
-        dispatch(setActiveStep(firstEnabledStep));
         dispatch(setBulkStepEnabled(steps));
       } catch (error) {
         console.error('Proctoring initialization failed:', error);
