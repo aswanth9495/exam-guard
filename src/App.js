@@ -69,7 +69,6 @@ const App = ({
         },
         onScreenshotSuccess: (...args) => {
           callbacks?.onScreenshotSuccess?.(...args);
-          screenShareHandlers.handleScreenshotSuccess(...args);
         },
         onScreenshotFailure: (...args) => {
           callbacks?.onScreenshotFailure?.(...args);
@@ -85,7 +84,6 @@ const App = ({
         },
         onSnapshotSuccess: (...args) => {
           callbacks?.onSnapshotSuccess?.(...args);
-          webcamHandlers.onSnapshotSuccess(...args);
         },
         onSnapshotFailure: (...args) => {
           callbacks?.onSnapshotFailure?.(...args);

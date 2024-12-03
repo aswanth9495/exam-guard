@@ -65,7 +65,7 @@ import './assets/styles/compatibility-modal.scss';
 import './assets/styles/webcam-blocker.scss';
 import { checkMobilePairingStatus } from './utils/mobilePairing';
 import { getBrowserInfo } from './utils/browser';
-// import { getIndexDbBufferInstance } from './utils/indexDbBuffer';
+import { getIndexDbBufferInstance } from './utils/indexDbBuffer';
 
 export default class Proctor {
   constructor({
@@ -332,15 +332,15 @@ export default class Proctor {
       setupWebcam();
     }
     addFullscreenKeyboardListener();
-    // this.queueManager = getIndexDbBufferInstance(
-    //   {
-    //     screenshot: (data) => this.callbacks.onScreenshotSuccess(data),
-    //     webcam: (data) => this.callbacks.onSnapshotSuccess(data),
-    //   },
-    //   {
-    //     networkCheckInterval: 5000,
-    //   },
-    // );
+    this.queueManager = getIndexDbBufferInstance(
+      {
+        screenshot: (data) => this.callbacks.onScreenshotSuccess(data),
+        webcam: (data) => this.callbacks.onSnapshotSuccess(data),
+      },
+      {
+        networkCheckInterval: 5000,
+      },
+    );
     // setScreenShareQueueManager(this.queueManager);
     // setupCompatibilityCheckModal(
     //   () => {
@@ -997,6 +997,6 @@ export default class Proctor {
     this.sendEvents();
     this.stopCompatibilityChecks();
     screenshareCleanup();
-    // this.queueManager.cleanup();
+    this.queueManager.cleanup();
   }
 }

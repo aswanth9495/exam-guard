@@ -1,5 +1,6 @@
 import webcamHtml from '../templates/webcam.html';
 import resizeImage from './image';
+import { getIndexDbBufferInstance } from './indexDbBuffer';
 
 export function getVideoElement() {
   const videoElement = document.getElementById('webcam');
@@ -7,11 +8,11 @@ export function getVideoElement() {
 }
 
 export function captureSnapshot({
-  onSnapshotSuccess,
   onSnapshotFailure,
   resizeDimensions,
 }) {
   const videoElement = getVideoElement();
+  const queueManager = getIndexDbBufferInstance();
 
   if (videoElement) {
     const canvas = document.createElement('canvas');
@@ -26,7 +27,10 @@ export function captureSnapshot({
     // Use the resizeImage function to resize and return a smaller blob
     resizeImage(imageSrc, resizeDimensions)
       .then((blob) => {
-        onSnapshotSuccess?.({ blob });
+        queueManager.addSnapshot(blob, 'webcam')
+          .catch((error) => {
+            onSnapshotFailure?.({ error });
+          });
       })
       .catch((error) => {
         onSnapshotFailure?.({ error });

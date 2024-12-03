@@ -50,10 +50,6 @@ export default class ScreenShareHandlers {
     );
   };
 
-  handleScreenshotSuccess = () => {
-    console.log('Screenshot captured successfully');
-  };
-
   handleScreenshotFailure = (err: any) => {
     console.error('Screenshot capture failed', err);
   };

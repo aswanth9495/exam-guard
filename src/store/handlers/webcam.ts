@@ -12,7 +12,6 @@ export default class WebcamHandlers {
     this.dispatch = dispatch;
     this.onWebcamEnabled = this.onWebcamEnabled.bind(this);
     this.onWebcamDisabled = this.onWebcamDisabled.bind(this);
-    this.onSnapshotSuccess = this.onSnapshotSuccess.bind(this);
     this.onSnapshotFailure = this.onSnapshotFailure.bind(this);
   }
 
@@ -36,10 +35,6 @@ export default class WebcamHandlers {
       })
     );
     this.dispatch(setActiveStep('cameraShare'));
-  }
-
-  onSnapshotSuccess() {
-    console.log('Snapshot success');
   }
 
   onSnapshotFailure() {

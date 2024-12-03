@@ -4,9 +4,10 @@ import {
   ERRORS,
   STRATEGIES,
 } from '@/constants/screenshot';
+import { getIndexDbBufferInstance } from '@/utils/indexDbBuffer';
 
 class ScreenShareMonitor {
-  constructor(strategy = STRATEGIES.ROLLING_WINDOW_STRATEGY) {
+  constructor(strategy = STRATEGIES.INDEX_DB_BUFFER_STRATEGY) {
     this.capturedIntervals = [];
     this.mediaStream = null;
     this.strategy = strategy;
@@ -191,6 +192,28 @@ class ScreenShareMonitor {
     );
   }
 
+  useIndexDbBufferStrategy({
+    onFailure,
+    interval,
+    resizeDimensions,
+  }) {
+    const queueManager = getIndexDbBufferInstance();
+
+    this.capturedIntervals.push(
+      setInterval(async () => {
+        try {
+          const blob = await this.captureScreenshot({ resizeDimensions });
+          await queueManager.addSnapshot(blob, 'screenshot')
+            .catch((error) => {
+              onFailure?.({ err: error });
+            });
+        } catch (err) {
+          await onFailure?.({ err });
+        }
+      }, interval),
+    );
+  }
+
   startScreenshotCapture({
     onSuccess,
     onFailure,
@@ -213,6 +236,13 @@ class ScreenShareMonitor {
           onSuccess,
           onFailure,
           windowSize: 200,
+          interval,
+          resizeDimensions,
+        });
+        break;
+      case STRATEGIES.INDEX_DB_BUFFER_STRATEGY:
+        this.useIndexDbBufferStrategy({
+          onFailure,
           interval,
           resizeDimensions,
         });
