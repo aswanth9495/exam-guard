@@ -282,6 +282,14 @@ export default class Proctor {
         disqualify: true,
         ...config.cmdW,
       },
+      [VIOLATIONS.screenshareExit]: {
+        name: VIOLATIONS.screenshareExit,
+        enabled: true,
+        showAlert: enableAllAlerts,
+        recordViolation: true,
+        disqualify: true,
+        ...config.screenshareExit,
+      },
     };
     this.snapshotConfig = {
       enabled: false,
@@ -737,7 +745,6 @@ export default class Proctor {
   }
 
   handleScreenshotDisabled() {
-    // Show blocker
     this.callbacks.onScreenshotDisabled();
   }
 
@@ -842,6 +849,7 @@ export default class Proctor {
   }
 
   handleScreenShareEnd() {
+    this.handleViolation(VIOLATIONS.screenshareExit);
     this.callbacks.onScreenShareEnd();
   }
 

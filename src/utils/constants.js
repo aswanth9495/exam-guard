@@ -18,6 +18,7 @@ export const VIOLATIONS = {
   cmdW: 'cmdW',
   cmdQ: 'cmdQ',
   ctrlShiftJ: 'ctrlShiftJ',
+  screenshareExit: 'screenshareExit',
 };
 export const SNAPSHOT_SCREENSHOT_FREQUENCY = 5000;
 export const DEFAULT_SNAPSHOT_RESIZE_OPTIONS = { width: 480, height: 360 };
