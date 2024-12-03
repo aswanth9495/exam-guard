@@ -460,10 +460,7 @@ export default class Proctor {
   startCompatibilityChecks() {
     if (!this.compatibilityCheckConfig.enable) return;
 
-    setTimeout(
-      this.runAdaptiveCompatibilityChecks.bind(this),
-      this.compatibilityCheckConfig.frequency,
-    );
+    this.runAdaptiveCompatibilityChecks();
   }
 
   runAdaptiveCompatibilityChecks() {
