@@ -97,7 +97,7 @@ export default class Proctor {
     this.compatibilityCheckConfig = {
       enable: true,
       showAlert: enableAllAlerts,
-      frequency: 5000,
+      frequency: 10000,
       maxFrequency: 60000,
       cpuThreshold: 30, // Common CPU threshold in case of network latency test
       disqualificationTimeout: 45000,
@@ -192,7 +192,7 @@ export default class Proctor {
       [VIOLATIONS.fullScreen]: {
         name: VIOLATIONS.fullScreen,
         enabled: true,
-        showAlert: enableAllAlerts,
+        showAlert: false,
         recordViolation: true,
         disqualify: true,
         ...config.fullScreen,
@@ -460,7 +460,9 @@ export default class Proctor {
   startCompatibilityChecks() {
     if (!this.compatibilityCheckConfig.enable) return;
 
-    this.runAdaptiveCompatibilityChecks();
+    setTimeout(() => {
+      this.runAdaptiveCompatibilityChecks();
+    }, this.compatibilityCheckConfig.frequency);
   }
 
   runAdaptiveCompatibilityChecks() {
@@ -740,6 +742,8 @@ export default class Proctor {
         // Handle any failure in individual checks
         onFailure?.(passedChecks);
       });
+
+    // console.table(passedChecks);
   }
 
   handleWebcamDisabled({ error }) {
@@ -759,23 +763,11 @@ export default class Proctor {
     });
 
     this.callbacks.onWebcamEnabled();
-    if (this.proctoringInitialised) {
-      this.runCompatibilityChecks(
-        this.handleCompatibilitySuccess.bind(this),
-        this.handleCompatibilityFailure.bind(this),
-      );
-    }
   }
 
   handleScreenShareSuccess() {
     this.callbacks.onScreenShareSuccess();
     this.enableFullScreen();
-    if (this.proctoringInitialised) {
-      this.runCompatibilityChecks(
-        this.handleCompatibilitySuccess.bind(this),
-        this.handleCompatibilityFailure.bind(this),
-      );
-    }
   }
 
   handleScreenShareFailure(errorCode) {
@@ -843,24 +835,16 @@ export default class Proctor {
   }
 
   handleFullScreenEnabled() {
-    // if (this.compatibilityCheckConfig.enable) {
-    //   this.runCompatibilityChecks(
-    //     this.handleCompatibilitySuccess.bind(this),
-    //     this.handleCompatibilityFailure.bind(this),
-    //   );
-    // }
     this.callbacks.onFullScreenEnabled();
   }
 
   handleCompatibilityChecks() {
-    detectFullScreen({
-      onFullScreenEnabled: this.handleFullScreenEnabled.bind(this),
-      onFullScreenDisabled: this.handleFullScreenDisabled.bind(this),
-    });
-    this.runCompatibilityChecks(
-      this.handleCompatibilitySuccess.bind(this),
-      this.handleCompatibilityFailure.bind(this),
-    );
+    if (!this.proctoringInitialised) {
+      this.runCompatibilityChecks(
+        this.handleCompatibilitySuccess.bind(this),
+        this.handleCompatibilityFailure.bind(this),
+      );
+    }
   }
 
   handleViolation(type, value = null, forceDisqualify = false) {
