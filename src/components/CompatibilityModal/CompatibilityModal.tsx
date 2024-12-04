@@ -53,17 +53,6 @@ export default function CompatibilityModal() {
     );
   }, [steps]);
 
-  // Precautionary check to ensure that the modal is closed if all substeps are completed
-  useEffect(() => {
-    if (!enableProctoring || !modalOpen) return;
-
-    const allSubstepsCompleted = Object.entries(steps)
-      .filter(([key]) => steps[key as WorkflowStepKey]?.enabled)
-      .every(([, stepData]) => 
-        Object.values(stepData?.subSteps ?? {}).every(substep => substep.status === 'completed')
-      );
-  }, [steps, enabledSteps, enableProctoring, modalOpen, dispatch]);
-
   return (
     <Modal
       isOpen={modalOpen}
