@@ -6,23 +6,42 @@ import {
   setActiveStep,
   setModalOpen,
 } from '@/store/features/workflowSlice';
+import { StepState } from '@/types/workflowTypes';
 
 const CHECK_TO_STEP_MAP: Record<string, { step: string; subStep: string }> = {
   screenshare: { step: 'screenShare', subStep: 'screenShare' },
   webcam: { step: 'cameraShare', subStep: 'cameraShare' },
-  browser: { step: 'compatibilityChecks', subStep: 'systemChecks' },
-  networkSpeed: { step: 'compatibilityChecks', subStep: 'networkChecks' },
-  fullscreen: { step: 'compatibilityChecks', subStep: 'fullScreenCheck' },
   mobileSetup: { step: 'mobileCameraShare', subStep: 'codeScan' },
   mobileSnapshot: { step: 'mobileCameraShare', subStep: 'cameraPairing' },
   mobileBattery: { step: 'mobileCameraShare', subStep: 'systemChecks' },
+  browser: { step: 'compatibilityChecks', subStep: 'systemChecks' },
+  networkSpeed: { step: 'compatibilityChecks', subStep: 'networkChecks' },
+  fullscreen: { step: 'compatibilityChecks', subStep: 'fullScreenCheck' },
 };
 
 export default class CompatibilityHandlers {
   private dispatch: AppDispatch;
+  private steps: Record<string, StepState>;
+  private enableProctoring: boolean;
+  private readonly CHECK_ORDER = [
+    'screenshare',
+    'webcam',
+    'mobileSetup',
+    'mobileSnapshot',
+    'mobileBattery',
+    'browser',
+    'networkSpeed',
+    'fullscreen'
+  ];
 
-  constructor(dispatch: AppDispatch) {
+  constructor(
+    dispatch: AppDispatch,
+    steps: Record<string, StepState>,
+    enableProctoring: boolean,
+  ) {
     this.dispatch = dispatch;
+    this.steps = steps;
+    this.enableProctoring = enableProctoring;
   }
 
   handleFullScreenEnabled = () => {
@@ -76,21 +95,27 @@ export default class CompatibilityHandlers {
         }),
       );
     });
-    this.dispatch(setModalOpen(false));
+    if (this.enableProctoring) {
+      this.dispatch(setModalOpen(false));
+    }
   };
 
-  handleCompatibilityCheckFail = (errorCode: {
-    passedChecks: Record<string, boolean>;
-  }) => {
+  handleCompatibilityCheckFail = (
+    errorCode: {
+      passedChecks: Record<string, boolean>;
+    },
+  ) => {
     let hasSetActiveStep = false;
 
-    Object.keys(CHECK_TO_STEP_MAP).forEach((check) => {
+    this.CHECK_ORDER.forEach((check) => {
       if (!(check in errorCode.passedChecks)) return;
 
       const passed = errorCode.passedChecks[check];
       const mapping = CHECK_TO_STEP_MAP[check];
 
-      if (mapping) {
+      const isStepEnabled = this.steps[mapping.step]?.enabled;
+
+      if (mapping && isStepEnabled) {
         this.dispatch(
           setSubStepStatus({
             step: mapping.step as
@@ -99,7 +124,7 @@ export default class CompatibilityHandlers {
               | 'screenShare',
             subStep: mapping.subStep,
             status: passed ? 'completed' : 'error',
-            clearError: true,
+            clearError: passed,
           }),
         );
 
@@ -112,10 +137,10 @@ export default class CompatibilityHandlers {
                 | 'screenShare',
             ),
           );
+          this.dispatch(setModalOpen(true));
           hasSetActiveStep = true;
         }
       }
     });
-    this.dispatch(setModalOpen(true));
   };
 }

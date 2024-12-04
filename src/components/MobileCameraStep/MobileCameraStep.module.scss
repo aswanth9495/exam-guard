@@ -99,8 +99,9 @@ $snapshot-preview-bg-color: #F4F6F9;
 }
 
 .retrySnapshot {
-  @apply font-bold text-blue-500 w-full;
-
+  font-weight: bold;
+  color: #3B82F6;
+  width: 100%;
   padding: 0.8rem 1.6rem;
   cursor: pointer;
 }
@@ -180,8 +181,8 @@ $snapshot-preview-bg-color: #F4F6F9;
 }
 
 .compatibilityAlert {
-  @apply text-red-600 bg-red-100;
-
+  color: #DC2626;
+  background-color: #FEE2E2;
   font-size: 1.4rem;
   padding: 0.8rem 1.6rem;
   margin: 4rem -4rem -4rem;

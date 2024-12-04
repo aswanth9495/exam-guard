@@ -146,8 +146,8 @@ function Orientation({ className }) {
       <div className="mt-16">
         <div className="flex items-start gap-2 mt-6 text-sm">
           <Checkbox
-            className="mt-2 mr-2"
             id="confirm"
+            className='mt-1 mr-2 h-5 w-5'
             checked={isChecked}
             onCheckedChange={(checked) => setIsChecked(checked)}
           />

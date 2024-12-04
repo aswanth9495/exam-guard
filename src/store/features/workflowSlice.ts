@@ -11,7 +11,7 @@ import {
 const createSubStep = (): SubStepState => ({
   status: 'locked',
   error: '',
-  enabled: false,
+  enabled: true,
 });
 
 const createStep = (subSteps: string[], locked = true): StepState => ({
@@ -186,9 +186,9 @@ const workflowSlice = createSlice({
 
     setBulkStepEnabled(
       state,
-      action: PayloadAction<StepEnableConfig[]>
+      action: PayloadAction<Record<WorkflowStepKey, StepEnableConfig>>
     ) {
-      action.payload.forEach(({ step, enabled, subSteps }) => {
+      Object.values(action.payload).forEach(({ step, enabled, subSteps }) => {
         state.steps[step].enabled = enabled;
         
         if (subSteps) {
@@ -198,7 +198,9 @@ const workflowSlice = createSlice({
         }
       });
 
-      const firstEnabledStep = action.payload.find(({ enabled }) => enabled)?.step;
+      const firstEnabledStep = Object.values(action.payload).find(
+        ({ enabled }) => enabled
+      )?.step;
       if (firstEnabledStep) {
         state.activeStep = firstEnabledStep;
       }

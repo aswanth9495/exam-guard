@@ -83,8 +83,8 @@ const MobileCameraStep = () => {
         <div className='mt-8'>
           <div className='flex items-start gap-2 mt-6 text-sm'>
             <Checkbox
-              className='mt-2 mr-2'
               id='confirm'
+              className='mt-2 mr-2'
               checked={acknowledged}
               onCheckedChange={handleCheckboxChange}
             />

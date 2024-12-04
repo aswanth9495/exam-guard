@@ -1,7 +1,9 @@
 import React from 'react';
-import { CheckCircle, AlertTriangle } from 'lucide-react';
-import Loader from '@/ui/Loader';
+import { AlertTriangle } from 'lucide-react';
+
 import { Status } from '@/types/workflowTypes';
+import Loader from '@/ui/Loader';
+import WavyCheckIcon from '@/assets/images/wavy-check-icon.svg';
 
 const StepHeader = ({
   stepNumber,
@@ -16,15 +18,19 @@ const StepHeader = ({
 }) => (
   <div className='flex items-center gap-4'>
     {status === 'completed' ? (
-      <CheckCircle className='text-green-500 w-16 h-16' />
+      <img 
+        src={WavyCheckIcon} 
+        className='text-white w-20 h-20 mr-4'
+        alt="Wavy check icon"
+      />
     ) : status === 'error' ? (
-      <AlertTriangle className='text-red-500 w-16 h-16' />
+      <AlertTriangle className='text-red-500 w-20 h-20 mr-4' />
     ) : (
-      <Loader size='md' />
+      <Loader size='lg' />
     )}
     <div>
       <div className='text-xs text-gray-400'>STEP {stepNumber}</div>
-      <h2 className='text-2xl font-bold mt-2'>{title}</h2>
+      <h2 className='text-2xl font-bold mt-1'>{title}</h2>
       <p className='text-sm text-gray-600 italic mt-2'>{description}</p>
     </div>
   </div>
