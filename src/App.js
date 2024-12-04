@@ -33,17 +33,53 @@ const App = ({
   mockModeEnabled,
   assessmentInfo,
   qrCodeConfig,
-  enableProctoring = false,
+  enableProctoring: enableProctoringProp = false,
 }) => {
   const dispatch = useAppDispatch();
   const { enableProctoring: enableProctoringState } = useAppSelector(
     (state) => state.workflow,
   );
+  const enableProctoring = enableProctoringProp || enableProctoringState;
+  const { enabled: enabledScreenshotConfig } = screenshotConfig;
+  const { enabled: enabledSnapshotConfig } = snapshotConfig;
+  const { enabled: enabledMobilePairingConfig } = mobilePairingConfig;
+  const { enabled: enabledCompatibilityCheckConfig } = compatibilityCheckConfig;
+
+  const steps = useMemo(
+    () => ({
+      screenShare: {
+        step: 'screenShare',
+        enabled: enabledScreenshotConfig ?? true,
+      },
+      cameraShare: {
+        step: 'cameraShare',
+        enabled: enabledSnapshotConfig ?? true,
+      },
+      mobileCameraShare: {
+        step: 'mobileCameraShare',
+        enabled: enabledMobilePairingConfig ?? true,
+      },
+      compatibilityChecks: {
+        step: 'compatibilityChecks',
+        enabled: enabledCompatibilityCheckConfig ?? true,
+      },
+    }),
+    [
+      enabledScreenshotConfig,
+      enabledSnapshotConfig,
+      enabledMobilePairingConfig,
+      enabledCompatibilityCheckConfig,
+    ],
+  );
 
   const proctor = useMemo(() => {
     const screenShareHandlers = new ScreenShareHandlers(dispatch);
     const webcamHandlers = new WebcamHandlers(dispatch);
-    const compatibilityHandlers = new CompatibilityHandlers(dispatch);
+    const compatibilityHandlers = new CompatibilityHandlers(
+      dispatch,
+      steps,
+      enableProctoring,
+    );
 
     return new Proctor({
       baseUrl,
@@ -123,6 +159,7 @@ const App = ({
     dispatch,
     disqualificationConfig,
     enableAllAlerts,
+    enableProctoring,
     eventsConfig,
     headerOptions,
     mobilePairingConfig,
@@ -130,42 +167,20 @@ const App = ({
     qrCodeConfig,
     screenshotConfig,
     snapshotConfig,
+    steps,
   ]);
-
-  const steps = useMemo(
-    () => [
-      { step: 'screenShare', enabled: screenshotConfig.enabled ?? true },
-      { step: 'cameraShare', enabled: snapshotConfig.enabled ?? true },
-      {
-        step: 'mobileCameraShare',
-        enabled: mobilePairingConfig.enabled ?? true,
-      },
-      {
-        step: 'compatibilityChecks',
-        enabled: compatibilityCheckConfig.enable ?? true,
-      },
-    ],
-    [
-      screenshotConfig.enabled,
-      snapshotConfig.enabled,
-      mobilePairingConfig.enabled,
-      compatibilityCheckConfig.enable,
-    ],
-  );
 
   useEffect(() => {
     const initializeProctoring = async () => {
       try {
-        if (enableProctoring || enableProctoringState) {
+        if (enableProctoring) {
           await proctor.initializeProctoring();
           dispatch(setModalOpen(false));
         } else {
           dispatch(setModalOpen(true));
         }
         dispatch(setAssessmentInfo(assessmentInfo));
-        dispatch(
-          setEnableProctoring(enableProctoring || enableProctoringState),
-        );
+        dispatch(setEnableProctoring(enableProctoring));
         dispatch(setOnWorkflowComplete(callbacks?.onWorkflowComplete));
         dispatch(setProctor(proctor));
         dispatch(setBulkStepEnabled(steps));

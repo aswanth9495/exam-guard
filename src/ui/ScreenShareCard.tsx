@@ -53,7 +53,7 @@ export default function ScreenShareCard() {
       <div
         className={`${
           screenShareState.status === 'error' ? 'rounded-b-lg' : 'rounded-2xl'
-        } overflow-hidden shadow-lg bg-white`}
+        } overflow-hidden shadow-lg bg-white shadow-gray-200`}
       >
         <div className='flex'>
           <div className='flex-1 p-16'>

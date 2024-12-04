@@ -33,49 +33,60 @@ const SystemChecksStep = () => {
     );
   };
 
+  const handleClick = () => {
+    if (enableProctoring) {
+      proctor?.handleCompatibilityChecks({ forceRun: true });
+    } else {
+      dispatch(nextStep());
+    }
+  };
+
   const areAllSubstepsCompleted = Object.values(subSteps)?.every(
     (substep) => substep.status === 'completed',
   );
 
   const status = evaluateParentStepStatus(Object.values(subSteps));
 
-  const canProceed = acknowledged && areAllSubstepsCompleted;
+  const canProceed = enableProctoring || (acknowledged && areAllSubstepsCompleted);
 
   return (
-    <div className='p-8 flex-1 overflow-y-auto'>
+    <div className='p-20 pt-12 flex-1 overflow-y-auto'>
       <StepHeader
         stepNumber='4'
         title='System Compatibility Checks'
         description='Complete all system checks to ensure your assessment runs smoothly without interruptions'
         status={status}
       />
-      <div className='mt-8'>
+      <div className='mt-16'>
         <SystemCheckCard />
         {!enableProctoring && (
-          <>
-            <div className='flex items-start gap-2 mt-6 text-xs'>
-              <Checkbox
-                id='confirm'
-                className='mt-2 mr-2'
-                checked={acknowledged}
-                onCheckedChange={handleCheckboxChange}
-              />
-              <label htmlFor='confirm' className='text-xs text-gray-600'>
-                By clicking, you confirm that all your compatibility checks remains
-                same. Failure to maintain proper setup may result in interruption.
-              </label>
-            </div>
-            <Button
-              className='mt-8 items-center'
-              variant='primary'
-              disabled={!canProceed}
-              onClick={() => dispatch(nextStep())}
-            >
+          <div className='flex items-center gap-2 mt-16 text-xs'>
+            <Checkbox
+              id='confirm'
+              className='mt-1 mr-2 h-5 w-5'
+              checked={acknowledged}
+              onCheckedChange={handleCheckboxChange}
+            />
+            <label htmlFor='confirm' className='text-xs text-gray-600'>
+              By clicking, you confirm that all your compatibility checks
+              remains same. Failure to maintain proper setup may result in
+              interruption.
+            </label>
+          </div>
+        )}
+        <Button
+          className='mt-8 items-center py-8 px-10'
+          variant='primary'
+          disabled={!canProceed}
+          onClick={handleClick}
+        >
+          {enableProctoring ? 'Confirm Settings' : (
+            <>
               Proceed to next step
               <ArrowRight className='w-6 h-6' />
-            </Button>
-          </>
-        )}
+            </>
+          )}
+        </Button>
       </div>
     </div>
   );

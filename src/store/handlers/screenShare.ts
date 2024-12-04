@@ -41,11 +41,10 @@ export default class ScreenShareHandlers {
 
   handleScreenShareEnd = () => {
     this.dispatch(
-      setSubStepStatus({
+      setSubStepError({
         step: 'screenShare',
         subStep: 'screenShare',
-        status: 'pending',
-        clearError: true,
+        error: 'Screen share ended unexpectedly. Please try again.',
       })
     );
   };

@@ -145,7 +145,6 @@ export default class IndexDbBuffer {
                   `No upload function found for type: ${snapshot.type}`,
                 );
               }
-              console.log('uploading snapshot', snapshot);
               await uploadFunction({ blob: snapshot.blob });
               await new Promise((resolve, reject) => {
                 const request = store.delete(snapshot.id);

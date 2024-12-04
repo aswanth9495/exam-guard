@@ -4,7 +4,6 @@ import { Monitor, Camera, Smartphone, Settings } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/hooks/reduxhooks';
 import { Modal } from '@/ui/Modal';
 import { Step, WorkflowStepKey } from '@/types/workflowTypes';
-import { setModalOpen } from '@/store/features/workflowSlice';
 import CompatibilityModalHeader from '@/components/CompatibilityModalHeader';
 import CompatibilityModalStepsScreen from '@/components/CompatibilityModalStepsScreen';
 import DesktopCameraStep from '@/components/DesktopCameraStep';
@@ -77,7 +76,7 @@ export default function CompatibilityModal() {
         />
       )}
       <div className='grow flex flex-row items-stretch'>
-        <div className='bg-blue-50 p-12 pt-16 m-w-96 w-1/3'>
+        <div className='bg-blue-50 p-20 pt-24 m-w-96 w-1/3'>
           <CompatibilityModalHeader />
           <CompatibilityModalStepsScreen step_data={enabledSteps} />
         </div>

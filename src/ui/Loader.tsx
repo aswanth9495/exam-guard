@@ -29,7 +29,8 @@ export default function Loader({
   const sizeMap = {
     sm: 'h-12 w-12',
     md: 'h-16 w-16',
-    lg: 'h-24 w-24',
+    lg: 'h-20 w-20',
+    xl: 'h-24 w-24',
   };
 
   const sizeClass = sizeMap[size];
