@@ -145,9 +145,9 @@ $snapshot-preview-bg-color: #F4F6F9;
 }
 
 .orientationInstructionPoints {
-  list-style: disc;
-  padding-left: 2rem;
-  padding-top: 0.5rem;
+  list-style: disc !important;
+  padding-left: 2rem !important;
+  padding-top: 0.5rem !important;
   font-style: italic;
   color: $grey-text-color;
   font-size: 1.2rem;
