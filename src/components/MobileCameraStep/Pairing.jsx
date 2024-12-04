@@ -63,11 +63,8 @@ function Pairing({ className }) {
       <div className={styles.pairingContainer}>
         <section className={styles.qrCodeContainer}>
           {/* QR Code */}
-          {isQrCodeLoading && !qrCodeError ? <Loader size='md' />
-            : <img src={`data:image/svg+xml;charset=utf-8,${encodeURIComponent(data.qrcode)}`} alt="qr-code"></img>}
-          {
-            qrCodeError && (<div> Failed to fetch QR Code </div>)
-          }
+          {isQrCodeLoading || qrCodeError || !data?.qrcode ? <Loader size='md' />
+            : <img src={`data:image/svg+xml;charset=utf-8,${encodeURIComponent(data?.qrcode)}`} alt="qr-code"></img>}
         </section>
         <div className={styles.divider}>
           <div className={styles.dividerLine}></div>

@@ -8,10 +8,12 @@ import { Button } from '@/ui/Button';
 import { Checkbox } from '@/ui/Checkbox';
 import useProctorPolling from '@/hooks/useProctorPolling';
 import { MIN_SNAPSHOT_COUNT } from '@/utils/constants';
-import styles from './MobileCameraStep.module.scss';
+
 import Loader from '@/ui/Loader';
 import ProgressBar from '@/ui/ProgressBar';
 import { nextSubStep } from '@/store/features/workflowSlice';
+
+import styles from './MobileCameraStep.module.scss';
 
 function Orientation({ className }) {
   const dispatch = useDispatch();
@@ -96,13 +98,21 @@ function Orientation({ className }) {
                 {parseInt((snapShotCount / MIN_SNAPSHOT_COUNT) * 100, 10)}%
               </span>
             </div>}
-          {snapshotToShow && snapshotCollected && <button
-            type="button"
-            className={styles.retrySnapshot}
-            onClick={handleRetry}
-          >
-            Retry Mobile Snapshot
-          </button>}
+          {snapshotToShow && snapshotCollected && (
+            <div className="flex-column items-center text-center">
+              <button
+                type="button"
+                className={styles.retrySnapshot}
+                onClick={handleRetry}
+              >
+                Check Photo Alignment
+              </button>
+              <p className='text-gray-500 italic text-2xs'>
+                Note: Click &apos;Proceed&apos; once you confirm the photo is aligned
+              </p>
+          </div>
+          )}
+
         </section>
         <section className={styles.orientationInstructionsContainer}>
           <article className={styles.orientationInstructions}>

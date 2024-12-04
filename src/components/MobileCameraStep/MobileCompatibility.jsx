@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import classNames from 'classnames';
 
+import { CircleCheck, Loader2 } from 'lucide-react';
 import { COMPATIBILITY_CHECK_STATUSES } from '@/utils/constants';
 
 import { setSubStepStatus } from '@/store/features/workflowSlice';
@@ -33,16 +34,22 @@ const DEFAULT_STATUS_MAP = {
 
 /* Creating separate UI as the designs can be different in the future */
 const successUi = ({ title, description }) => (
-    <section className="flex flex-col">
-      <heading className={styles.compatibilityTitle}>{title}</heading>
-      <p className={styles.compatibilityBody}>{description}</p>
+    <section className="flex flex-row">
+      <CircleCheck className='w-12 h-12 text-white fill-green-600' />
+      <section className="flex flex-col ml-6">
+        <heading className={styles.compatibilityTitle}>{title}</heading>
+        <p className={styles.compatibilityBody}>{description}</p>
+      </section>
     </section>
 );
 
 const defaultUi = ({ title, description }) => (
-    <section className="flex flex-col">
-      <heading className={styles.compatibilityTitle}>{title}</heading>
-      <p className={styles.compatibilityBody}>{description}</p>
+    <section className="flex flex-row items-start">
+      <Loader2 className='w-12 h-12 text-blue-500 animate-spin' />
+      <section className="flex flex-col ml-6">
+        <heading className={styles.compatibilityTitle}>{title}</heading>
+        <p className={styles.compatibilityBody}>{description}</p>
+      </section>
     </section>
 );
 

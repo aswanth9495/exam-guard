@@ -478,7 +478,7 @@ export default class Proctor {
     console.log('%c%s', 'color: #ff2525', 'Memory Usage (in MB):', memoryUsage);
 
     if (memoryUsage < memoryLimit) {
-    // Run compatibility checks (e.g., webcam, network speed, etc.)
+      // Run compatibility checks (e.g., webcam, network speed, etc.)
       this.runCompatibilityChecks(
         this.handleCompatibilitySuccess.bind(this),
         this.handleCompatibilityFailure.bind(this),
@@ -525,6 +525,7 @@ export default class Proctor {
   }
 
   handleCompatibilityFailure(passedChecks) {
+    console.log('%c⧭', 'color: #d90000', 'checks: ', passedChecks);
     sendCompatibilityEvents(
       passedChecks,
       this.compatibilityCheckConfig.baseUrl,

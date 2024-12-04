@@ -99,11 +99,12 @@ $snapshot-preview-bg-color: #F4F6F9;
 }
 
 .retrySnapshot {
-  font-weight: bold;
-  color: #3B82F6;
-  width: 100%;
-  padding: 0.8rem 1.6rem;
-  cursor: pointer;
+  font-weight: bold !important;
+  color: #3B82F6 !important;
+  width: 100% !important;
+  padding: 0.8rem 1.6rem !important;
+  cursor: pointer !important;
+  font-size: 1.2rem;
 }
 
 .snapshotPreview {
