@@ -50,6 +50,7 @@ const DesktopCameraStep = () => {
       <StepHeader
         stepNumber='2'
         title='Desktop Camera Permissions'
+        description='Test if camera permissions are enabled. If not, follow the instructions below to enable them'
         status={status}
       />
       <div className='mt-16'>

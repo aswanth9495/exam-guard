@@ -1,22 +1,21 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from '@/ui/Button';
 import { useAppSelector, useAppDispatch } from '@/hooks/reduxhooks';
-import {
-  setSubStepError,
-  selectSubStep,
-} from '@/store/features/workflowSlice';
+import { setSubStepError, selectSubStep } from '@/store/features/workflowSlice';
 import { screenshareCleanup } from '@/utils/screenshotV2';
 import { AlertTriangle } from 'lucide-react';
 import { selectProctor } from '@/store/features/assessmentInfoSlice';
 import { ERROR_MESSAGES } from '@/constants/screenshot';
 import { getBrowserInfo } from '@/utils/browser';
+import GuideModal from '@/ui/GuideModal';
 
 export default function ScreenShareCard() {
   const dispatch = useAppDispatch();
   const proctor = useAppSelector((state) => selectProctor(state));
   const screenShareState = useAppSelector((state) =>
-    selectSubStep(state, 'screenShare', 'screenShare')
+    selectSubStep(state, 'screenShare', 'screenShare'),
   );
+  const [showGuideModal, setShowGuideModal] = useState(false);
 
   useEffect(() => {
     console.log(getBrowserInfo());
@@ -37,7 +36,7 @@ export default function ScreenShareCard() {
         step: 'screenShare',
         subStep: 'screenShare',
         error: ERROR_MESSAGES.SCREEN_SHARE_DENIED,
-      })
+      }),
     );
   };
 
@@ -88,9 +87,16 @@ export default function ScreenShareCard() {
                 Share Entire Screen
               </Button>
             )}
-            <p className='mt-4 text-sm text-primary italic'>
+            <p className='mt-4 text-sm text-primary-500 italic'>
               Need help?{' '}
-              <a href='#' className='text-blue-500 underline'>
+              <a
+                href='#'
+                onClick={(e) => {
+                  e.preventDefault();
+                  setShowGuideModal(true);
+                }}
+                className='text-blue-500 underline'
+              >
                 Click to view
               </a>{' '}
               screen sharing setup guide
@@ -102,6 +108,30 @@ export default function ScreenShareCard() {
           )}
         </div>
       </div>
+
+      <GuideModal
+        open={showGuideModal}
+        onOpenChange={setShowGuideModal}
+        isError={screenShareState.status === 'error'}
+        title="It looks like you're having trouble allowing Screen Sharing Permissions"
+      >
+        <div className='space-y-6'>
+          <p className='text-muted-foreground'>
+            Refer to the image below for steps to troubleshoot and grant screen
+            sharing permissions
+          </p>
+          <div className='aspect-[16/9] w-full bg-muted rounded-lg'>
+            {/*  */}
+          </div>
+          <p className='text-sm italic'>
+            Need help on sharing screen sharing permissions?{' '}
+            <a href='#' className='text-blue-500 hover:underline'>
+              Click to view
+            </a>{' '}
+            setup guide
+          </p>
+        </div>
+      </GuideModal>
     </div>
   );
 }

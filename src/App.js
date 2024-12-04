@@ -132,7 +132,6 @@ const App = ({
         },
         onFullScreenDisabled: (...args) => {
           callbacks?.onFullScreenDisabled?.(...args);
-          compatibilityHandlers.handleFullScreenDisabled(...args);
         },
         onDisqualified: (...args) => {
           callbacks?.onDisqualified?.(...args);

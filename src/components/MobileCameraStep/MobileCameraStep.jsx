@@ -30,7 +30,7 @@ const MobileCameraStep = () => {
   );
 
   const status = evaluateParentStepStatus(Object.values(subSteps));
-  const canProceed = acknowledged && areAllSubstepsCompleted;
+  const canProceed = enableProctoring || (acknowledged && areAllSubstepsCompleted);
 
   const handleCheckboxChange = () => {
     dispatch(
@@ -42,7 +42,7 @@ const MobileCameraStep = () => {
   };
 
   return (
-    <div className='p-8 flex-1 overflow-y-auto'>
+    <div className='p-20 pt-12 flex-1 overflow-y-auto'>
       <StepHeader
         stepNumber='3'
         title='Mobile Camera Pairing Permissions'
@@ -79,9 +79,12 @@ const MobileCameraStep = () => {
           <MobileCompatibility />
         </Tab>
       </Tabs>
-      {!enableProctoring && activeSubStep === PAIRING_STEPS.mobileCompatibility && (
-        <div className='mt-8'>
-          <div className='flex items-start gap-2 mt-6 text-sm'>
+      {!enableProctoring
+        && [PAIRING_STEPS.mobileCompatibility, PAIRING_STEPS.systemChecks].includes(
+          activeSubStep,
+        ) && (
+          <div className='mt-8'>
+            <div className='flex items-center gap-2 mt-16 text-xs'>
             <Checkbox
               id='confirm'
               className='mt-2 mr-2'
@@ -96,13 +99,17 @@ const MobileCameraStep = () => {
             </label>
           </div>
           <Button
-            className='mt-8 items-center'
+          className='mt-8 items-center py-8 px-10'
             variant='primary'
             disabled={!canProceed}
             onClick={() => dispatch(nextStep())}
           >
-            Proceed to next step
-            <ArrowRight className='w-6 h-6' />
+            {enableProctoring ? 'Confirm Settings' : (
+              <>
+                Proceed to next step
+                <ArrowRight className='w-6 h-6' />
+              </>
+            )}
           </Button>
         </div>
       )}

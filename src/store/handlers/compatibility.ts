@@ -1,8 +1,6 @@
 import { AppDispatch } from '@/store/store';
-import { ERROR_MESSAGES } from '@/constants/screenshot';
 import {
   setSubStepStatus,
-  setSubStepError,
   setActiveStep,
   setModalOpen,
 } from '@/store/features/workflowSlice';
@@ -65,7 +63,6 @@ export default class CompatibilityHandlers {
     //   }),
     // );
   };
-
 
   handleCompatibilityCheckSuccess = () => {
     Object.values(CHECK_TO_STEP_MAP).forEach((mapping) => {

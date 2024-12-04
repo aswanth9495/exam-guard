@@ -15,7 +15,7 @@ import {
   setSubStepError,
 } from '@/store/features/workflowSlice';
 import { selectProctor } from '@/store/features/assessmentInfoSlice';
-import CameraGuideDialog from './CameraGuideDialog';
+import GuideModal from '@/ui/GuideModal';
 
 export default function CameraSelector() {
   const dispatch = useAppDispatch();
@@ -118,11 +118,29 @@ export default function CameraSelector() {
         setup guide
       </p>
 
-      <CameraGuideDialog
+      <GuideModal
         open={showGuideModal}
         onOpenChange={setShowGuideModal}
         isError={cameraState.status === 'error'}
-      />
+        title="It looks like you're having trouble accessing your camera"
+      >
+        <div className='space-y-6'>
+          <p className='text-muted-foreground'>
+            Refer to the image below for steps to troubleshoot and grant camera
+            permissions
+          </p>
+          <div className='aspect-[16/9] w-full bg-muted rounded-lg'>
+            {/*  */}
+          </div>
+          <p className='text-sm italic'>
+            Need help on sharing camera permissions?{' '}
+            <a href='#' className='text-blue-500 hover:underline'>
+              Click to view
+            </a>{' '}
+            setup guide
+          </p>
+        </div>
+      </GuideModal>
     </div>
   );
 }
