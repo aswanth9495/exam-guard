@@ -56,30 +56,16 @@ export default class CompatibilityHandlers {
   };
 
   handleFullScreenDisabled = () => {
-    this.dispatch(setActiveStep('compatibilityChecks'));
-    this.dispatch(
-      setSubStepStatus({
-        step: 'compatibilityChecks',
-        subStep: 'fullScreenCheck',
-        status: 'error',
-      }),
-    );
+    // this.dispatch(setActiveStep('compatibilityChecks'));
+    // this.dispatch(
+    //   setSubStepStatus({
+    //     step: 'compatibilityChecks',
+    //     subStep: 'fullScreenCheck',
+    //     status: 'error',
+    //   }),
+    // );
   };
 
-  handleDisqualified = (errorCode: string) => {
-    const errorMessage =
-      ERROR_MESSAGES[errorCode as keyof typeof ERROR_MESSAGES] ||
-      'Compatibility check failed. Please try again.';
-
-    this.dispatch(setActiveStep('compatibilityChecks'));
-    this.dispatch(
-      setSubStepError({
-        step: 'compatibilityChecks',
-        subStep: 'systemChecks',
-        error: errorMessage,
-      }),
-    );
-  };
 
   handleCompatibilityCheckSuccess = () => {
     Object.values(CHECK_TO_STEP_MAP).forEach((mapping) => {

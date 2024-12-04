@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 import { useAppDispatch, useAppSelector } from '@/hooks/reduxhooks';
 import {
@@ -39,6 +39,7 @@ const App = ({
   const { enableProctoring: enableProctoringState } = useAppSelector(
     (state) => state.workflow,
   );
+  const [initialised, setInitialised] = useState(false);
   const enableProctoring = enableProctoringProp || enableProctoringState;
   const { enabled: enabledScreenshotConfig } = screenshotConfig;
   const { enabled: enabledSnapshotConfig } = snapshotConfig;
@@ -135,7 +136,6 @@ const App = ({
         },
         onDisqualified: (...args) => {
           callbacks?.onDisqualified?.(...args);
-          compatibilityHandlers.handleDisqualified(...args);
         },
         onCompatibilityCheckSuccess: (...args) => {
           callbacks?.onCompatibilityCheckSuccess?.(...args);
@@ -188,29 +188,15 @@ const App = ({
         console.error('Proctoring initialization failed:', error);
       }
     };
-
-    initializeProctoring();
-  }, [
-    assessmentInfo,
-    baseUrl,
-    callbacks,
-    compatibilityCheckConfig,
-    config,
-    dispatch,
-    disqualificationConfig,
-    enableAllAlerts,
-    enableProctoring,
-    enableProctoringState,
-    eventsConfig,
-    headerOptions,
-    mobilePairingConfig,
-    mockModeEnabled,
-    proctor,
-    qrCodeConfig,
-    screenshotConfig,
-    snapshotConfig,
-    steps,
-  ]);
+    if (!initialised) {
+      initializeProctoring();
+      setInitialised(true);
+    }
+  }, [assessmentInfo, baseUrl, callbacks, compatibilityCheckConfig,
+    config, dispatch, disqualificationConfig, enableAllAlerts, enableProctoring,
+    enableProctoringState, eventsConfig, headerOptions, initialised,
+    mobilePairingConfig, mockModeEnabled, proctor, qrCodeConfig,
+    screenshotConfig, snapshotConfig, steps]);
 
   return <CompatibilityModal />;
 };

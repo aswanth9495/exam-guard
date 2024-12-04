@@ -458,6 +458,7 @@ export default class Proctor {
   }
 
   startCompatibilityChecks() {
+    console.log('%c⧭', 'color: #731d6d', 'Starting Comp checks');
     if (!this.compatibilityCheckConfig.enable) return;
 
     setTimeout(() => {
@@ -515,6 +516,7 @@ export default class Proctor {
   }
 
   handleCompatibilitySuccess(passedChecks) {
+    console.log('%c⧭', 'color: #006dcc', 'Compatibility Passed, checks: ', passedChecks);
     sendCompatibilityEvents(
       passedChecks,
       this.compatibilityCheckConfig.baseUrl,
@@ -525,7 +527,7 @@ export default class Proctor {
   }
 
   handleCompatibilityFailure(passedChecks) {
-    console.log('%c⧭', 'color: #d90000', 'checks: ', passedChecks);
+    console.log('%c⧭', 'color: #d90000', 'Compatibility Failed, checks: ', passedChecks);
     sendCompatibilityEvents(
       passedChecks,
       this.compatibilityCheckConfig.baseUrl,
@@ -552,6 +554,7 @@ export default class Proctor {
   }
 
   runCompatibilityChecks(onSuccess, onFailure) {
+    console.log('%c⧭', 'color: #807160', 'RUNNING COMPATIBILITY CHECKS');
     const compatibilityChecks = {
       screenshare: this.screenshotConfig.enabled,
       webcam: this.snapshotConfig.enabled,

@@ -33,11 +33,9 @@ class ProctorLibrary {
 
     const root = createRoot(container);
     root.render(
-      <React.StrictMode>
-        <Provider store={store}>
-          <App {...defaultProps} {...props} />
-      </Provider>
-      </React.StrictMode>,
+      <Provider store={store}>
+        <App {...defaultProps} {...props} />
+      </Provider>,
     );
   }
 }
