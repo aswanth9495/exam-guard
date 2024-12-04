@@ -478,7 +478,7 @@ export default class Proctor {
     console.log('%c%s', 'color: #ff2525', 'Memory Usage (in MB):', memoryUsage);
 
     if (memoryUsage < memoryLimit) {
-      // Run compatibility checks (e.g., webcam, network speed, etc.)
+    // Run compatibility checks (e.g., webcam, network speed, etc.)
       this.runCompatibilityChecks(
         this.handleCompatibilitySuccess.bind(this),
         this.handleCompatibilityFailure.bind(this),
@@ -838,8 +838,8 @@ export default class Proctor {
     this.callbacks.onFullScreenEnabled();
   }
 
-  handleCompatibilityChecks() {
-    if (!this.proctoringInitialised) {
+  handleCompatibilityChecks({ forceRun = false } = {}) {
+    if (!this.proctoringInitialised || forceRun) {
       this.runCompatibilityChecks(
         this.handleCompatibilitySuccess.bind(this),
         this.handleCompatibilityFailure.bind(this),
