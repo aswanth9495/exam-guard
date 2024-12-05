@@ -6,7 +6,7 @@ import { Modal } from '@/ui/Modal';
 
 import switchPhone from '@/assets/images/switchPhone.svg';
 import { Button } from '@/ui/Button';
-import { useSendProctorEventMutation } from '@/services/mobilePairingService';
+import mobilePairingService, { useSendProctorEventMutation } from '@/services/mobilePairingService';
 import { selectProctor } from '@/store/features/assessmentInfoSlice';
 import { resetStep } from '@/store/features/workflowSlice';
 
@@ -37,6 +37,7 @@ function SwitchPhoneModal({ isOpen, onClose }) {
           dispatch(resetStep({
             step: 'mobileCameraShare',
           }));
+          dispatch(mobilePairingService.util.resetApiState());
           onClose?.();
         }
       } catch (e) {
