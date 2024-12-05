@@ -23,18 +23,24 @@ function SwitchPhoneModal({ isOpen, onClose }) {
   /* Handlers */
   const handleSwitchPhone = useCallback(async () => {
     if (eventPayload && eventEndpoint) {
-      await sendProctorEvent({
-        payload: eventPayload,
-        endpoint: eventEndpoint,
-        eventType: 'secondary_camera',
-        eventName: 'reset_state',
-      });
-      dispatch(setActiveSubStep({
-        subStep: PAIRING_STEPS.pairing,
-        step: 'mobileCameraShare',
-      }));
+      try {
+        const response = await sendProctorEvent({
+          payload: eventPayload,
+          endpoint: eventEndpoint,
+          eventType: 'secondary_camera',
+          eventName: 'reset_state',
+        });
+        if (response.success) {
+          dispatch(setActiveSubStep({
+            subStep: PAIRING_STEPS.pairing,
+            step: 'mobileCameraShare',
+          }));
+        }
+      } catch (e) {
+        onClose?.();
+      }
     }
-  }, [dispatch, eventEndpoint, eventPayload, sendProctorEvent]);
+  }, [dispatch, eventEndpoint, eventPayload, onClose, sendProctorEvent]);
 
   return (
     <Modal
