@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 
 import { ArrowRight } from 'lucide-react';
 import { Button } from '@/ui/Button';
@@ -16,13 +16,14 @@ import MobileCompatibility from './MobileCompatibility';
 import Orientation from './Orientation';
 import Pairing from './Pairing';
 import StepHeader from '@/ui/StepHeader';
+import SwitchPhoneModal from './SwitchPhoneModal';
 
 const MobileCameraStep = () => {
   const dispatch = useAppDispatch();
   const { acknowledged, subSteps, activeSubStep } = useAppSelector((state) => (
     selectStep(state, 'mobileCameraShare')
   ));
-
+  const [isSwitchModalOpen, setSwitchModalOpen] = useState(false);
   const { enableProctoring } = useAppSelector((state) => state.workflow);
 
   const areAllSubstepsCompleted = Object.values(subSteps).every(
@@ -40,6 +41,10 @@ const MobileCameraStep = () => {
       }),
     );
   };
+
+  const handleModalClose = useCallback(() => {
+    setSwitchModalOpen(false);
+  }, []);
 
   return (
     <div className='p-20 pt-12 flex-1 overflow-y-auto'>
@@ -66,7 +71,7 @@ const MobileCameraStep = () => {
             subSteps[PAIRING_STEPS.orientation].status === 'completed'
           }
         >
-          <Orientation />
+          <Orientation setSwitchModalOpen={setSwitchModalOpen} />
         </Tab>
         <Tab
           label='Mobile System Check'
@@ -80,7 +85,7 @@ const MobileCameraStep = () => {
         </Tab>
       </Tabs>
       {!enableProctoring
-        && [PAIRING_STEPS.mobileCompatibility, PAIRING_STEPS.systemChecks].includes(
+        && [PAIRING_STEPS.mobileCompatibility].includes(
           activeSubStep,
         ) && (
           <div className='mt-8'>
@@ -111,8 +116,20 @@ const MobileCameraStep = () => {
               </>
             )}
           </Button>
+          {activeSubStep !== PAIRING_STEPS.pairing && (<Button
+            className='mt-8 items-center py-8 px-10 ml-6'
+            variant='outline'
+            disabled={activeSubStep === PAIRING_STEPS.pairing}
+            onClick={() => setSwitchModalOpen(true)}
+          >
+            Scan QR Code again
+          </Button>)}
         </div>
       )}
+      <SwitchPhoneModal
+        isOpen={isSwitchModalOpen}
+        onClose={handleModalClose}
+      />
     </div>
   );
 };

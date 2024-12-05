@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import classNames from 'classnames';
 
 import { useDispatch } from 'react-redux';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, CameraOffIcon } from 'lucide-react';
 import ReferenceImage from '@/ui/ReferenceImage';
 import { Button } from '@/ui/Button';
 import { Checkbox } from '@/ui/Checkbox';
@@ -15,7 +15,7 @@ import { nextSubStep } from '@/store/features/workflowSlice';
 
 import styles from './MobileCameraStep.module.scss';
 
-function Orientation({ className }) {
+function Orientation({ className, setSwitchModalOpen }) {
   const dispatch = useDispatch();
   const [isChecked, setIsChecked] = useState(false);
   const [snapshotCollected, setSnapshotCollected] = useState(false);
@@ -24,9 +24,10 @@ function Orientation({ className }) {
   const [countdown, setCountdown] = useState(5);
 
   const collectSnapshots = useCallback((snapShotData) => {
-    const snapshotLength = snapShotData?.metadata?.length;
+    const snapshotLength = snapShotData?.metadata?.length || 0;
+    setSnapshotCount(snapshotLength);
+
     if (snapshotLength > 0) {
-      setSnapshotCount(snapshotLength);
       const lastSnapshot = snapShotData?.metadata?.[snapShotData.metadata.length - 1]?.value;
 
       if (previousSnapshot !== lastSnapshot) setPreviousSnapshot(lastSnapshot);
@@ -75,27 +76,38 @@ function Orientation({ className }) {
               {previousSnapshot
                 ? <img className={styles.snapshotImage}
                   src={previousSnapshot} alt="snapshot"/>
-                : (
-                  <div className="absolute top-1/2 right-1/2 transform translate-x-1/2 translate-y-[-50%]">
+                : (snapShotCount > 0 && <div className="absolute top-1/2 right-1/2 transform translate-x-1/2 translate-y-[-50%]">
                     <Loader size='md'/>
                     <div className='text-xs text-center mt-2'>Collecting Snapshot...</div>
+                  </div>)
+              }
+              {
+                snapShotCount === 0 && (
+                  <div className="absolute top-1/2 right-1/2 transform translate-x-1/2 translate-y-[-50%]">
+                      <CameraOffIcon className="text-red-500"/>
                   </div>
                 )
               }
             </div>
           </div>
-          <div className="flex flex-col text-center mt-4">
+         {snapShotCount > 0 && <div className="flex flex-col text-center mt-4">
               <ProgressBar progress={(snapShotCount / MIN_SNAPSHOT_COUNT) * 100}/>
-              <span className="text-2xs mt-2 text-gray-500">
+              <span className="text-xs mt-2 text-gray-500">
                 {snapShotCount === MIN_SNAPSHOT_COUNT ? (<> Snapshots Collected !</>)
                   : (<>Collecting snapshot
                  {' '}
                 {parseInt((snapShotCount / MIN_SNAPSHOT_COUNT) * 100, 10)}%</>) }
               </span>
-              <div className="text-2xs text-gray-500 mt-2">
+              {<div className="text-xs text-gray-500 mt-2">
                 Auto fetching image in {countdown} seconds...
-              </div>
-          </div>
+              </div>}
+          </div>}
+        {
+          snapShotCount === 0 && <div className='text-xs text-center mt-2'>
+          Please Scan the <b>QR Code again</b> or Make sure your phone
+          is capturing snapshots
+        </div>
+        }
         </section>
         <section className={styles.orientationInstructionsContainer}>
           <article className={styles.orientationInstructions}>
@@ -151,13 +163,20 @@ function Orientation({ className }) {
           </label>
         </div>
         <Button
-          className="mt-8 items-center"
+          className="mt-8 items-center py-8 px-10"
           variant="primary"
           disabled={!isChecked || !snapshotCollected}
           onClick={handleProceed}
         >
           Proceed to next step
           <ArrowRight className="w-6 h-6" />
+        </Button>
+        <Button
+          className='mt-8 items-center py-8 px-10 ml-6'
+          variant='outline'
+          onClick={() => setSwitchModalOpen(true)}
+        >
+          Scan QR Code again
         </Button>
       </div>
     </div>
