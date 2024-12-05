@@ -76,14 +76,15 @@ function Orientation({ className }) {
         <section className={styles.snapshotPreviewContainer}>
           {/* Snapshot section */}
           <div className={styles.snapshotPreview}>
-            <div className={styles.noSnapshot}>
+            <div className={styles.snapshotImageContainer}>
               {snapshotToShow && !retrySnapshot
-                ? <img src={snapshotToShow} alt="snapshot"/>
+                ? <img className={styles.snapshotImage}
+                  src={snapshotToShow} alt="snapshot"/>
                 : (
-                  <div className="flex flex-col items-center justify-center">
+                  <div className="absolute top-1/2 right-1/2 transform translate-x-1/2 translate-y-[-50%]">
                     <Loader size='md'/>
-                    {retrySnapshot ? <div className='text-xs'>Taking snapshot. Keep your phone steady</div>
-                      : <div className='text-xs'>Collecting Snapshot...</div>}
+                    {retrySnapshot ? <div className='text-xs text-center mt-2'>Taking snapshot. Keep your phone steady</div>
+                      : <div className='text-xs text-center mt-2'>Collecting Snapshot...</div>}
                   </div>
                 )
               }
