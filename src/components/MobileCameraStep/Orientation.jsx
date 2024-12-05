@@ -20,30 +20,18 @@ function Orientation({ className }) {
   const [isChecked, setIsChecked] = useState(false);
   const [snapshotCollected, setSnapshotCollected] = useState(false);
   const [snapShotCount, setSnapshotCount] = useState(0);
-  const [snapshotToShow, setSnapshotToShow] = useState(null);
   const [previousSnapshot, setPreviousSnapshot] = useState(null);
-  const [retrySnapshot, setRetrySnapshot] = useState(false);
   const [countdown, setCountdown] = useState(5);
 
   const collectSnapshots = useCallback((snapShotData) => {
     const snapshotLength = snapShotData?.metadata?.length;
     if (snapshotLength > 0) {
       setSnapshotCount(snapshotLength);
-      const firstSnapshot = snapShotData?.metadata?.[0].value;
       const lastSnapshot = snapShotData?.metadata?.[snapShotData.metadata.length - 1]?.value;
 
-      if (!snapshotToShow) {
-        setSnapshotToShow(firstSnapshot);
-      }
-      if (!retrySnapshot) {
-        setPreviousSnapshot(lastSnapshot);
-      } else if (previousSnapshot !== lastSnapshot) {
-        setSnapshotToShow(lastSnapshot);
-        setPreviousSnapshot(lastSnapshot);
-        setRetrySnapshot(false);
-      }
+      if (previousSnapshot !== lastSnapshot) setPreviousSnapshot(lastSnapshot);
     }
-  }, [previousSnapshot, retrySnapshot, snapshotToShow]);
+  }, [previousSnapshot]);
 
   const handleSnapshotSuccess = useCallback((snapShotData) => {
     collectSnapshots(snapShotData);
@@ -54,11 +42,6 @@ function Orientation({ className }) {
   const handleSnapshotFailure = useCallback((snapShotData) => {
     collectSnapshots(snapShotData);
   }, [collectSnapshots]);
-
-  // eslint-disable-next-line no-unused-vars
-  const handleRetry = useCallback(() => {
-    setRetrySnapshot(true);
-  }, []);
 
   const handleProceed = useCallback(() => {
     dispatch(nextSubStep());
@@ -89,14 +72,13 @@ function Orientation({ className }) {
           {/* Snapshot section */}
           <div className={styles.snapshotPreview}>
             <div className={styles.snapshotImageContainer}>
-              {snapshotToShow && !retrySnapshot
+              {previousSnapshot
                 ? <img className={styles.snapshotImage}
                   src={previousSnapshot} alt="snapshot"/>
                 : (
                   <div className="absolute top-1/2 right-1/2 transform translate-x-1/2 translate-y-[-50%]">
                     <Loader size='md'/>
-                    {retrySnapshot ? <div className='text-xs text-center mt-2'>Taking snapshot. Keep your phone steady</div>
-                      : <div className='text-xs text-center mt-2'>Collecting Snapshot...</div>}
+                    <div className='text-xs text-center mt-2'>Collecting Snapshot...</div>
                   </div>
                 )
               }
