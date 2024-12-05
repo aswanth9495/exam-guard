@@ -8,8 +8,7 @@ import switchPhone from '@/assets/images/switchPhone.svg';
 import { Button } from '@/ui/Button';
 import { useSendProctorEventMutation } from '@/services/mobilePairingService';
 import { selectProctor } from '@/store/features/assessmentInfoSlice';
-import { setActiveSubStep } from '@/store/features/workflowSlice';
-import { PAIRING_STEPS } from '@/utils/constants';
+import { resetStep } from '@/store/features/workflowSlice';
 
 function SwitchPhoneModal({ isOpen, onClose }) {
   const dispatch = useDispatch();
@@ -22,22 +21,26 @@ function SwitchPhoneModal({ isOpen, onClose }) {
 
   /* Handlers */
   const handleSwitchPhone = useCallback(async () => {
+    console.log('%c⧭', 'color: #00ff88', 'Clicked switch');
     if (eventPayload && eventEndpoint) {
       try {
         const response = await sendProctorEvent({
           payload: eventPayload,
           endpoint: eventEndpoint,
           eventType: 'secondary_camera',
-          eventName: 'reset_state',
+          eventName: 'setup_reset',
         });
-        if (response.success) {
-          dispatch(setActiveSubStep({
-            subStep: PAIRING_STEPS.pairing,
+
+        console.log('%c⧭', 'color: #00258c', response);
+        if (response.data.success) {
+          console.log('%c⧭', 'color: #994d75', 'resetStep');
+          dispatch(resetStep({
             step: 'mobileCameraShare',
           }));
+          onClose?.();
         }
       } catch (e) {
-        onClose?.();
+        // error handling
       }
     }
   }, [dispatch, eventEndpoint, eventPayload, onClose, sendProctorEvent]);
