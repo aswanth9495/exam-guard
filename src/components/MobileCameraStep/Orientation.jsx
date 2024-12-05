@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import classNames from 'classnames';
 
 import { useDispatch } from 'react-redux';
@@ -23,6 +23,7 @@ function Orientation({ className }) {
   const [snapshotToShow, setSnapshotToShow] = useState(null);
   const [previousSnapshot, setPreviousSnapshot] = useState(null);
   const [retrySnapshot, setRetrySnapshot] = useState(false);
+  const [countdown, setCountdown] = useState(5);
 
   const collectSnapshots = useCallback((snapShotData) => {
     const snapshotLength = snapShotData?.metadata?.length;
@@ -54,6 +55,7 @@ function Orientation({ className }) {
     collectSnapshots(snapShotData);
   }, [collectSnapshots]);
 
+  // eslint-disable-next-line no-unused-vars
   const handleRetry = useCallback(() => {
     setRetrySnapshot(true);
   }, []);
@@ -61,6 +63,16 @@ function Orientation({ className }) {
   const handleProceed = useCallback(() => {
     dispatch(nextSubStep());
   }, [dispatch]);
+
+  // Reset countdown when snapshots are fetched
+  useEffect(() => {
+    setCountdown(5); // Reset countdown to 5 seconds
+    const interval = setInterval(() => {
+      setCountdown((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [previousSnapshot]); // Dependency on snapshot updates
 
   useProctorPolling({
     onSnapshotSuccess: handleSnapshotSuccess,
@@ -79,7 +91,7 @@ function Orientation({ className }) {
             <div className={styles.snapshotImageContainer}>
               {snapshotToShow && !retrySnapshot
                 ? <img className={styles.snapshotImage}
-                  src={snapshotToShow} alt="snapshot"/>
+                  src={previousSnapshot} alt="snapshot"/>
                 : (
                   <div className="absolute top-1/2 right-1/2 transform translate-x-1/2 translate-y-[-50%]">
                     <Loader size='md'/>
@@ -90,30 +102,18 @@ function Orientation({ className }) {
               }
             </div>
           </div>
-          {!snapshotCollected
-          && <div className="flex flex-col text-center mt-4">
+          <div className="flex flex-col text-center mt-4">
               <ProgressBar progress={(snapShotCount / MIN_SNAPSHOT_COUNT) * 100}/>
-              <span className="text-2xs">
-                 Collecting snapshot
+              <span className="text-2xs mt-2 text-gray-500">
+                {snapShotCount === MIN_SNAPSHOT_COUNT ? (<> Snapshots Collected !</>)
+                  : (<>Collecting snapshot
                  {' '}
-                {parseInt((snapShotCount / MIN_SNAPSHOT_COUNT) * 100, 10)}%
+                {parseInt((snapShotCount / MIN_SNAPSHOT_COUNT) * 100, 10)}%</>) }
               </span>
-            </div>}
-          {snapshotToShow && snapshotCollected && (
-            <div className="flex-column items-center text-center">
-              <button
-                type="button"
-                className={styles.retrySnapshot}
-                onClick={handleRetry}
-              >
-                Check Photo Alignment
-              </button>
-              <p className='text-gray-500 italic text-2xs'>
-                Note: Click &apos;Proceed&apos; once you confirm the photo is aligned
-              </p>
+              <div className="text-2xs text-gray-500 mt-2">
+                Auto fetching image in {countdown} seconds...
+              </div>
           </div>
-          )}
-
         </section>
         <section className={styles.orientationInstructionsContainer}>
           <article className={styles.orientationInstructions}>
