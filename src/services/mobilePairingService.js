@@ -31,6 +31,7 @@ const mobilePairingService = createApi({
     }),
     sendProctorEvent: build.mutation({
       query: ({
+        eventType,
         eventName,
         endpoint,
         payload,
@@ -43,7 +44,7 @@ const mobilePairingService = createApi({
         },
         body: {
           events: [{
-            type: 'desktop_client',
+            type: eventType,
             name: eventName,
             data: extraData,
           }],

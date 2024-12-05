@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import classNames from 'classnames';
 
 import { useDispatch } from 'react-redux';
+// eslint-disable-next-line no-unused-vars
 import { ArrowRight, CameraOffIcon } from 'lucide-react';
 import ReferenceImage from '@/ui/ReferenceImage';
 import { Button } from '@/ui/Button';
@@ -76,21 +77,22 @@ function Orientation({ className, setSwitchModalOpen }) {
               {previousSnapshot
                 ? <img className={styles.snapshotImage}
                   src={previousSnapshot} alt="snapshot"/>
-                : (snapShotCount > 0 && <div className="absolute top-1/2 right-1/2 transform translate-x-1/2 translate-y-[-50%]">
+                : (<div className="absolute top-1/2 right-1/2 transform translate-x-1/2 translate-y-[-50%]">
                     <Loader size='md'/>
                     <div className='text-xs text-center mt-2'>Collecting Snapshot...</div>
                   </div>)
               }
-              {
+              {/* {
                 snapShotCount === 0 && (
-                  <div className="absolute top-1/2 right-1/2 transform translate-x-1/2 translate-y-[-50%]">
+                  <div className="absolute top-1/2 right-1/2 transform translate-x-1/2
+                  translate-y-[-50%]">
                       <CameraOffIcon className="text-red-500"/>
                   </div>
                 )
-              }
+              } */}
             </div>
           </div>
-         {snapShotCount > 0 && <div className="flex flex-col text-center mt-4">
+         <div className="flex flex-col text-center mt-4">
               <ProgressBar progress={(snapShotCount / MIN_SNAPSHOT_COUNT) * 100}/>
               <span className="text-xs mt-2 text-gray-500">
                 {snapShotCount === MIN_SNAPSHOT_COUNT ? (<> Snapshots Collected !</>)
@@ -101,13 +103,13 @@ function Orientation({ className, setSwitchModalOpen }) {
               {<div className="text-xs text-gray-500 mt-2">
                 Auto fetching image in {countdown} seconds...
               </div>}
-          </div>}
-        {
+          </div>
+        {/* {
           snapShotCount === 0 && <div className='text-xs text-center mt-2'>
           Please Scan the <b>QR Code again</b> or Make sure your phone
           is capturing snapshots
         </div>
-        }
+        } */}
         </section>
         <section className={styles.orientationInstructionsContainer}>
           <article className={styles.orientationInstructions}>
