@@ -12,7 +12,7 @@ export const ERRORS = {
 
 export const ERROR_MESSAGES = {
   [ERRORS.FULL_MONITOR_NOT_SHARED]:
-    'Please share your entire screen, not just a window or tab',
+    'Please share your Entire screen, not just a window or tab',
   [ERRORS.SCREEN_SHARE_DENIED]: 'Screen share permission was denied',
   [ERRORS.SCREEN_SHARE_FAILED]: 'Screen share failed to initialize',
   [ERRORS.SCREEN_SHARE_STREAM_ENDED]: 'Screen share stream has ended',

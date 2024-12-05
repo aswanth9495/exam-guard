@@ -47,7 +47,7 @@ const MobileCameraStep = () => {
   }, []);
 
   return (
-    <div className='p-20 pt-12 flex-1 overflow-y-auto'>
+    <>
       <StepHeader
         stepNumber='3'
         title='Mobile Camera Pairing Permissions'
@@ -130,7 +130,7 @@ const MobileCameraStep = () => {
         isOpen={isSwitchModalOpen}
         onClose={handleModalClose}
       />
-    </div>
+    </>
   );
 };
 

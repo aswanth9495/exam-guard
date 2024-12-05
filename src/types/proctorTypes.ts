@@ -86,6 +86,7 @@ export interface Proctor {
   handleScreenshareStop(): void;
   getWebcamDevices(): Promise<Array<{ id: string; label: string }>>;
   setWebcamDevice(deviceId: string): void;
+  disqualifyUser(): void;
   on(
     violationType: string,
     callback: (violations: ViolationEvent[], event: Event) => void

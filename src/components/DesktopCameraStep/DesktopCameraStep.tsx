@@ -1,16 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Lightbulb } from 'lucide-react';
 import { Button } from '@/ui/Button';
 import { Checkbox } from '@/ui/Checkbox';
 import { evaluateParentStepStatus } from '@/utils/evaluateParentStepStatus';
-import { nextStep, setStepAcknowledged } from '@/store/features/workflowSlice';
+import { nextStep, setStepAcknowledged, selectSubStep, selectStep } from '@/store/features/workflowSlice';
 import { selectProctor } from '@/store/features/assessmentInfoSlice';
-import { selectStep } from '@/store/features/workflowSlice';
 import { SubStepState } from '@/types/workflowTypes';
 import { useAppDispatch, useAppSelector } from '@/hooks/reduxhooks';
 import CameraCard from '@/ui/CameraCard';
 import StepHeader from '@/ui/StepHeader';
+import GuideModal from '@/ui/GuideModal';
 
 const DesktopCameraStep = () => {
   const dispatch = useAppDispatch();
@@ -19,6 +19,12 @@ const DesktopCameraStep = () => {
   );
   const proctor = useAppSelector(selectProctor);
   const { enableProctoring } = useAppSelector((state) => state.workflow);
+
+  const cameraState = useAppSelector((state) =>
+    selectSubStep(state, 'cameraShare', 'cameraShare'),
+  );
+
+  const [showGuideModal, setShowGuideModal] = useState(false);
 
   const handleCheckboxChange = () => {
     dispatch(
@@ -33,6 +39,7 @@ const DesktopCameraStep = () => {
     if (enableProctoring) {
       proctor?.handleCompatibilityChecks({ forceRun: true });
     } else {
+      proctor?.handleWebcamRequest();
       dispatch(nextStep());
     }
   };
@@ -46,15 +53,31 @@ const DesktopCameraStep = () => {
   const canProceed = enableProctoring || (acknowledged && areAllSubstepsCompleted);
 
   return (
-    <div className='p-20 pt-12 flex-1 overflow-y-auto'>
+    <>
       <StepHeader
         stepNumber='2'
-        title='Desktop Camera Permissions'
-        description='Test if camera permissions are enabled. If not, follow the instructions below to enable them'
+        title='Desktop/Laptop Camera Permissions'
+        description='Please provide camera permissions to continue, and ensure that it remains enabled throughout the test.'
         status={status}
       />
       <div className='mt-16'>
         <CameraCard />
+
+        <p className='mt-12 text-sm text-black font-semibold text-center'>
+          <Lightbulb className='w-6 h-6 inline-block mr-2 text-black font-bold' />
+              Need help?{' '}
+              <a
+                href='#'
+                onClick={(e) => {
+                  e.preventDefault();
+                  setShowGuideModal(true);
+                }}
+                className='text-blue-500 underline'
+              >
+                Click to view
+              </a>{' '}
+              screen sharing setup guide
+        </p>
         {!enableProctoring && (
           <div className='flex items-center gap-2 mt-16 text-xs'>
             <Checkbox
@@ -82,8 +105,32 @@ const DesktopCameraStep = () => {
             </>
           )}
         </Button>
+
+      <GuideModal
+        open={showGuideModal}
+        onOpenChange={setShowGuideModal}
+        isError={cameraState.status === 'error'}
+        title="It looks like you're having trouble accessing your camera"
+      >
+        <div className='space-y-6'>
+          <p className='text-muted-foreground'>
+            Refer to the image below for steps to troubleshoot and grant camera
+            permissions
+          </p>
+          <div className='aspect-[16/9] w-full bg-muted rounded-lg'>
+            {/*  */}
+          </div>
+          <p className='text-sm italic'>
+            Need help on sharing camera permissions?{' '}
+            <a href='#' className='text-blue-500 hover:underline'>
+              Click to view
+            </a>{' '}
+            setup guide
+          </p>
+        </div>
+      </GuideModal>
       </div>
-    </div>
+    </>
   );
 };
 

@@ -1,9 +1,9 @@
-import React, { useMemo, useEffect } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { Monitor, Camera, Smartphone, Settings } from 'lucide-react';
 
-import { useAppDispatch, useAppSelector } from '@/hooks/reduxhooks';
 import { Modal } from '@/ui/Modal';
 import { Step, WorkflowStepKey } from '@/types/workflowTypes';
+import { useAppSelector } from '@/hooks/reduxhooks';
 import CompatibilityModalHeader from '@/components/CompatibilityModalHeader';
 import CompatibilityModalStepsScreen from '@/components/CompatibilityModalStepsScreen';
 import DesktopCameraStep from '@/components/DesktopCameraStep';
@@ -36,7 +36,6 @@ const ALL_STEPS: Record<string, Step> = {
 };
 
 export default function CompatibilityModal() {
-  const dispatch = useAppDispatch();
   const { activeStep, enableProctoring, steps, modalOpen } = useAppSelector(
     (state) => state.workflow,
   );
@@ -53,23 +52,38 @@ export default function CompatibilityModal() {
     );
   }, [steps]);
 
+  const [initialStep, setInitialStep] = useState(activeStep);
+
+  useEffect(() => {
+    if (modalOpen) {
+      setInitialStep(activeStep);
+    }
+  }, [modalOpen]);
+
   return (
     <Modal
       isOpen={modalOpen}
-      modalClassName='w-[100%] h-[100%] flex flex-col items-stretch'
+      modalClassName='w-[100%] h-[100%] flex flex-col items-stretch overflow-hidden'
     >
       {modalOpen && enableProctoring && activeStep && (
         <DisqualificationTimerBar
-          activeStep={activeStep}
+          activeStep={initialStep}
           modalOpen={modalOpen}
         />
       )}
-      <div className='grow flex flex-row items-stretch'>
-        <div className='bg-blue-50 p-20 pt-24 m-w-96 w-1/3'>
-          <CompatibilityModalHeader />
-          <CompatibilityModalStepsScreen step_data={enabledSteps} />
+      <div className='grow flex flex-row items-center overflow-hidden'>
+        <div className='flex flex-col justify-center bg-blue-50 p-20 pt-24 m-w-96 w-1/3 h-[calc(100vh-22px)] overflow-y-auto'>
+          <div className='h-[80%]'>
+            <CompatibilityModalHeader />
+            <CompatibilityModalStepsScreen step_data={enabledSteps} />
+          </div>
         </div>
-        {enabledSteps[activeStep]?.component}
+
+        <div className='flex flex-col justify-center p-20 pt-20 flex-1 overflow-y-auto h-[calc(100vh-22px)]'>
+          <div className='h-[80%]'>
+            {enabledSteps[activeStep]?.component}
+          </div>
+        </div>
       </div>
     </Modal>
   );

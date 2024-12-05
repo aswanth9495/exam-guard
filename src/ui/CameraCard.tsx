@@ -1,21 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/ui/Select';
-import { Camera } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { Camera, ChevronDown, Video } from 'lucide-react';
 import { useAppSelector, useAppDispatch } from '@/hooks/reduxhooks';
 import {
   selectSubStep,
   setSubStepError,
 } from '@/store/features/workflowSlice';
 import { selectProctor } from '@/store/features/assessmentInfoSlice';
-import GuideModal from '@/ui/GuideModal';
 
 export default function CameraSelector() {
   const dispatch = useAppDispatch();
@@ -25,48 +17,55 @@ export default function CameraSelector() {
   );
 
   const [selectedCamera, setSelectedCamera] = useState<string>('');
-  const [cameras, setCameras] = useState<Array<{ id: string; label: string }>>(
-    [],
-  );
-  const [showGuideModal, setShowGuideModal] = useState(false);
+  const [cameras, setCameras] = useState<Array<{ id: string; label: string }>>([]);
+
+  const initializeCamera = useCallback(async () => {
+    try {
+      await navigator.mediaDevices.getUserMedia({ video: true });
+      const availableCameras = await proctor?.getWebcamDevices();
+
+      if (availableCameras && availableCameras.length > 0) {
+        setCameras(availableCameras);
+        setSelectedCamera(availableCameras[0].id);
+        proctor?.setWebcamDevice(availableCameras[0].id);
+        proctor?.handleWebcamRequest();
+      }
+    } catch (error) {
+      dispatch(
+        setSubStepError({
+          step: 'cameraShare',
+          subStep: 'cameraShare',
+          error: 'Camera permission denied',
+        }),
+      );
+    }
+  }, [proctor, dispatch]);
 
   useEffect(() => {
-    async function initializeCamera() {
-      try {
-        await navigator.mediaDevices.getUserMedia({ video: true });
-        const availableCameras = await proctor?.getWebcamDevices();
-
-        if (availableCameras && availableCameras.length > 0) {
-          proctor?.setWebcamDevice(availableCameras[0].id);
-          proctor?.handleWebcamRequest();
-          setCameras(availableCameras);
-          setSelectedCamera(availableCameras[0].id);
-        }
-      } catch (error) {
-        setShowGuideModal(true);
-        dispatch(
-          setSubStepError({
-            step: 'cameraShare',
-            subStep: 'cameraShare',
-            error: 'Camera permission denied',
-          }),
-        );
-      }
-    }
-
     initializeCamera();
-  }, [proctor, dispatch]);
+  }, [initializeCamera]);
+
+  const handleCameraChange = (cameraId: string) => {
+    setSelectedCamera(cameraId);
+    if (proctor) {
+      proctor.setWebcamDevice(cameraId);
+      proctor.handleWebcamRequest();
+    }
+  };
 
   return (
     <div className='flex flex-col gap-4 items-center w-full max-w-4xl mx-auto'>
-      <div className='overflow-hidden shadow-lg bg-white w-full p-6 space-y-6 rounded-2xl'>
+      <div className='overflow-hidden shadow-lg bg-white w-full pb-6 space-y-6 rounded-2xl'>
         <div className='aspect-video bg-gray-100 rounded-lg flex items-center justify-center'>
           {cameraState.status === 'error' && (
-            <div className='flex flex-col items-center gap-4 p-6 text-center'>
+            <div
+              className='flex flex-col items-center gap-4 p-6 text-center cursor-pointer'
+              onClick={initializeCamera}
+            >
               <Camera className='w-16 h-16 text-red-400' strokeWidth={1.5} />
               <div className='space-y-2'>
                 <p className='text-red-600 font-medium'>
-                  Camera access is blocked
+                  Camera access is blocked. Follow the steps below to fix it.
                 </p>
               </div>
             </div>
@@ -81,66 +80,26 @@ export default function CameraSelector() {
           />
         </div>
 
-        {cameras.length > 0 && (
-          <Select
+        <div className="relative mx-8 mt-">
+          <select
+            id="camera-select"
             value={selectedCamera}
-            onValueChange={setSelectedCamera}
-            required
+            onChange={(e) => handleCameraChange(e.target.value)}
+            className="w-full text-sm appearance-none rounded-lg border border-gray-300 bg-white py-4 pl-16 pr-8 shadow-sm focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-400"
           >
-            <SelectTrigger>
-              <SelectValue placeholder='Select a camera' />
-            </SelectTrigger>
-            <SelectContent>
-              {cameras.map((camera) => (
-                camera.id ? (
-                  <SelectItem key={camera.id} value={camera.id}>
-                    {camera.label || 'Unnamed Camera'}
-                  </SelectItem>
-                ) : null
-              ))}
-            </SelectContent>
-          </Select>
-        )}
-      </div>
-
-      <p className='text-xs text-gray-600 font-bold italic'>
-        Need help on sharing camera permissions?{' '}
-        <a
-          href='#'
-          onClick={(e) => {
-            e.preventDefault();
-            setShowGuideModal(true);
-          }}
-          className='text-blue-500 hover:underline'
-        >
-          Click to view
-        </a>{' '}
-        setup guide
-      </p>
-
-      <GuideModal
-        open={showGuideModal}
-        onOpenChange={setShowGuideModal}
-        isError={cameraState.status === 'error'}
-        title="It looks like you're having trouble accessing your camera"
-      >
-        <div className='space-y-6'>
-          <p className='text-muted-foreground'>
-            Refer to the image below for steps to troubleshoot and grant camera
-            permissions
-          </p>
-          <div className='aspect-[16/9] w-full bg-muted rounded-lg'>
-            {/*  */}
-          </div>
-          <p className='text-sm italic'>
-            Need help on sharing camera permissions?{' '}
-            <a href='#' className='text-blue-500 hover:underline'>
-              Click to view
-            </a>{' '}
-            setup guide
-          </p>
+            <option value="" disabled selected={!selectedCamera}>
+              Select Camera Input
+            </option>
+            {cameras?.map((camera) => (
+              <option key={camera.id} value={camera.id}>
+                {camera.label || 'Unnamed Camera'}
+              </option>
+            ))}
+          </select>
+          <Video className="w-8 h-8 fill-black absolute left-5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <ChevronDown className="w-8 h-8 text-gray-500 absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none" />
         </div>
-      </GuideModal>
+      </div>
     </div>
   );
 }

@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { WorkflowStepKey } from '@/types/workflowTypes';
 import { ClockIcon } from 'lucide-react';
+import { selectProctor } from '@/store/features/assessmentInfoSlice';
+import { useAppSelector } from '@/hooks/reduxhooks';
 
 interface DisqualificationTimerBarProps {
   activeStep: WorkflowStepKey;
@@ -30,7 +32,12 @@ const DisqualificationTimerBar: React.FC<DisqualificationTimerBarProps> = ({
   activeStep,
   modalOpen,
 }) => {
-  const { message, time } = STEP_VS_MESSAGE_MAPPING[activeStep];
+  const { message, time } = useMemo(
+    () => STEP_VS_MESSAGE_MAPPING[activeStep],
+    [activeStep]
+  );
+  const proctor = useAppSelector(selectProctor);
+
   const [timeLeft, setTimeLeft] = useState(time);
 
   useEffect(() => {
@@ -39,7 +46,7 @@ const DisqualificationTimerBar: React.FC<DisqualificationTimerBarProps> = ({
 
   useEffect(() => {
     if (timeLeft <= 0) {
-      // TODO: Add a handler for disqualification
+      proctor?.disqualifyUser();
       return;
     }
 
@@ -58,7 +65,7 @@ const DisqualificationTimerBar: React.FC<DisqualificationTimerBarProps> = ({
 
   return (
     <div className='relative rounded-t-lg w-full text-white flex flex-row items-center justify-center'>
-      <div className='py-2 relative flex flex-row items-center uppercase font-bold text-center text-black text-sm z-40'>
+      <div className='py-2 relative flex flex-row items-center uppercase font-bold text-center text-black text-sm z-40 tracking-widest'>
         {message}
         <span className='ml-4 inline-flex items-center gap-1 text-base font-bold'>
           <ClockIcon className='h-6 w-6 font-bold' />
@@ -67,7 +74,7 @@ const DisqualificationTimerBar: React.FC<DisqualificationTimerBarProps> = ({
       </div>
       <div className='absolute top-0 left-0 h-full w-full bg-[#FFEBEF] rounded-t-2xl overflow-hidden'>
         <div
-          className='h-full bg-[#E22D4C] transition-all duration-1000 ease-linear'
+          className='h-full bg-red-700 transition-all duration-1000 ease-linear animate-pulse'
           style={{ width: `${100 - (timeLeft / time) * 100}%` }}
         />
       </div>

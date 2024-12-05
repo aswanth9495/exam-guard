@@ -45,6 +45,9 @@ const App = ({
   const { enabled: enabledSnapshotConfig } = snapshotConfig;
   const { enabled: enabledMobilePairingConfig } = mobilePairingConfig;
   const { enabled: enabledCompatibilityCheckConfig } = compatibilityCheckConfig;
+  const { enabled: enabledFullScreenConfig } = config?.fullScreen ?? {
+    enabled: true,
+  };
 
   const steps = useMemo(
     () => ({
@@ -63,6 +66,9 @@ const App = ({
       compatibilityChecks: {
         step: 'compatibilityChecks',
         enabled: enabledCompatibilityCheckConfig ?? true,
+        subSteps: {
+          fullScreenCheck: enabledFullScreenConfig ?? true,
+        },
       },
     }),
     [
@@ -70,6 +76,7 @@ const App = ({
       enabledSnapshotConfig,
       enabledMobilePairingConfig,
       enabledCompatibilityCheckConfig,
+      enabledFullScreenConfig,
     ],
   );
 
@@ -135,6 +142,7 @@ const App = ({
         },
         onDisqualified: (...args) => {
           callbacks?.onDisqualified?.(...args);
+          compatibilityHandlers.handleDisqualifyUser(...args);
         },
         onCompatibilityCheckSuccess: (...args) => {
           callbacks?.onCompatibilityCheckSuccess?.(...args);

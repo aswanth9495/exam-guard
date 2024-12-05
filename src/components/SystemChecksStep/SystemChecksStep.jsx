@@ -50,7 +50,7 @@ const SystemChecksStep = () => {
   const canProceed = enableProctoring || (acknowledged && areAllSubstepsCompleted);
 
   return (
-    <div className='p-20 pt-12 flex-1 overflow-y-auto'>
+    <>
       <StepHeader
         stepNumber='4'
         title='System Compatibility Checks'
@@ -88,7 +88,7 @@ const SystemChecksStep = () => {
           )}
         </Button>
       </div>
-    </div>
+    </>
   );
 };
 

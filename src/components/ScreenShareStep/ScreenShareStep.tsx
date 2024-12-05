@@ -1,5 +1,5 @@
-import React from 'react';
-import { ArrowRight } from 'lucide-react';
+import React, { useState } from 'react';
+import { ArrowRight, Lightbulb } from 'lucide-react';
 
 import { Button } from '@/ui/Button';
 import { Checkbox } from '@/ui/Checkbox';
@@ -7,10 +7,11 @@ import { evaluateParentStepStatus } from '@/utils/evaluateParentStepStatus';
 import { nextStep, setStepAcknowledged } from '@/store/features/workflowSlice';
 import { SubStepState } from '@/types/workflowTypes';
 import { selectProctor } from '@/store/features/assessmentInfoSlice';
-import { selectStep } from '@/store/features/workflowSlice';
+import { selectStep, selectSubStep } from '@/store/features/workflowSlice';
 import { useAppDispatch, useAppSelector } from '@/hooks/reduxhooks';
 import ScreenShareCard from '@/ui/ScreenShareCard';
 import StepHeader from '@/ui/StepHeader';
+import GuideModal from '@/ui/GuideModal';
 
 const ScreenShareStep = () => {
   const dispatch = useAppDispatch();
@@ -19,6 +20,11 @@ const ScreenShareStep = () => {
   );
   const { enableProctoring } = useAppSelector((state) => state.workflow);
   const proctor = useAppSelector(selectProctor);
+  const screenShareState = useAppSelector((state) =>
+    selectSubStep(state, 'screenShare', 'screenShare'),
+  );
+
+  const [showGuideModal, setShowGuideModal] = useState(false);
 
   const handleCheckboxChange = () => {
     dispatch(
@@ -46,18 +52,29 @@ const ScreenShareStep = () => {
   const canProceed = enableProctoring || (acknowledged && areAllSubstepsCompleted);
 
   return (
-    <div className='p-20 pt-12 flex-1 overflow-y-auto'>
+    <>
       <StepHeader
         stepNumber='1'
-        title='Test your Screen Share Permissions'
-        description='Test if screen share permissions are enabled. If not, follow the instructions below to enable them'
+        title='Provide Screen Share Permissions'
+        description='Please provide screen share permissions to continue, and ensure that it remains enabled throughout the test.'
         status={status}
       />
       <div className='mt-16'>
         <ScreenShareCard />
-        <p className='text-gray-600 mt-12 italic text-xs'>
-          <strong>Please Note :</strong> You will need to set up screen sharing
-          again when your test begins, as the environment will refresh.
+        <p className='mt-12 text-sm text-black font-semibold text-center'>
+          <Lightbulb className='w-6 h-6 inline-block mr-2 text-black font-bold' />
+              Need help?{' '}
+              <a
+                href='#'
+                onClick={(e) => {
+                  e.preventDefault();
+                  setShowGuideModal(true);
+                }}
+                className='text-blue-500 underline'
+              >
+                Click to view
+              </a>{' '}
+              screen sharing setup guide
         </p>
         {!enableProctoring && (
           <div className='flex items-center gap-2 mt-16 text-xs'>
@@ -86,8 +103,32 @@ const ScreenShareStep = () => {
             </>
           )}
         </Button>
+
+        <GuideModal
+          open={showGuideModal}
+          onOpenChange={setShowGuideModal}
+          isError={screenShareState.status === 'error'}
+          title="It looks like you're having trouble allowing Screen Sharing Permissions"
+        >
+          <div className='space-y-6'>
+            <p className='text-muted-foreground'>
+              Refer to the image below for steps to troubleshoot and grant screen
+              sharing permissions
+            </p>
+            <div className='aspect-[16/9] w-full bg-muted rounded-lg'>
+              {/*  */}
+            </div>
+            <p className='text-sm italic'>
+              Need help on sharing screen sharing permissions?{' '}
+              <a href='#' className='text-blue-500 hover:underline'>
+                Click to view
+              </a>{' '}
+              setup guide
+            </p>
+          </div>
+        </GuideModal>
       </div>
-    </div>
+    </>
   );
 };
 

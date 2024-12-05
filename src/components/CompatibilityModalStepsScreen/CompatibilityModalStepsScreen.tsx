@@ -49,9 +49,9 @@ const StepItem: React.FC<StepItemProps> = ({
           <Icon className='w-8 h-8' />
         )}
       </div>
-      {!isLast && <div className='w-px h-20 bg-blue-100'></div>}
+      {!isLast && <div className='w-1.5 h-28 bg-blue-100'></div>}
     </div>
-    <div>
+    <div className='md:mt-2'>
       <div className='text-xs text-gray-400'>STEP {step}</div>
       <div
         className={`text-base ${

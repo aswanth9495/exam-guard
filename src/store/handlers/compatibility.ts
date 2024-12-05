@@ -65,6 +65,10 @@ export default class CompatibilityHandlers {
     // );
   };
 
+  handleDisqualifyUser = () => {
+    this.dispatch(setModalOpen(false));
+  };
+
   handleCompatibilityCheckSuccess = () => {
     Object.values(CHECK_TO_STEP_MAP).forEach((mapping) => {
       this.dispatch(
