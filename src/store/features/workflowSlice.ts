@@ -59,6 +59,15 @@ const workflowSlice = createSlice({
       state.modalOpen = true;
     },
 
+    setActiveSubStep(state, action: PayloadAction<{
+      step: WorkflowStepKey;
+      subStep: string
+    }>) {
+      const { step, subStep } = action.payload
+      const currentStep = state.steps[step];
+      currentStep.activeSubStep = subStep;
+    },
+
     nextStep(state) {
       const steps = Object.keys(state.steps) as WorkflowStepKey[];
       const currentIndex = steps.indexOf(state.activeStep);
@@ -248,6 +257,7 @@ export const {
   resetAll,
   setEnableProctoring,
   setOnWorkflowComplete,
+  setActiveSubStep,
 } = workflowSlice.actions;
 
 export default workflowSlice.reducer;

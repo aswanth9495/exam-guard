@@ -2,6 +2,7 @@ import { AppDispatch } from '@/store/store';
 import {
   setSubStepStatus,
   setActiveStep,
+  setActiveSubStep,
   setModalOpen,
 } from '@/store/features/workflowSlice';
 import { StepState } from '@/types/workflowTypes';
@@ -89,6 +90,7 @@ export default class CompatibilityHandlers {
     },
   ) => {
     let hasSetActiveStep = false;
+    const hasSetActiveSubStepPerStep: Record<string, boolean> = {}; 
 
     this.CHECK_ORDER.forEach((check) => {
       if (!(check in errorCode.passedChecks)) return;
@@ -110,7 +112,7 @@ export default class CompatibilityHandlers {
             clearError: passed,
           }),
         );
-
+      
         if (!passed && !hasSetActiveStep) {
           this.dispatch(
             setActiveStep(
@@ -122,6 +124,15 @@ export default class CompatibilityHandlers {
           );
           this.dispatch(setModalOpen(true));
           hasSetActiveStep = true;
+        }
+        if (!passed && !hasSetActiveSubStepPerStep[mapping.step]) {
+          this.dispatch(
+            setActiveSubStep({
+              step: mapping.step as 'compatibilityChecks' | 'cameraShare' | 'screenShare',
+              subStep: mapping.subStep,
+            })
+          );
+          hasSetActiveSubStepPerStep[mapping.step] = true;
         }
       }
     });
