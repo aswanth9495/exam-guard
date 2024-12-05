@@ -26,6 +26,7 @@ function SwitchPhoneModal({ isOpen, onClose }) {
       await sendProctorEvent({
         payload: eventPayload,
         endpoint: eventEndpoint,
+        eventType: 'secondary_camera',
         eventName: 'reset_state',
       });
       dispatch(setActiveSubStep({
