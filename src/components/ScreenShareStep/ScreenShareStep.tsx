@@ -111,7 +111,7 @@ const ScreenShareStep = () => {
           title="It looks like you're having trouble allowing Screen Sharing Permissions"
         >
           <div className='space-y-6'>
-            <p className='text-muted-foreground'>
+            <p className='text-muted-foreground text-sm'>
               Refer to the image below for steps to troubleshoot and grant screen
               sharing permissions
             </p>

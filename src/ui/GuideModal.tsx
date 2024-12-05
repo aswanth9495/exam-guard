@@ -35,7 +35,7 @@ export default function GuideModal({
 
   return (
     <Dialog open={shouldShow} onOpenChange={handleOpenChange}>
-      <DialogContent className='sm:max-w-[600px] p-12 z-[100] bg-white'>
+      <DialogContent className='sm:max-w-[1000px] p-12 z-[100] bg-white'>
         <DialogHeader>
           <DialogTitle className='text-2xl font-bold'>
             {title}
