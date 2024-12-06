@@ -64,7 +64,7 @@ const DesktopCameraStep = () => {
         <CameraCard />
 
         <p className='mt-12 text-sm text-black font-semibold text-center'>
-          <Lightbulb className='w-6 h-6 inline-block mr-2 text-black font-bold' />
+          <Lightbulb className='mb-1 w-6 h-6 inline-block mr-2 text-black font-bold' />
               Need help?{' '}
               <a
                 href='#'
@@ -82,7 +82,7 @@ const DesktopCameraStep = () => {
           <div className='flex items-center gap-2 mt-16 text-xs'>
             <Checkbox
               id='confirm'
-              className='mt-1 mr-2 h-5 w-5'
+              className='mr-2 h-5 w-5'
               checked={acknowledged}
               onCheckedChange={handleCheckboxChange}
             />
