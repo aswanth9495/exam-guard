@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import { Monitor, Camera, Smartphone, Settings } from 'lucide-react';
+import { Monitor, Camera, Smartphone, Settings, CircleCheck } from 'lucide-react';
 
 import { Modal } from '@/ui/Modal';
 import { Step, WorkflowStepKey } from '@/types/workflowTypes';
@@ -39,6 +39,9 @@ export default function CompatibilityModal() {
   const { activeStep, enableProctoring, steps, modalOpen } = useAppSelector(
     (state) => state.workflow,
   );
+  const [localModalOpen, setLocalModalOpen] = useState(modalOpen);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [timer, setTimer] = useState(3);
 
   const enabledSteps = useMemo(() => {
     return Object.entries(ALL_STEPS).reduce(
@@ -57,34 +60,71 @@ export default function CompatibilityModal() {
   useEffect(() => {
     if (modalOpen) {
       setInitialStep(activeStep);
+      setLocalModalOpen(true);
+      setShowSuccess(false);
+      setTimer(2);
     }
-  }, [modalOpen]);
+  }, [modalOpen, activeStep]);
+
+  useEffect(() => {
+    if (!modalOpen && localModalOpen) {
+      setShowSuccess(true);
+      
+      const countdown = setInterval(() => {
+        setTimer((prev) => {
+          if (prev <= 1) {
+            clearInterval(countdown);
+            setLocalModalOpen(false);
+            setShowSuccess(false);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
+      return () => clearInterval(countdown);
+    }
+  }, [modalOpen, localModalOpen]);
 
   return (
     <Modal
-      isOpen={modalOpen}
+      isOpen={localModalOpen}
       modalClassName='w-[100%] h-[100%] flex flex-col items-stretch overflow-hidden'
     >
-      {modalOpen && enableProctoring && activeStep && (
-        <DisqualificationTimerBar
-          activeStep={initialStep}
-          modalOpen={modalOpen}
-        />
-      )}
-      <div className='grow flex flex-row items-center overflow-hidden'>
-        <div className='flex flex-col justify-center bg-blue-50 p-20 pt-24 m-w-96 w-1/3 h-[calc(100vh-22px)] overflow-y-auto'>
-          <div className='h-[80%]'>
-            <CompatibilityModalHeader />
-            <CompatibilityModalStepsScreen step_data={enabledSteps} />
+      {showSuccess ? (
+        <div className="flex flex-col items-center justify-center h-full bg-white space-y-4">
+          <CircleCheck className='w-32 h-32  text-white fill-green-600' />
+          <div className="text-3xl font-semibold text-green-600">
+            Compatibility Check Success
+          </div>
+          <div className="text-lg text-gray-500">
+            Redirecting back to the page in {timer} seconds
           </div>
         </div>
+      ) : (
+        <>
+          {localModalOpen && enableProctoring && activeStep && (
+            <DisqualificationTimerBar
+              activeStep={initialStep}
+              modalOpen={localModalOpen}
+            />
+          )}
+          <div className='grow flex flex-row items-center overflow-hidden'>
+            <div className='flex flex-col justify-center bg-blue-50 p-20 pt-24 m-w-96 w-1/3 h-[calc(100vh-22px)] overflow-y-auto'>
+              <div className='h-[80%]'>
+                <CompatibilityModalHeader />
+                <CompatibilityModalStepsScreen step_data={enabledSteps} />
+              </div>
+            </div>
 
-        <div className='flex flex-col justify-center p-20 pt-20 flex-1 overflow-y-auto h-[calc(100vh-22px)]'>
-          <div className='h-[80%]'>
-            {enabledSteps[activeStep]?.component}
+            <div className='flex flex-col justify-center p-20 pt-20 flex-1 overflow-y-auto h-[calc(100vh-22px)]'>
+              <div className='h-[80%]'>
+                {enabledSteps[activeStep]?.component}
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
+        </>
+      )}
     </Modal>
   );
 }

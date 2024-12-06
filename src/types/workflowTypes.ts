@@ -18,6 +18,7 @@ export interface StepState {
   acknowledged: boolean;
   activeSubStep: string;
   subSteps: Record<string, SubStepState>;
+  setupMode: boolean;
 }
 
 export interface WorkflowState {

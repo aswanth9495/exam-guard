@@ -2,8 +2,9 @@ import React, { useCallback, useEffect, useState } from 'react';
 import classNames from 'classnames';
 
 import { useDispatch } from 'react-redux';
-// eslint-disable-next-line no-unused-vars
-import { ArrowRight, CameraOffIcon } from 'lucide-react';
+import {
+  ArrowRight, OctagonAlert,
+} from 'lucide-react';
 import ReferenceImage from '@/ui/ReferenceImage';
 import { Button } from '@/ui/Button';
 import { Checkbox } from '@/ui/Checkbox';
@@ -12,17 +13,26 @@ import { MIN_SNAPSHOT_COUNT } from '@/utils/constants';
 
 import Loader from '@/ui/Loader';
 import ProgressBar from '@/ui/ProgressBar';
-import { nextSubStep } from '@/store/features/workflowSlice';
+import { nextSubStep, selectStep, setStepSetupMode } from '@/store/features/workflowSlice';
 
 import styles from './MobileCameraStep.module.scss';
+import { useAppSelector } from '@/hooks/reduxhooks';
 
-function Orientation({ className, setSwitchModalOpen }) {
+function Orientation({
+  className, setSwitchModalOpen,
+}) {
+  const {
+    setupMode,
+  } = useAppSelector((state) => (
+    selectStep(state, 'mobileCameraShare')
+  ));
   const dispatch = useDispatch();
   const [isChecked, setIsChecked] = useState(false);
   const [snapshotCollected, setSnapshotCollected] = useState(false);
   const [snapShotCount, setSnapshotCount] = useState(0);
   const [previousSnapshot, setPreviousSnapshot] = useState(null);
   const [countdown, setCountdown] = useState(5);
+  const { enableProctoring } = useAppSelector((state) => state.workflow);
 
   const collectSnapshots = useCallback((snapShotData) => {
     const snapshotLength = snapShotData?.metadata?.length || 0;
@@ -47,6 +57,10 @@ function Orientation({ className, setSwitchModalOpen }) {
 
   const handleProceed = useCallback(() => {
     dispatch(nextSubStep());
+    dispatch(setStepSetupMode({
+      step: 'mobileCameraShare',
+      setupMode: true,
+    }));
   }, [dispatch]);
 
   // Reset countdown when snapshots are fetched
@@ -63,6 +77,22 @@ function Orientation({ className, setSwitchModalOpen }) {
     onSnapshotSuccess: handleSnapshotSuccess,
     onSnapshotFailure: handleSnapshotFailure,
   });
+
+  if (enableProctoring && !setupMode) {
+    return (
+      <div className="flex flex-col items-center justify-center p-12">
+        <OctagonAlert color="#e12d2d" ></OctagonAlert>
+        <heading className="text-xl">Snapshots are failing</heading>
+        <Button
+          className='mt-8 items-center py-8 px-10 ml-6'
+          variant='outline'
+          onClick={() => setSwitchModalOpen(true)}
+        >
+          Scan QR Code again
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col">
@@ -82,14 +112,6 @@ function Orientation({ className, setSwitchModalOpen }) {
                     <div className='text-xs text-center mt-2'>Collecting Snapshot...</div>
                   </div>)
               }
-              {/* {
-                snapShotCount === 0 && (
-                  <div className="absolute top-1/2 right-1/2 transform translate-x-1/2
-                  translate-y-[-50%]">
-                      <CameraOffIcon className="text-red-500"/>
-                  </div>
-                )
-              } */}
             </div>
           </div>
          <div className="flex flex-col text-center mt-4">
@@ -104,12 +126,6 @@ function Orientation({ className, setSwitchModalOpen }) {
                 Auto fetching image in {countdown} seconds...
               </div>}
           </div>
-        {/* {
-          snapShotCount === 0 && <div className='text-xs text-center mt-2'>
-          Please Scan the <b>QR Code again</b> or Make sure your phone
-          is capturing snapshots
-        </div>
-        } */}
         </section>
         <section className={styles.orientationInstructionsContainer}>
           <article className={styles.orientationInstructions}>

@@ -19,6 +19,7 @@ const createStep = (subSteps: string[], locked = true): StepState => ({
   acknowledged: false,
   activeSubStep: subSteps.length > 0 ? subSteps[0] : '',
   enabled: true,
+  setupMode: false,
   subSteps: subSteps.reduce(
     (acc, step) => ({
       ...acc,
@@ -56,7 +57,6 @@ const workflowSlice = createSlice({
     setActiveStep(state, action: PayloadAction<WorkflowStepKey>) {
       state.activeStep = action.payload;
       state.steps[action.payload].locked = false;
-      state.modalOpen = true;
     },
 
     setActiveSubStep(state, action: PayloadAction<{
@@ -126,6 +126,17 @@ const workflowSlice = createSlice({
     ) {
       const { step, locked } = action.payload;
       state.steps[step].locked = locked;
+    },
+
+    setStepSetupMode(
+      state,
+      action: PayloadAction<{
+        step: WorkflowStepKey;
+        setupMode: boolean;
+      }>
+    ) {
+      const { step, setupMode } = action.payload;
+      state.steps[step].setupMode = setupMode;
     },
 
     setStepAcknowledged(
@@ -258,6 +269,7 @@ export const {
   setEnableProctoring,
   setOnWorkflowComplete,
   setActiveSubStep,
+  setStepSetupMode
 } = workflowSlice.actions;
 
 export default workflowSlice.reducer;

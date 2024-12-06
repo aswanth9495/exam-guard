@@ -9,19 +9,24 @@ const Modal = React.forwardRef<
     modalClassName?: string;
     isOpen: boolean;
   }
->(({ containerClassName, modalClassName, isOpen, children, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn(
-      'fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50',
-      isOpen ? '' : 'hidden',
-      containerClassName,
-    )}
-    {...props}
-  >
-    <Card className={modalClassName}>{children}</Card>
-  </div>
-));
+>(({ containerClassName, modalClassName, isOpen, children, ...props }, ref) => {
+  if (isOpen) {
+    return (
+      <div
+        ref={ref} // Ensure the ref is attached here
+        className={cn(
+          'fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50',
+          containerClassName
+        )}
+        {...props}
+      >
+        <Card className={modalClassName}>{children}</Card>
+      </div>
+    );
+  } else {
+    return null;
+  }
+});
 
 Modal.displayName = 'Modal';
 

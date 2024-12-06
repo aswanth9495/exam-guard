@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import { ArrowRight } from 'lucide-react';
 import { Button } from '@/ui/Button';
@@ -7,7 +7,9 @@ import { evaluateParentStepStatus } from '@/utils/evaluateParentStepStatus';
 import {
   nextStep,
   selectStep,
+  setActiveSubStep,
   setStepAcknowledged,
+  setStepSetupMode,
 } from '@/store/features/workflowSlice';
 import { PAIRING_STEPS } from '@/utils/constants';
 import { Tabs, Tab } from '@/ui/Tabs';
@@ -17,18 +19,52 @@ import Orientation from './Orientation';
 import Pairing from './Pairing';
 import StepHeader from '@/ui/StepHeader';
 import SwitchPhoneModal from './SwitchPhoneModal';
+import { useGetPollingDataQuery } from '@/services/mobilePairingService';
+import { selectProctor } from '@/store/features/assessmentInfoSlice';
 
 const MobileCameraStep = () => {
   const dispatch = useAppDispatch();
-  const { acknowledged, subSteps, activeSubStep } = useAppSelector((state) => (
+  const {
+    acknowledged, subSteps, activeSubStep, setupMode,
+  } = useAppSelector((state) => (
     selectStep(state, 'mobileCameraShare')
   ));
+
   const [isSwitchModalOpen, setSwitchModalOpen] = useState(false);
   const { enableProctoring } = useAppSelector((state) => state.workflow);
+  const proctor = useAppSelector((state) => selectProctor(state));
+  const pollingPayload = proctor?.mobilePairingConfig?.defaultPayload || {};
+  const pollingEndpoint = proctor?.mobilePairingConfig?.endpoint || {};
+  const { data, refetch } = useGetPollingDataQuery({
+    endpoint: pollingEndpoint,
+    payload: pollingPayload,
+  });
 
   const areAllSubstepsCompleted = Object.values(subSteps).every(
     (step) => step.status === 'completed',
   );
+
+  useEffect(() => {
+  // Refetch data on page load
+    refetch();
+  }, [refetch]);
+
+  useEffect(() => () => {
+    dispatch(setStepSetupMode({
+      step: 'mobileCameraShare',
+      setupMode: false,
+    }));
+  }, [dispatch]);
+
+  useEffect(() => {
+    /* If data.success then go to the last step */
+    if (data?.success && enableProctoring && !setupMode) {
+      dispatch(setActiveSubStep({
+        step: 'mobileCameraShare',
+        subStep: PAIRING_STEPS.mobileCompatibility,
+      }));
+    }
+  }, [data, dispatch, enableProctoring, setupMode]);
 
   const status = evaluateParentStepStatus(Object.values(subSteps));
   const canProceed = enableProctoring || (acknowledged && areAllSubstepsCompleted);
@@ -71,7 +107,9 @@ const MobileCameraStep = () => {
             subSteps[PAIRING_STEPS.orientation].status === 'completed'
           }
         >
-          <Orientation setSwitchModalOpen={setSwitchModalOpen} />
+          <Orientation
+            setSwitchModalOpen={setSwitchModalOpen}
+          />
         </Tab>
         <Tab
           label='Mobile System Check'
