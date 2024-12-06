@@ -6,7 +6,6 @@ import { screenshareCleanup } from '@/utils/screenshotV2';
 import { AlertTriangle } from 'lucide-react';
 import { selectProctor } from '@/store/features/assessmentInfoSlice';
 import { ERROR_MESSAGES } from '@/constants/screenshot';
-import { getBrowserInfo } from '@/utils/browser';
 
 export default function ScreenShareCard() {
   const dispatch = useAppDispatch();
@@ -14,10 +13,6 @@ export default function ScreenShareCard() {
   const screenShareState = useAppSelector((state) =>
     selectSubStep(state, 'screenShare', 'screenShare'),
   );
-
-  useEffect(() => {
-    console.log(getBrowserInfo());
-  }, []);
 
   const handleShare = async () => {
     try {
