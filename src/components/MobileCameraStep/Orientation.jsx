@@ -3,7 +3,7 @@ import classNames from 'classnames';
 
 import { useDispatch } from 'react-redux';
 import {
-  ArrowRight, OctagonAlert,
+  ArrowRight,
 } from 'lucide-react';
 import ReferenceImage from '@/ui/ReferenceImage';
 import { Button } from '@/ui/Button';
@@ -17,6 +17,7 @@ import { nextSubStep, selectStep, setStepSetupMode } from '@/store/features/work
 
 import styles from './MobileCameraStep.module.scss';
 import { useAppSelector } from '@/hooks/reduxhooks';
+import SnapshotFailed from './SnapshotFailed';
 
 function Orientation({
   className, setSwitchModalOpen,
@@ -79,19 +80,7 @@ function Orientation({
   });
 
   if (enableProctoring && !setupMode) {
-    return (
-      <div className="flex flex-col items-center justify-center p-12">
-        <OctagonAlert color="#e12d2d" ></OctagonAlert>
-        <heading className="text-xl">Snapshots are failing</heading>
-        <Button
-          className='mt-8 items-center py-8 px-10 ml-6'
-          variant='outline'
-          onClick={() => setSwitchModalOpen(true)}
-        >
-          Scan QR Code again
-        </Button>
-      </div>
-    );
+    return (<SnapshotFailed setSwitchModalOpen={setSwitchModalOpen} />);
   }
 
   return (
