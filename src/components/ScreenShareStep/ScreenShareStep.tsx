@@ -1,17 +1,19 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { ArrowRight, Lightbulb } from 'lucide-react';
 
 import { Button } from '@/ui/Button';
 import { Checkbox } from '@/ui/Checkbox';
 import { evaluateParentStepStatus } from '@/utils/evaluateParentStepStatus';
+import { getBrowserInfo } from '@/utils/browser';
 import { nextStep, setStepAcknowledged } from '@/store/features/workflowSlice';
 import { SubStepState } from '@/types/workflowTypes';
 import { selectProctor } from '@/store/features/assessmentInfoSlice';
 import { selectStep, selectSubStep } from '@/store/features/workflowSlice';
 import { useAppDispatch, useAppSelector } from '@/hooks/reduxhooks';
-import ScreenShareCard from '@/ui/ScreenShareCard';
-import StepHeader from '@/ui/StepHeader';
 import GuideModal from '@/ui/GuideModal';
+import ScreenShareCard from '@/ui/ScreenShareCard';
+import ScreenShareGuide from '@/ui/ScreenShareGuide';
+import StepHeader from '@/ui/StepHeader';
 
 const ScreenShareStep = () => {
   const dispatch = useAppDispatch();
@@ -23,8 +25,10 @@ const ScreenShareStep = () => {
   const screenShareState = useAppSelector((state) =>
     selectSubStep(state, 'screenShare', 'screenShare'),
   );
-
+  
   const [showGuideModal, setShowGuideModal] = useState(false);
+
+  const browserInfo: any = useMemo(() => getBrowserInfo(), []);
 
   const handleCheckboxChange = () => {
     dispatch(
@@ -112,19 +116,12 @@ const ScreenShareStep = () => {
         >
           <div className='space-y-6'>
             <p className='text-muted-foreground text-sm'>
-              Refer to the image below for steps to troubleshoot and grant screen
+              Refer to the guide below for steps to troubleshoot and grant screen
               sharing permissions
             </p>
-            <div className='aspect-[16/9] w-full bg-muted rounded-lg'>
-              {/*  */}
+            <div className='aspect-[16/9] w-full bg-muted rounded-lg overflow-y-auto p-8 shadow-sm'>
+              <ScreenShareGuide browserName={browserInfo?.name} />
             </div>
-            <p className='text-sm italic'>
-              Need help on sharing screen sharing permissions?{' '}
-              <a href='#' className='text-blue-500 hover:underline'>
-                Click to view
-              </a>{' '}
-              setup guide
-            </p>
           </div>
         </GuideModal>
       </div>

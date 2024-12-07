@@ -101,6 +101,10 @@ module.exports = {
           filename: 'fonts/[name][hash][ext]',
         },
       },
+      {
+        test: /\.md$/,
+        use: 'raw-loader',
+      },
     ],
   },
   resolve: {

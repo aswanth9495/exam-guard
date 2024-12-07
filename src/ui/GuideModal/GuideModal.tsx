@@ -1,10 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/ui/Dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/ui/Dialog';
 import { getBrowserInfo } from '@/utils/browser';
 import styles from './GuideModal.module.scss';
 
@@ -45,7 +40,7 @@ export default function GuideModal({
   return (
     <Dialog open={shouldShow} onOpenChange={handleOpenChange}>
       <DialogContent
-        className={`max-w-[90%] p-12 z-[100] bg-white ${styles.dialogContent}`}
+        className={`max-w-[90%] max-h-[90%] p-12 z-[100] bg-white ${styles.dialogContent} overflow-y-auto`}
       >
         <DialogHeader>
           <DialogTitle className='text-2xl font-bold'>{title}</DialogTitle>

@@ -1,16 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 
 import { ArrowRight, Lightbulb } from 'lucide-react';
 import { Button } from '@/ui/Button';
 import { Checkbox } from '@/ui/Checkbox';
 import { evaluateParentStepStatus } from '@/utils/evaluateParentStepStatus';
+import { getBrowserInfo } from '@/utils/browser';
 import { nextStep, setStepAcknowledged, selectSubStep, selectStep } from '@/store/features/workflowSlice';
 import { selectProctor } from '@/store/features/assessmentInfoSlice';
 import { SubStepState } from '@/types/workflowTypes';
 import { useAppDispatch, useAppSelector } from '@/hooks/reduxhooks';
 import CameraCard from '@/ui/CameraCard';
-import StepHeader from '@/ui/StepHeader';
+import CameraShareGuide from '@/ui/CameraShareGuide';
 import GuideModal from '@/ui/GuideModal';
+import StepHeader from '@/ui/StepHeader';
 
 const DesktopCameraStep = () => {
   const dispatch = useAppDispatch();
@@ -23,6 +25,8 @@ const DesktopCameraStep = () => {
   const cameraState = useAppSelector((state) =>
     selectSubStep(state, 'cameraShare', 'cameraShare'),
   );
+
+  const browserInfo: any = useMemo(() => getBrowserInfo(), []);
 
   const [showGuideModal, setShowGuideModal] = useState(false);
 
@@ -113,12 +117,12 @@ const DesktopCameraStep = () => {
         title="It looks like you're having trouble accessing your camera"
       >
         <div className='space-y-6'>
-          <p className='text-muted-foreground'>
+          <p className='text-muted-foreground text-sm'>
             Refer to the image below for steps to troubleshoot and grant camera
             permissions
           </p>
-          <div className='aspect-[16/9] w-full bg-muted rounded-lg'>
-            {/*  */}
+          <div className='aspect-[16/9] w-full bg-muted rounded-lg overflow-y-auto p-8 shadow-sm'>
+            <CameraShareGuide browserName={browserInfo?.name} />
           </div>
           <p className='text-sm italic'>
             Need help on sharing camera permissions?{' '}
