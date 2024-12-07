@@ -1,5 +1,11 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import { Monitor, Camera, Smartphone, Settings, CircleCheck } from 'lucide-react';
+import {
+  Monitor,
+  Camera,
+  Smartphone,
+  Settings,
+  CircleCheck,
+} from 'lucide-react';
 
 import { Modal } from '@/ui/Modal';
 import { Step, WorkflowStepKey } from '@/types/workflowTypes';
@@ -69,7 +75,7 @@ export default function CompatibilityModal() {
   useEffect(() => {
     if (!modalOpen && localModalOpen) {
       setShowSuccess(true);
-      
+
       const countdown = setInterval(() => {
         setTimer((prev) => {
           if (prev <= 1) {
@@ -92,12 +98,12 @@ export default function CompatibilityModal() {
       modalClassName='w-[100%] h-[100%] flex flex-col items-stretch overflow-hidden'
     >
       {showSuccess ? (
-        <div className="flex flex-col items-center justify-center h-full bg-white space-y-4">
+        <div className='flex flex-col items-center justify-center h-full bg-white space-y-4'>
           <CircleCheck className='w-32 h-32  text-white fill-green-600' />
-          <div className="text-3xl font-semibold text-green-600">
+          <div className='text-3xl font-semibold text-green-600'>
             Compatibility Check Success
           </div>
-          <div className="text-lg text-gray-500">
+          <div className='text-lg text-gray-500'>
             Redirecting back to the page in {timer} seconds
           </div>
         </div>
@@ -117,10 +123,8 @@ export default function CompatibilityModal() {
               </div>
             </div>
 
-            <div className='flex flex-col justify-center p-20 pt-20 flex-1 overflow-y-auto h-[calc(100vh-22px)]'>
-              <div className='h-[80%]'>
-                {enabledSteps[activeStep]?.component}
-              </div>
+            <div className='flex flex-col justify-center p-20 pt-20 flex-1 overflow-y-auto h-full'>
+              {enabledSteps[activeStep]?.component}
             </div>
           </div>
         </>

@@ -61,6 +61,6 @@ module.exports = {
       },
     },
   },
-  important: true,
+  important: '#proctor-library-root-id',
   plugins: [tailwindAnimate],
 };

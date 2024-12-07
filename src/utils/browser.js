@@ -18,7 +18,7 @@ export const getBrowserInfo = () => {
     || !!window.opera
     || navigator.userAgent.indexOf(' OPR/') >= 0;
 
-  const isFirefox = typeof InstallTrigger !== 'undefined';
+  const isFirefox = navigator.userAgent.indexOf('Firefox') !== -1;
 
   const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 

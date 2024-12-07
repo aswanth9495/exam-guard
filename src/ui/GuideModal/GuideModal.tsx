@@ -4,9 +4,9 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from '@/ui/Dialog';
 import { getBrowserInfo } from '@/utils/browser';
+import styles from './GuideModal.module.scss';
 
 interface GuideModalProps {
   open: boolean;
@@ -44,7 +44,9 @@ export default function GuideModal({
 
   return (
     <Dialog open={shouldShow} onOpenChange={handleOpenChange}>
-      <DialogContent className='sm:max-w-[1000px] p-12 z-[100] bg-white'>
+      <DialogContent
+        className={`max-w-[90%] p-12 z-[100] bg-white ${styles.dialogContent}`}
+      >
         <DialogHeader>
           <DialogTitle className='text-2xl font-bold'>{title}</DialogTitle>
         </DialogHeader>

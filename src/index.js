@@ -34,7 +34,9 @@ class ProctorLibrary {
     const root = createRoot(container);
     root.render(
       <Provider store={store}>
-        <App {...defaultProps} {...props} />
+        <div id='proctor-library-root-id'>
+          <App {...defaultProps} {...props} />
+        </div>
       </Provider>,
     );
   }

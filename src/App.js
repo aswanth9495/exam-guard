@@ -86,7 +86,6 @@ const App = ({
     const compatibilityHandlers = new CompatibilityHandlers(
       dispatch,
       steps,
-      enableProctoring,
     );
 
     return new Proctor({
@@ -166,7 +165,6 @@ const App = ({
     dispatch,
     disqualificationConfig,
     enableAllAlerts,
-    enableProctoring,
     eventsConfig,
     headerOptions,
     mobilePairingConfig,
