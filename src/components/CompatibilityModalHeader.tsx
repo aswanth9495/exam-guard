@@ -10,7 +10,7 @@ export default function CompatibilityModalHeader() {
     <div>
       <img src={Logo} alt='Scaler Logo' className='h-6' />
       <div className='mt-12'>
-        <p className='text-gray-600 text-base'>
+        <p className='text-base-200 text-base'>
           Hi {assessmentInfo?.userName}!
         </p>
         <h1 className='text-2xl font-bold mt-1'>

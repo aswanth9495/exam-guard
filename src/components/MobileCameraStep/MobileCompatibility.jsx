@@ -45,7 +45,7 @@ const successUi = ({ title, description }) => (
 
 const defaultUi = ({ title, description }) => (
     <section className="flex flex-row items-start">
-      <Loader2 className='w-12 h-12 text-blue-500 animate-spin' />
+      <Loader2 className='w-12 h-12 text-scaler-500 animate-spin' />
       <section className="flex flex-col ml-6">
         <heading className={styles.compatibilityTitle}>{title}</heading>
         <p className={styles.compatibilityBody}>{description}</p>

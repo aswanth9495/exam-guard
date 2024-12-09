@@ -95,5 +95,6 @@ export interface Proctor {
   getTotalViolationsCount(): number;
   getAllViolations(): ViolationEvent[];
   getViolationsCountForDisqualify(): number;
+  handleCleanup(): void;
   new (config: ProctorConfig): Proctor;
 }

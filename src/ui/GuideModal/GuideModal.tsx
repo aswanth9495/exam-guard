@@ -40,25 +40,25 @@ export default function GuideModal({
   return (
     <Dialog open={shouldShow} onOpenChange={handleOpenChange}>
       <DialogContent
-        className={`max-w-[90%] max-h-[90%] p-12 z-[100] bg-white ${styles.dialogContent} overflow-y-auto`}
+        className={`max-w-[90%] max-h-[95%] p-12 z-[100] bg-white ${styles.dialogContent} overflow-y-auto`}
       >
         <DialogHeader>
           <DialogTitle className='text-2xl font-bold'>{title}</DialogTitle>
         </DialogHeader>
         {children}
 
-        <div className='mt-4'>
+        <div className='my-4'>
           <div className='flex flex-wrap items-center text-sm'>
             <div className='flex flex-col mr-6'>
-              <span className='font-bold text-gray-700'>Browser</span>
+              <span className='font-bold text-base-500'>Browser</span>
               <span className='text-gray-900'>{browserInfo?.name}</span>
             </div>
             <div className='flex flex-col mr-6'>
-              <span className='font-bold text-gray-700'>Version</span>
+              <span className='font-bold text-base-500'>Version</span>
               <span className='text-gray-900'>{browserInfo?.version}</span>
             </div>
             <div className='flex flex-col'>
-              <span className='font-bold text-gray-700'>Supported</span>
+              <span className='font-bold text-base-500'>Supported</span>
               <span
                 className={`text-gray-900 ${browserInfo?.isSupported ? 'text-green-600' : 'text-red-600'}`}
               >

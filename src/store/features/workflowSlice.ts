@@ -32,6 +32,7 @@ const createStep = (subSteps: string[], locked = true): StepState => ({
 const initialState: WorkflowState = {
   enableProctoring: false,
   modalOpen: false,
+  isDisqualified: false,
   activeStep: 'screenShare',
   steps: {
     screenShare: createStep(['screenShare'], false),
@@ -250,6 +251,10 @@ const workflowSlice = createSlice({
       state.onWorkflowComplete = action.payload;
     },
 
+    setIsDisqualified(state, action: PayloadAction<boolean>) {
+      state.isDisqualified = action.payload;
+    },
+
     resetAll: () => initialState,
   },
 });
@@ -269,7 +274,8 @@ export const {
   setEnableProctoring,
   setOnWorkflowComplete,
   setActiveSubStep,
-  setStepSetupMode
+  setStepSetupMode,
+  setIsDisqualified,
 } = workflowSlice.actions;
 
 export default workflowSlice.reducer;

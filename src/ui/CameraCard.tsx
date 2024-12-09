@@ -54,7 +54,7 @@ export default function CameraSelector() {
   };
 
   return (
-    <div className='flex flex-col gap-4 items-center w-full max-w-4xl mx-auto'>
+    <div className='flex flex-col gap-4 items-center w-full max-w-5xl mx-auto'>
       <div className='overflow-hidden shadow-lg bg-white w-full pb-6 space-y-6 rounded-2xl'>
         <div className='aspect-video bg-gray-100 rounded-lg flex items-center justify-center'>
           {cameraState.status === 'error' && (

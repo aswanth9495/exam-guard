@@ -45,6 +45,9 @@ export default function CompatibilityModal() {
   const { activeStep, enableProctoring, steps, modalOpen } = useAppSelector(
     (state) => state.workflow,
   );
+  const isDisqualified = useAppSelector(
+    (state) => state.workflow.isDisqualified,
+  );
   const [localModalOpen, setLocalModalOpen] = useState(modalOpen);
   const [showSuccess, setShowSuccess] = useState(false);
   const [timer, setTimer] = useState(3);
@@ -74,7 +77,9 @@ export default function CompatibilityModal() {
 
   useEffect(() => {
     if (!modalOpen && localModalOpen) {
-      setShowSuccess(true);
+      if (!isDisqualified) {
+        setShowSuccess(true);
+      }
 
       const countdown = setInterval(() => {
         setTimer((prev) => {
@@ -90,7 +95,7 @@ export default function CompatibilityModal() {
 
       return () => clearInterval(countdown);
     }
-  }, [modalOpen, localModalOpen]);
+  }, [modalOpen, localModalOpen, isDisqualified]);
 
   return (
     <Modal
@@ -116,7 +121,7 @@ export default function CompatibilityModal() {
             />
           )}
           <div className='grow flex flex-row items-center overflow-hidden'>
-            <div className='flex flex-col justify-center bg-blue-50 p-20 pt-24 m-w-96 w-1/3 h-[calc(100vh-22px)] overflow-y-auto'>
+            <div className='flex flex-col justify-center bg-base-100 p-20 pt-24 m-w-96 w-1/3 h-[calc(100vh-22px)] overflow-y-auto'>
               <div className='h-[80%]'>
                 <CompatibilityModalHeader />
                 <CompatibilityModalStepsScreen step_data={enabledSteps} />

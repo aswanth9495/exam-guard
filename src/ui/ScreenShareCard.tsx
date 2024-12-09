@@ -1,11 +1,13 @@
 import React, { useEffect } from 'react';
+import { AlertTriangle } from 'lucide-react';
+
 import { Button } from '@/ui/Button';
-import { useAppSelector, useAppDispatch } from '@/hooks/reduxhooks';
+import { ERROR_MESSAGES } from '@/constants/screenshot';
 import { setSubStepError, selectSubStep } from '@/store/features/workflowSlice';
 import { screenshareCleanup } from '@/utils/screenshotV2';
-import { AlertTriangle } from 'lucide-react';
 import { selectProctor } from '@/store/features/assessmentInfoSlice';
-import { ERROR_MESSAGES } from '@/constants/screenshot';
+import { useAppSelector, useAppDispatch } from '@/hooks/reduxhooks';
+import ScreenShareMock from '@/assets/images/dummy/screen-share-mock.png';
 
 export default function ScreenShareCard() {
   const dispatch = useAppDispatch();
@@ -34,7 +36,7 @@ export default function ScreenShareCard() {
   };
 
   return (
-    <div className='mt-8 w-full max-w-6xl'>
+    <div className='mt-8 w-full max-w-ful'>
       {screenShareState.status === 'error' && screenShareState.error && (
         <div className='w-full bg-red-100 p-4 rounded-t-2xl flex items-center justify-center gap-2'>
           <AlertTriangle className='w-6 h-6 text-red-500' />
@@ -45,46 +47,57 @@ export default function ScreenShareCard() {
       <div
         className={`${
           screenShareState.status === 'error' ? 'rounded-b-lg' : 'rounded-2xl'
-        } overflow-hidden shadow-lg bg-white shadow-gray-200`}
+        } overflow-hidden shadow-[0px_0px_24px_0px_rgba(0,0,0,0.08)] bg-white p-3`}
       >
         <div className='flex'>
-          <div className='flex-1 p-16'>
+          {screenShareState.status !== 'completed' && (
+            <div className='flex-1 py-16 pl-16 max-w-xl'>
+              <img
+                src={ScreenShareMock}
+                alt='Screen Share Mock'
+                className='w-full object-contain'
+              />
+            </div>
+          )}
+          <div className='flex-1 p-16 grow'>
             <h3 className='text-xl font-semibold mb-2'>
               {screenShareState.status === 'completed'
                 ? 'Screen Sharing Successfully Checked'
-                : 'Check your Screen Share Permissions'}
+                : 'Start Screen Share'}
             </h3>
-            <p className='text-gray-400 mb-6 text-sm'>
-              Screen Sharing is essential to make sure the test is happening in
-              the fair manner
+            <p className='text-base-500 mb-6 text-sm'>
+              {screenShareState.status === 'completed' ? (
+                'Screen Sharing is essential to make sure the assessment is happening in the fair manner'
+              ) : (
+                <>
+                  Click below to begin sharing your entire screen.
+                  <br />
+                  <br />
+                  You will need to set up screen sharing again when your test
+                  begins, as the environment will refresh.
+                </>
+              )}
             </p>
             {screenShareState.status === 'completed' ? (
               <div className='flex items-center justify-between p-4 bg-gray-100 rounded-2xl text-sm'>
                 <span>scaler.com is sharing your screen</span>
                 <div className='flex gap-2'>
-                  <Button
-                    onClick={handleStop}
-                    size='xs'
-                    variant='secondary'
-                  >
+                  <Button onClick={handleStop} size='xs' variant='secondary'>
                     Stop Sharing
                   </Button>
                 </div>
               </div>
             ) : (
               <Button
+                className='text-sm'
                 onClick={handleShare}
-                className='bg-blue-500 text-white'
                 variant='primary'
+                size='lg'
               >
                 Share Entire Screen
               </Button>
             )}
           </div>
-
-          {screenShareState.status !== 'completed' && (
-            <div className='flex-1 bg-gray-200 m-6'></div>
-          )}
         </div>
       </div>
     </div>

@@ -5,6 +5,7 @@ import { evaluateParentStepStatus } from '@/utils/evaluateParentStepStatus';
 import { useAppSelector, useAppDispatch } from '@/hooks/reduxhooks';
 import { setActiveStep } from '@/store/features/workflowSlice';
 import { Step, WorkflowStepKey, Status } from '@/types/workflowTypes';
+import styles from './CompatibilityModalStepsScreen.module.scss';
 
 interface StepItemProps {
   icon: React.ElementType;
@@ -33,12 +34,12 @@ const StepItem: React.FC<StepItemProps> = ({
       <div
         className={`rounded-full p-5 ${
           status === 'completed'
-            ? 'bg-blue-900 text-white'
+            ? 'bg-scaler-900 text-white'
             : status === 'error'
               ? 'bg-red-500 text-white'
               : active
-                ? 'bg-blue-500 text-white'
-                : 'bg-blue-100 text-blue-400'
+                ? 'bg-scaler-500 text-white'
+                : 'bg-scaler-100 text-blue-400'
         }`}
       >
         {status === 'completed' ? (
@@ -49,17 +50,19 @@ const StepItem: React.FC<StepItemProps> = ({
           <Icon className='w-8 h-8' />
         )}
       </div>
-      {!isLast && <div className='w-1.5 h-28 bg-blue-100'></div>}
+      {!isLast && <div className='w-1.5 h-28 bg-scaler-100'></div>}
     </div>
     <div className='md:mt-2'>
-      <div className='text-xs text-gray-400'>STEP {step}</div>
+      <div className={`text-xs text-gray-400 ${styles.stepNumber}`}>
+        STEP {step}
+      </div>
       <div
         className={`text-base ${
           status === 'error'
             ? 'font-bold text-red-500'
             : active
-              ? 'font-bold text-blue-500'
-              : 'font-medium text-gray-700'
+              ? 'font-bold text-scaler-500'
+              : 'font-medium text-base-700'
         }`}
       >
         {title}

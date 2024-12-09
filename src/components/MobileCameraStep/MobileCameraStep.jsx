@@ -127,10 +127,10 @@ const MobileCameraStep = () => {
           activeSubStep,
         ) && (
           <div className='mt-8'>
-            <div className='flex items-center gap-2 mt-16 text-xs'>
+          <div className='flex items-start mt-16 text-xs'>
             <Checkbox
               id='confirm'
-              className='mt-2 mr-2'
+              className='mt-1.5 mr-4 h-4 w-4'
               checked={acknowledged}
               onCheckedChange={handleCheckboxChange}
             />
@@ -142,7 +142,8 @@ const MobileCameraStep = () => {
             </label>
           </div>
           <Button
-          className='mt-8 items-center py-8 px-10'
+            className='mt-8 items-center'
+            size='lg'
             variant='primary'
             disabled={!canProceed}
             onClick={() => dispatch(nextStep())}

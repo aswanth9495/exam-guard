@@ -61,14 +61,13 @@ const DesktopCameraStep = () => {
       <StepHeader
         stepNumber='2'
         title='Desktop/Laptop Camera Permissions'
-        description='Please provide camera permissions to continue, and ensure that it remains enabled throughout the test.'
         status={status}
       />
       <div className='mt-16'>
         <CameraCard />
 
-        <p className='mt-12 text-sm text-black font-semibold text-center'>
-          <Lightbulb className='mb-1 w-6 h-6 inline-block mr-2 text-black font-bold' />
+        <p className='mt-6 text-sm text-base-500 font-semibold text-center'>
+          <Lightbulb className='mb-1 w-6 h-6 inline-block mr-2 text-base-500 font-bold' />
               Need help?{' '}
               <a
                 href='#'
@@ -76,31 +75,33 @@ const DesktopCameraStep = () => {
                   e.preventDefault();
                   setShowGuideModal(true);
                 }}
-                className='text-blue-500 underline'
+                className='text-scaler-500 underline'
               >
                 Click to view
               </a>{' '}
               screen sharing setup guide
         </p>
         {!enableProctoring && (
-          <div className='flex items-center gap-2 mt-16 text-xs'>
+          <div className='flex items-start mt-16 text-xs'>
             <Checkbox
               id='confirm'
-              className='mr-2 h-5 w-5'
+              className='mt-1.5 mr-4 h-4 w-4'
               checked={acknowledged}
               onCheckedChange={handleCheckboxChange}
             />
             <label htmlFor='confirm' className='text-xs text-gray-600'>
-              By clicking on this, you confirm that you have enabled camera
-              access and it will remain enabled throughout the test.
+              By clicking, you confirm that all your compatibility checks have
+              been successful. Failure to maintain them during the test may
+              result in disqualification.
             </label>
           </div>
         )}
         <Button
-          className='mt-8 items-center py-8 px-10'
+          className='mt-8 items-center'
           variant='primary'
           disabled={!canProceed}
           onClick={handleClick}
+          size='lg'
         >
           {enableProctoring ? 'Confirm Settings' : (
             <>
@@ -117,7 +118,7 @@ const DesktopCameraStep = () => {
         title="It looks like you're having trouble accessing your camera"
       >
         <div className='space-y-6'>
-          <p className='text-muted-foreground text-sm'>
+          <p className='text-base-500 text-sm'>
             Refer to the image below for steps to troubleshoot and grant camera
             permissions
           </p>
@@ -126,7 +127,7 @@ const DesktopCameraStep = () => {
           </div>
           <p className='text-sm italic'>
             Need help on sharing camera permissions?{' '}
-            <a href='#' className='text-blue-500 hover:underline'>
+            <a href='#' className='text-scaler-500 hover:underline'>
               Click to view
             </a>{' '}
             setup guide

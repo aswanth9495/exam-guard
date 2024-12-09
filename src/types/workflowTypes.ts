@@ -24,6 +24,7 @@ export interface StepState {
 export interface WorkflowState {
   enableProctoring: boolean;
   modalOpen: boolean;
+  isDisqualified: boolean;
   activeStep: WorkflowStepKey;
   steps: {
     screenShare: StepState;

@@ -52,7 +52,7 @@ export default function SnapshotFailed({ setSwitchModalOpen }) {
 
       {/* Action Button */}
       <Button onClick={() => setSwitchModalOpen(true)}
-        className="w-full max-w-2xl bg-blue-500 hover:bg-blue-600 text-white py-6 rounded-lg text-lg font-medium">
+        className="w-full max-w-2xl bg-scaler-500 hover:bg-blue-600 text-white py-6 rounded-lg text-lg font-medium">
         Scan QR Code Again
         <ArrowRight className="ml-2 h-5 w-5" />
       </Button>

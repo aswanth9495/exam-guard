@@ -32,7 +32,7 @@ const DialogContent = React.forwardRef<
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        'fixed left-[50%] top-[50%] z-[101] grid w-full translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border bg-background p-6 shadow-lg animate-in data-[state=open]:fade-in-90 sm:max-w-lg sm:zoom-in-90',
+        'fixed left-[50%] top-[50%] z-[101] grid w-full translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border bg-background p-6 shadow-lg',
         className,
       )}
       aria-describedby=''

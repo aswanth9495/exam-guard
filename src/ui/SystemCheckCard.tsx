@@ -72,13 +72,13 @@ export default function SystemCheckCard() {
         title: 'System Compatibility',
         description:
           "We'll check your browser settings to ensure the test runs smoothly",
-        icon: <Loader2 className='w-12 h-12 text-blue-500 animate-spin' />,
+        icon: <Loader2 className='w-12 h-12 text-scaler-500 animate-spin' />,
       },
       pending: {
         title: 'System Compatibility',
         description:
           "We'll check your browser settings to ensure the test runs smoothly",
-        icon: <Loader2 className='w-12 h-12 text-blue-500 animate-spin' />,
+        icon: <Loader2 className='w-12 h-12 text-scaler-500 animate-spin' />,
       },
       completed: {
         title: 'System Compatibility',
@@ -105,13 +105,13 @@ export default function SystemCheckCard() {
         title: 'Network Checks : Compatibility',
         description:
           'Checking your network connection to ensure it stays stable during the test.',
-        icon: <Loader2 className='w-12 h-12 text-blue-500 animate-spin' />,
+        icon: <Loader2 className='w-12 h-12 text-scaler-500 animate-spin' />,
       },
       pending: {
         title: 'Network Checks : Compatibility',
         description:
           'Checking your network connection to ensure it stays stable during the test.',
-        icon: <Loader2 className='w-12 h-12 text-blue-500 animate-spin' />,
+        icon: <Loader2 className='w-12 h-12 text-scaler-500 animate-spin' />,
       },
       completed: {
         title: 'Network Checks : Compatibility',
@@ -135,22 +135,22 @@ export default function SystemCheckCard() {
     },
     fullScreenCheck: {
       locked: {
-        title: 'Full Screen Check',
+        title: 'Switch to full screen mode',
         description: 'Ensure you stay in full-screen mode at all times',
-        icon: <Loader2 className='w-12 h-12 text-blue-500 animate-spin' />,
+        icon: <Loader2 className='w-12 h-12 text-scaler-500 animate-spin' />,
       },
       pending: {
-        title: 'Full Screen Check',
+        title: 'Switch to full screen mode',
         description: 'Ensure you stay in full-screen mode at all times',
-        icon: <Loader2 className='w-12 h-12 text-blue-500 animate-spin' />,
+        icon: <Loader2 className='w-12 h-12 text-scaler-500 animate-spin' />,
       },
       completed: {
-        title: 'Full Screen Check',
+        title: 'Switch to full screen mode',
         description: 'Ensure you stay in full-screen mode at all times',
         icon: <CircleCheck className='w-12 h-12 text-white fill-green-600' />,
       },
       error: {
-        title: 'Full Screen Check',
+        title: 'Switch to full screen mode',
         description: 'Ensure you stay in full-screen mode at all times',
         icon: <AlertTriangle className='w-12 h-12 text-red-500' />,
         error: (
@@ -159,13 +159,13 @@ export default function SystemCheckCard() {
           </span>
         ),
         extraUi: (
-          <div className='flex flex-col items-center gap-2'>
-            <span className='text-gray-600 italic'>
-              Press <span className='font-medium'>ENTER KEY</span> or
+          <div className='flex flex-row flex-wrap items-center gap-2 justify-end'>
+            <span className='text-base-200 italic text-sm mr-2G'>
+              Press <span className='font-semibold'>ENTER KEY</span> or
             </span>
             <Button
               variant='outline'
-              className='text-blue-500 border-blue-500 hover:bg-blue-50 hover:text-blue-600 text-sm'
+              className='text-scaler-500 border-blue-500 hover:bg-blue-50 hover:text-blue-600 text-sm'
               onClick={() => proctor?.enableFullScreen()}
             >
               Enter Full Screen Mode
@@ -177,7 +177,7 @@ export default function SystemCheckCard() {
   };
 
   return (
-    <div className='max-w-5xl'>
+    <div className='max-w-full'>
       <section className='flex flex-col rounded-2xl border border-gray-200 bg-white overflow-hidden divide-y divide-gray-200'>
         {Object.entries(COMPATIBILITY_CHECK_DATA).map(
           ([checkId, checkData]) => {

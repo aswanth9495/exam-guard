@@ -11,6 +11,7 @@ import { selectProctor } from '@/store/features/assessmentInfoSlice';
 import { selectStep, selectSubStep } from '@/store/features/workflowSlice';
 import { useAppDispatch, useAppSelector } from '@/hooks/reduxhooks';
 import GuideModal from '@/ui/GuideModal';
+import LightbulbIcon from '@/assets/images/light-bulb.svg';
 import ScreenShareCard from '@/ui/ScreenShareCard';
 import ScreenShareGuide from '@/ui/ScreenShareGuide';
 import StepHeader from '@/ui/StepHeader';
@@ -25,7 +26,7 @@ const ScreenShareStep = () => {
   const screenShareState = useAppSelector((state) =>
     selectSubStep(state, 'screenShare', 'screenShare'),
   );
-  
+
   const [showGuideModal, setShowGuideModal] = useState(false);
 
   const browserInfo: any = useMemo(() => getBrowserInfo(), []);
@@ -59,48 +60,55 @@ const ScreenShareStep = () => {
     <>
       <StepHeader
         stepNumber='1'
-        title='Provide Screen Share Permissions'
-        description='Please provide screen share permissions to continue, and ensure that it remains enabled throughout the test.'
+        title='Test your Screen Share Permissions'
         status={status}
       />
       <div className='mt-16'>
         <ScreenShareCard />
-        <p className='mt-12 text-sm text-black font-semibold text-center'>
-          <Lightbulb className='mb-1 w-6 h-6 inline-block mr-2 text-black font-bold' />
-              Need help?{' '}
-              <a
-                href='#'
-                onClick={(e) => {
-                  e.preventDefault();
-                  setShowGuideModal(true);
-                }}
-                className='text-blue-500 underline'
-              >
-                Click to view
-              </a>{' '}
-              screen sharing setup guide
+        <p className='mt-6 text-sm text-base-500 font-semibold text-center'>
+          <img
+            src={LightbulbIcon}
+            alt='Lightbulb Icon'
+            className='mb-1 w-6 h-6 inline-block mr-2 text-base-500 font-bold'
+          />
+          Need help?{' '}
+          <a
+            href='#'
+            onClick={(e) => {
+              e.preventDefault();
+              setShowGuideModal(true);
+            }}
+            className='text-scaler-500 underline'
+          >
+            Click to view
+          </a>{' '}
+          screen sharing setup guide
         </p>
         {!enableProctoring && (
-          <div className='flex items-center gap-2 mt-16 text-xs'>
+          <div className='flex items-start mt-16 text-xs'>
             <Checkbox
               id='confirm'
-              className='mr-2 h-5 w-5'
+              className='mt-1.5 mr-4 h-4 w-4'
               checked={acknowledged}
               onCheckedChange={handleCheckboxChange}
             />
-            <label htmlFor='confirm' className='text-xs text-gray-600'>
+            <label htmlFor='confirm' className='text-xs text-base-200'>
               By clicking on this, you confirm that you have shared your entire
-              screen and will be shared throughout the test.
+              screen and it will stay connected throughout the test. Failure to
+              do so may result in disqualification
             </label>
           </div>
         )}
         <Button
-          className='mt-8 items-center py-8 px-10'
+          className='mt-8 items-center'
           variant='primary'
           disabled={!canProceed}
           onClick={handleClick}
+          size='lg'
         >
-          {enableProctoring ? 'Confirm Settings' : (
+          {enableProctoring ? (
+            'Confirm Settings'
+          ) : (
             <>
               Proceed to next step
               <ArrowRight className='w-6 h-6' />
@@ -116,8 +124,8 @@ const ScreenShareStep = () => {
         >
           <div className='space-y-6'>
             <p className='text-muted-foreground text-sm'>
-              Refer to the guide below for steps to troubleshoot and grant screen
-              sharing permissions
+              Refer to the guide below for steps to troubleshoot and grant
+              screen sharing permissions
             </p>
             <div className='aspect-[16/9] w-full bg-muted rounded-lg overflow-y-auto p-8 shadow-sm'>
               <ScreenShareGuide browserName={browserInfo?.name} />

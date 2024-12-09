@@ -4,6 +4,7 @@ import {
   setActiveStep,
   setActiveSubStep,
   setModalOpen,
+  setIsDisqualified,
 } from '@/store/features/workflowSlice';
 import { StepState } from '@/types/workflowTypes';
 import { store } from '@/store/store';
@@ -61,7 +62,9 @@ export default class CompatibilityHandlers {
   };
 
   handleDisqualifyUser = () => {
+    store.getState().assessmentInfo?.proctor?.handleCleanup();
     this.dispatch(setModalOpen(false));
+    this.dispatch(setIsDisqualified(true));
   };
 
   handleCompatibilityCheckSuccess = () => {

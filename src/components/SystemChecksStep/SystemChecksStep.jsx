@@ -54,20 +54,19 @@ const SystemChecksStep = () => {
       <StepHeader
         stepNumber='4'
         title='System Compatibility Checks'
-        description='Complete all system checks to ensure your assessment runs smoothly without interruptions'
         status={status}
       />
       <div className='mt-16'>
         <SystemCheckCard />
         {!enableProctoring && (
-          <div className='flex items-center gap-2 mt-16 text-xs'>
+          <div className='flex items-start mt-16 text-xs'>
             <Checkbox
               id='confirm'
-              className='mr-2 h-5 w-5'
+              className='mt-1.5 mr-4 h-4 w-4'
               checked={acknowledged}
               onCheckedChange={handleCheckboxChange}
             />
-            <label htmlFor='confirm' className='text-xs text-gray-600'>
+            <label htmlFor='confirm' className='text-xs text-base-200'>
               By clicking, you confirm that all your compatibility checks
               remains same. Failure to maintain proper setup may result in
               interruption.
@@ -75,8 +74,9 @@ const SystemChecksStep = () => {
           </div>
         )}
         <Button
-          className='mt-8 items-center py-8 px-10'
+          className='mt-8 items-center'
           variant='primary'
+          size='lg'
           disabled={!canProceed}
           onClick={handleClick}
         >

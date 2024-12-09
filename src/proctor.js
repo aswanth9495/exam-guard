@@ -461,12 +461,14 @@ export default class Proctor {
     console.log('%c⧭', 'color: #731d6d', 'Starting Comp checks');
     if (!this.compatibilityCheckConfig.enable) return;
 
-    setTimeout(() => {
+    this.compatibilityCheckInterval = setInterval(() => {
       this.runAdaptiveCompatibilityChecks();
     }, this.compatibilityCheckConfig.frequency);
   }
 
   runAdaptiveCompatibilityChecks() {
+    clearInterval(this.compatibilityCheckInterval);
+
     const start = performance.now();
     // MB (adjust this as per your requirement)
     const { memoryLimit } = this.compatibilityCheckConfig;
@@ -508,11 +510,10 @@ export default class Proctor {
       ? this.compatibilityCheckConfig.frequency
       : this.compatibilityCheckConfig.maxFrequency;
 
-    // Schedule the next check adaptively
-    this.compatibilityCheckTimeout = setTimeout(
-      this.runAdaptiveCompatibilityChecks,
-      delay,
-    );
+    // Set up a new interval with the updated frequency
+    this.compatibilityCheckInterval = setInterval(() => {
+      this.runAdaptiveCompatibilityChecks();
+    }, delay);
   }
 
   handleCompatibilitySuccess(passedChecks) {
@@ -986,5 +987,10 @@ export default class Proctor {
     this.stopCompatibilityChecks();
     screenshareCleanup();
     this.queueManager.cleanup();
+  }
+
+  handleCleanup() {
+    console.log('cleanup');
+    this._cleanup();
   }
 }
