@@ -41,11 +41,24 @@ class ScreenShareMonitor {
       return [false, ERRORS.SCREEN_SHARE_STREAM_ENDED];
     }
 
-    const { displaySurface } = videoTracks[0].getSettings();
+    const settings = videoTracks[0].getSettings();
 
-    if (displaySurface !== ENTIRE_SCREEN_DISPLAY_SURFACE) {
-      this.stopScreenShare();
-      return [false, ERRORS.FULL_MONITOR_NOT_SHARED];
+    if ('displaySurface' in settings) {
+      // For Chromium based browsers
+      if (settings?.displaySurface !== ENTIRE_SCREEN_DISPLAY_SURFACE) {
+        this.stopScreenShare();
+        return [false, ERRORS.FULL_MONITOR_NOT_SHARED];
+      }
+    } else {
+      // For Mozilla based browsers
+      const screenWidth = window.screen.width * window.devicePixelRatio;
+      const screenHeight = window.screen.height * window.devicePixelRatio;
+      const tolerance = 5;
+      if (Math.abs(settings.width - screenWidth) > tolerance
+          || Math.abs(settings.height - screenHeight) > tolerance) {
+        this.stopScreenShare();
+        return [false, ERRORS.FULL_MONITOR_NOT_SHARED];
+      }
     }
 
     return [true, null];
