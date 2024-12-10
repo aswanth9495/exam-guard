@@ -1,35 +1,31 @@
-/**
- * Supported browsers and their minimum versions
- */
+import { BROWSER_NAME } from '@/constants/system';
+
 export const SUPPORTED_BROWSERS = {
-  chrome: { name: 'Chrome', minVersion: 80 },
-  firefox: { name: 'Firefox', minVersion: 78 },
-  edge: { name: 'Edge', minVersion: 80 },
-  opera: { name: 'Opera', minVersion: 70 },
-  safari: { name: 'Safari', minVersion: 14 },
+  chrome: { name: BROWSER_NAME.CHROME, minVersion: 80 },
+  firefox: { name: BROWSER_NAME.FIREFOX, minVersion: 78 },
+  edge: { name: BROWSER_NAME.EDGE, minVersion: 80 },
+  opera: { name: BROWSER_NAME.OPERA, minVersion: 70 },
+  safari: { name: BROWSER_NAME.SAFARI, minVersion: 14 },
 };
 
-/**
- * Detect browser using both feature detection and user agent
- * @returns {Object} Browser information
- */
 export const getBrowserInfo = () => {
+  const ua = navigator.userAgent;
+
   const isOpera = (!!window.opr && !!window.opr.addons)
     || !!window.opera
-    || navigator.userAgent.indexOf(' OPR/') >= 0;
+    || ua.indexOf(' OPR/') >= 0;
 
-  const isFirefox = navigator.userAgent.indexOf('Firefox') !== -1;
+  const isFirefox = ua.indexOf('Firefox') !== -1;
 
-  const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+  const isSafari = /^((?!chrome|android).)*safari/i.test(ua);
 
-  const isEdge = navigator.userAgent.indexOf('Edg') !== -1;
+  const isEdge = ua.indexOf('Edg') !== -1;
 
   const isChrome = !!window.chrome
-    && /Chrome/.test(navigator.userAgent)
+    && /Chrome/.test(ua)
     && !isEdge && !isOpera;
 
-  const ua = navigator.userAgent;
-  let browserName = 'Unknown';
+  let browserName = BROWSER_NAME.UNKNOWN;
   let version = 0;
 
   const extractVersion = (regex) => {
@@ -38,19 +34,19 @@ export const getBrowserInfo = () => {
   };
 
   if (isEdge) {
-    browserName = 'Edge';
+    browserName = BROWSER_NAME.EDGE;
     version = extractVersion(/Edg\/(\d+)/);
   } else if (isFirefox) {
-    browserName = 'Firefox';
+    browserName = BROWSER_NAME.FIREFOX;
     version = extractVersion(/Firefox\/(\d+)/);
   } else if (isOpera) {
-    browserName = 'Opera';
+    browserName = BROWSER_NAME.OPERA;
     version = extractVersion(/OPR\/(\d+)/);
   } else if (isSafari) {
-    browserName = 'Safari';
+    browserName = BROWSER_NAME.SAFARI;
     version = extractVersion(/Version\/(\d+)/);
   } else if (isChrome) {
-    browserName = 'Chrome';
+    browserName = BROWSER_NAME.CHROME;
     version = extractVersion(/Chrome\/(\d+)/);
   }
 

@@ -125,13 +125,6 @@ const DesktopCameraStep = () => {
           <div className='aspect-[16/9] w-full bg-muted rounded-lg overflow-y-auto p-8 shadow-sm'>
             <CameraShareGuide browserName={browserInfo?.name} />
           </div>
-          <p className='text-sm italic'>
-            Need help on sharing camera permissions?{' '}
-            <a href='#' className='text-scaler-500 hover:underline'>
-              Click to view
-            </a>{' '}
-            setup guide
-          </p>
         </div>
       </GuideModal>
       </div>

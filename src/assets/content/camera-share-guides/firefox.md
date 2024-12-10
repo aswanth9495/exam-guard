@@ -1,85 +1,56 @@
-# Firefox Camera Sharing Guide
+### For Firefox Users
 
-## Overview
-Learn how to effectively manage camera sharing in Mozilla Firefox while maintaining privacy and optimal performance.
+#### Step 1:
+In the top-left search bar of your browser, click the settings icon and tap on site settings
 
-## Initial Configuration
 
-### System Setup
-1. Connect and install camera hardware
-2. Install necessary drivers
-3. Verify system recognition
+![safari-site-settings](https://d2beiqkhq929f0.cloudfront.net/public_assets/assets/000/099/698/original/camera_safari_step1.png?1733846008)
 
-### Firefox Permissions
 
-1. **First-Time Setup**
-   - Click the camera indicator in the address bar
-   - Select "Remember this decision"
-   - Choose preferred camera device
 
-2. **Managing Permissions**
-   - Open Firefox menu
-   - Select Preferences/Settings
-   - Navigate to Privacy & Security
-   - Find Camera permissions section
+#### Step 2:
+Locate the Camera option and set it to Allow
 
-## Camera Controls
 
-### Quick Settings
-1. Access from address bar
-2. Select camera source
-3. Adjust video settings
-4. Control permissions
+![safari-site-settings](https://d2beiqkhq929f0.cloudfront.net/public_assets/assets/000/099/699/original/camera_safari_step2.png?1733846169)
 
-### Advanced Options
-- Resolution settings
-- Frame rate control
-- Camera switching
-- Picture settings
+--
 
-### Testing Camera
-1. Visit about:preferences#privacy
-2. Locate camera settings
-3. Use test video feature
-4. Verify camera operation
+#### Still facing problem??
+Please follow the steps mentioned below to enable system-level permissions
 
-## Troubleshooting
 
-### Common Issues
-1. **No Camera Access**
-   - Check Firefox permissions
-   - Verify system settings
-   - Restart Firefox
-   - Update Firefox
+### System Level Fixes
 
-2. **Video Problems**
-   - Check internet speed
-   - Update drivers
-   - Clear Firefox cache
-   - Reset camera settings
+### Mac Os
 
-### Privacy Features
+#### Step 1:
+Select the Apple menu and select System Settings
 
-1. **Permission Management**
-   - Site-specific settings
-   - Temporary permissions
-   - Block list management
-   - Permission indicators
 
-2. **Security Controls**
-   - Camera activity monitoring
-   - Site permission review
-   - Private browsing rules
-   - Permission exceptions
+![safari-site-settings](https://d2beiqkhq929f0.cloudfront.net/public_assets/assets/000/099/700/original/camera_system_step1.png?1733846308)
 
-## Best Practices
-1. Regular permission review
-2. Update Firefox regularly
-3. Monitor camera usage
-4. Use security features
-5. Maintain privacy settings
 
-## Resources
-- Firefox Support
-- Camera Troubleshooting Guide
-- Privacy Documentation
+
+#### Step 2:
+Select Privacy & Security in the sidebar. Select Camera on the right and enable access to camera for your browser in the list
+
+
+![safari-site-settings](https://d2beiqkhq929f0.cloudfront.net/public_assets/assets/000/099/701/original/camera_system_step2.png?1733846340)
+
+
+### Windows
+
+#### Step 1:
+Select the Apple menu and select System Settings
+
+
+![safari-site-settings](https://d2beiqkhq929f0.cloudfront.net/public_assets/assets/000/099/700/original/camera_system_step1.png?1733846308)
+
+
+
+#### Step 2:
+Select Privacy & Security in the sidebar. Select Camera on the right and enable access to camera for your browser in the list
+
+
+![safari-site-settings](https://d2beiqkhq929f0.cloudfront.net/public_assets/assets/000/099/701/original/camera_system_step2.png?1733846340)

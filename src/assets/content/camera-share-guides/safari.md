@@ -1,106 +1,53 @@
-# Safari Camera Sharing Guide
+### For Safari Users
 
-## Overview
-Complete guide for managing camera access in Safari on macOS and iOS devices.
+#### Step 1:
+In the top-left search bar of your browser, click the settings icon and tap on site settings
 
-## Initial Setup
 
-### System Requirements
-1. **macOS**
-   - Check System Preferences
-   - Enable camera access
-   - Review app permissions
+![safari-site-settings](https://d2beiqkhq929f0.cloudfront.net/public_assets/assets/000/099/698/original/camera_safari_step1.png?1733846008)
 
-2. **iOS**
-   - Check Settings
-   - Review Safari permissions
-   - Enable camera access
 
-### Safari Settings
 
-1. **Permission Setup**
-   - Click camera icon in address bar
-   - Allow camera access
-   - Choose camera device
+#### Step 2:
+Locate the Camera option and set it to Allow
 
-2. **Managing Access**
-   - Safari Preferences
-   - Privacy section
-   - Websites tab
-   - Camera permissions
 
-## Using Your Camera
+![safari-site-settings](https://d2beiqkhq929f0.cloudfront.net/public_assets/assets/000/099/699/original/camera_safari_step2.png?1733846169)
 
-### Quick Controls
-1. Camera icon in address bar
-2. Device selection
-3. Permission toggle
-4. Quick settings
+--
 
-### Advanced Features
-- Quality settings
-- Device switching
-- Background blur (supported sites)
-- Light adjustment
+#### Still facing problem??
+Please follow the steps mentioned below to enable system-level permissions
 
-## iOS-Specific Features
 
-### Mobile Controls
-1. Camera access prompt
-2. Permission settings
-3. Website settings
-4. Quick toggles
+### System Level Fixes
 
-### iOS Settings
-- Safari camera access
-- Website settings
-- Privacy controls
-- Permission management
+#### Step 1:
+Select the Apple menu and select System Settings
 
-## Troubleshooting
 
-### Desktop Issues
-1. **Camera Access**
+![safari-site-settings](https://d2beiqkhq929f0.cloudfront.net/public_assets/assets/000/099/700/original/camera_system_step1.png?1733846308)
+
+
+
+#### Step 2:
+Select Privacy & Security in the sidebar. Select Camera on the right and enable access to camera for your browser in the list
+
+
+![safari-site-settings](https://d2beiqkhq929f0.cloudfront.net/public_assets/assets/000/099/701/original/camera_system_step2.png?1733846340)
+
+---
+
+### Troubleshooting
+
+#### Camera Access
    - Check System Preferences
    - Verify Safari settings
    - Reset permissions
    - Update macOS
 
-2. **Video Quality**
+#### Video Quality
    - Check internet connection
    - Verify camera settings
    - Update Safari
    - Reset camera
-
-### iOS Problems
-1. **Permission Issues**
-   - Check iOS settings
-   - Reset Safari settings
-   - Update iOS
-   - Review site permissions
-
-## Privacy & Security
-
-### Privacy Features
-1. Intelligent Tracking Prevention
-2. Per-site permissions
-3. Camera indicators
-4. Access monitoring
-
-### Security Best Practices
-1. Regular permission review
-2. Site verification
-3. Private browsing considerations
-4. Permission maintenance
-
-## Additional Resources
-- Safari User Guide
-- Apple Support
-- Privacy Documentation
-- iOS User Guide
-
-## macOS-Specific Settings
-1. System Preferences setup
-2. Camera permissions
-3. App access control
-4. Security settings
