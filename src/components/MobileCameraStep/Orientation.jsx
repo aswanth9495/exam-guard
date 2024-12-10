@@ -18,6 +18,7 @@ import { nextSubStep, selectStep, setStepSetupMode } from '@/store/features/work
 import styles from './MobileCameraStep.module.scss';
 import { useAppSelector } from '@/hooks/reduxhooks';
 import SnapshotFailed from './SnapshotFailed';
+import Carousel from '@/ui/Carousel';
 
 function Orientation({
   className, setSwitchModalOpen,
@@ -85,8 +86,13 @@ function Orientation({
 
   return (
     <div className="flex flex-col">
+      <section className="py-4 px-10 text-xs text-center bg-[#E6F2FF] absolute top-0 left-0 w-full font-bold">
+        {snapShotCount === MIN_SNAPSHOT_COUNT ? 'Snapshots Collected !'
+          : 'Capturing 3 Mandatory snapshots in progress...' }
+      </section>
       <div className={classNames(
         styles.orientationContainer,
+        'mt-10',
         { [className]: className },
       )}>
         <section className={styles.snapshotPreviewContainer}>
@@ -104,55 +110,26 @@ function Orientation({
             </div>
           </div>
          <div className="flex flex-col text-center mt-4">
-              <ProgressBar progress={(snapShotCount / MIN_SNAPSHOT_COUNT) * 100}/>
-              <span className="text-xs mt-2 text-gray-500">
-                {snapShotCount === MIN_SNAPSHOT_COUNT ? (<> Snapshots Collected !</>)
-                  : (<>Collecting snapshot
-                 {' '}
-                {parseInt((snapShotCount / MIN_SNAPSHOT_COUNT) * 100, 10)}%</>) }
-              </span>
-              {<div className="text-xs text-gray-500 mt-2">
-                Auto fetching image in {countdown} seconds...
-              </div>}
+            <div className="text-xs text-gray-500 mt-2">
+              Auto fetching image in {countdown} seconds...
+            </div>
           </div>
         </section>
-        <section className={styles.orientationInstructionsContainer}>
-          <article className={styles.orientationInstructions}>
-            <heading className={styles.orientationInstructionHeading}>
-              Instructions :
-            </heading>
-            <ul className={styles.orientationInstructionPoints}>
-              <li>Place your mobile device on a stable surface</li>
-              <li>
-                You can choose a landscape or portrait orientation,
-                but make sure that your desktop, your hands and the workspace
-                are clearly visible
-              </li>
-              <li>
-                Please ensure adequate lighting in the surroundings
-              </li>
-            </ul>
-          </article>
-          <section className={styles.referenceImageList}>
-            <ReferenceImage
-              className={styles.referenceImage}
-              imageSrc="https://d2beiqkhq929f0.cloudfront.net/public_assets/assets/000/097/334/original/Iterations_Video.png?1732454276"
-              failed={false}
-              description="Straight face"
-            />
-            <ReferenceImage
-              className={styles.referenceImage}
-              imageSrc="https://d2beiqkhq929f0.cloudfront.net/public_assets/assets/000/097/334/original/Iterations_Video.png?1732454276"
-              failed={true}
-              description="Blurred Image"
-            />
-            <ReferenceImage
-              className={styles.referenceImage}
-              imageSrc="https://d2beiqkhq929f0.cloudfront.net/public_assets/assets/000/097/334/original/Iterations_Video.png?1732454276"
-              failed={true}
-              description="Workspace not captured"
-            />
-          </section>
+        <section className={styles.referenceImageContainer}>
+          <Carousel items={[
+            {
+              image: 'https://d2beiqkhq929f0.cloudfront.net/public_assets/assets/000/099/601/original/Dec_10_Screenshot_Rounded_Corner.png?1733823148',
+              text: 'Position phone against a strong surface',
+            },
+            {
+              image: 'https://d2beiqkhq929f0.cloudfront.net/public_assets/assets/000/099/593/original/Iterations_Image_4936.png?1733821016',
+              text: 'Adjust and verify your phone basis snapshot',
+            },
+            {
+              image: 'https://d2beiqkhq929f0.cloudfront.net/public_assets/assets/000/099/594/original/IMG_4940_1.png?1733821035',
+              text: 'Once ready, click on proceed',
+            },
+          ]}/>
         </section>
       </div>
       <div className="mt-16">

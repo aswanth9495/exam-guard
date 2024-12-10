@@ -7,7 +7,7 @@ $snapshot-preview-bg-color: #F4F6F9;
 .pairingContainer {
   display: flex;
   align-items: center;
-  justify-content: space-evenly;
+  justify-content: space-between;
   overflow-x: auto;
 }
 
@@ -142,10 +142,7 @@ $snapshot-preview-bg-color: #F4F6F9;
   flex-direction: column;
   flex: 1;
   padding-right: 2.4rem;
-}
-
-.orientationInstructionsContainer {
-  flex: 1;
+  margin-top: 2rem;
 }
 
 .referenceImage {
@@ -162,19 +159,23 @@ $snapshot-preview-bg-color: #F4F6F9;
   list-style: disc !important;
   padding-left: 2rem !important;
   padding-top: 0.5rem !important;
-  font-style: italic;
   color: $grey-text-color;
   font-size: 1.2rem;
+  line-height: 2.2rem;
 }
 
 .orientationInstructionHeading {
-  font-style: italic;
   font-size: 1.4rem;
-  font-weight: bold;
+  font-weight: 600;
+  font-style: italic;
 }
 
 .referenceImageList {
   display: flex;
+}
+
+.referenceImageContainer {
+  flex: 1;
 }
 
 

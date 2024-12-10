@@ -91,9 +91,28 @@ function Pairing({ className }) {
           </section>
         </section>
       </div>
-      <div className={styles.demo}>
-        <img src="https://placehold.jp/560x177.png" alt="gif"></img>
-      </div>
+      <section className="mt-10">
+          <article className={styles.orientationInstructions}>
+            <heading className={styles.orientationInstructionHeading}>
+              Instructions :
+            </heading>
+            <ul className={styles.orientationInstructionPoints}>
+              <li>Scan the QR code using your Android/iOS device
+               or use the link to open it on your mobile phone.</li>
+              <li>
+                Tap the link to open it in your default
+                browser and follow the instructions to grant camera access
+              </li>
+              <li>
+                Place your mobile device on a stable surface.
+              </li>
+              <li>
+                Choose landscape or portrait orientation, ensuring your desktop,
+                 hands, and workspace are clearly visible with proper lighting.
+              </li>
+            </ul>
+          </article>
+        </section>
     </div>
   );
 }
