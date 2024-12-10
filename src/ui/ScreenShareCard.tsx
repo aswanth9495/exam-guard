@@ -7,7 +7,6 @@ import { setSubStepError, selectSubStep } from '@/store/features/workflowSlice';
 import { screenshareCleanup } from '@/utils/screenshotV2';
 import { selectProctor } from '@/store/features/assessmentInfoSlice';
 import { useAppSelector, useAppDispatch } from '@/hooks/reduxhooks';
-import ScreenShareMock from '@/assets/images/dummy/screen-share-mock.png';
 
 export default function ScreenShareCard() {
   const dispatch = useAppDispatch();
@@ -53,7 +52,7 @@ export default function ScreenShareCard() {
           {screenShareState.status !== 'completed' && (
             <div className='flex-1 py-16 pl-16 max-w-xl'>
               <img
-                src={ScreenShareMock}
+                src={'https://d2beiqkhq929f0.cloudfront.net/public_assets/assets/000/099/662/original/screen-share-mock.png?1733837502'}
                 alt='Screen Share Mock'
                 className='w-full object-contain'
               />
