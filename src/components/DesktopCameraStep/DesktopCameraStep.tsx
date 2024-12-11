@@ -5,6 +5,7 @@ import { Button } from '@/ui/Button';
 import { Checkbox } from '@/ui/Checkbox';
 import { evaluateParentStepStatus } from '@/utils/evaluateParentStepStatus';
 import { getBrowserInfo } from '@/utils/browser';
+import { getOperatingSystemInfo } from '@/utils/osInfo';
 import { nextStep, setStepAcknowledged, selectSubStep, selectStep } from '@/store/features/workflowSlice';
 import { selectProctor } from '@/store/features/assessmentInfoSlice';
 import { SubStepState } from '@/types/workflowTypes';
@@ -27,6 +28,7 @@ const DesktopCameraStep = () => {
   );
 
   const browserInfo: any = useMemo(() => getBrowserInfo(), []);
+  const osInfo: any = useMemo(() => getOperatingSystemInfo(), []);
 
   const [showGuideModal, setShowGuideModal] = useState(false);
 
@@ -123,15 +125,8 @@ const DesktopCameraStep = () => {
             permissions
           </p>
           <div className='aspect-[16/9] w-full bg-muted rounded-lg overflow-y-auto p-8 shadow-sm'>
-            <CameraShareGuide browserName={browserInfo?.name} />
+            <CameraShareGuide browserName={browserInfo?.name} osName={osInfo?.osName} />
           </div>
-          <p className='text-sm italic'>
-            Need help on sharing camera permissions?{' '}
-            <a href='#' className='text-scaler-500 hover:underline'>
-              Click to view
-            </a>{' '}
-            setup guide
-          </p>
         </div>
       </GuideModal>
       </div>

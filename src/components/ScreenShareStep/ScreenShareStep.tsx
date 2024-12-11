@@ -4,7 +4,6 @@ import { ArrowRight, Lightbulb } from 'lucide-react';
 import { Button } from '@/ui/Button';
 import { Checkbox } from '@/ui/Checkbox';
 import { evaluateParentStepStatus } from '@/utils/evaluateParentStepStatus';
-import { getBrowserInfo } from '@/utils/browser';
 import { nextStep, setStepAcknowledged } from '@/store/features/workflowSlice';
 import { SubStepState } from '@/types/workflowTypes';
 import { selectProctor } from '@/store/features/assessmentInfoSlice';
@@ -28,8 +27,6 @@ const ScreenShareStep = () => {
   );
 
   const [showGuideModal, setShowGuideModal] = useState(false);
-
-  const browserInfo: any = useMemo(() => getBrowserInfo(), []);
 
   const handleCheckboxChange = () => {
     dispatch(
@@ -128,7 +125,7 @@ const ScreenShareStep = () => {
               screen sharing permissions
             </p>
             <div className='aspect-[16/9] w-full bg-muted rounded-lg overflow-y-auto p-8 shadow-sm'>
-              <ScreenShareGuide browserName={browserInfo?.name} />
+              <ScreenShareGuide />
             </div>
           </div>
         </GuideModal>
