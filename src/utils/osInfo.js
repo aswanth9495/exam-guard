@@ -18,5 +18,5 @@ export const getOperatingSystemInfo = () => {
 
   const os = getOS();
 
-  return os;
+  return { osName: os };
 };

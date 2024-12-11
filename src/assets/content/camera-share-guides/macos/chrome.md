@@ -1,10 +1,10 @@
-### For Safari Users
+### For Chrome Users
 
 #### Step 1:
 In the top-left search bar of your browser, click the settings icon and tap on site settings
 
 
-![safari-site-settings](https://d2beiqkhq929f0.cloudfront.net/public_assets/assets/000/099/698/original/camera_safari_step1.png?1733846008)
+![safari-site-settings](https://d2beiqkhq929f0.cloudfront.net/public_assets/assets/000/099/814/original/chrome_camerea_share_s1.png?1733907349)
 
 
 
@@ -12,7 +12,7 @@ In the top-left search bar of your browser, click the settings icon and tap on s
 Locate the Camera option and set it to Allow
 
 
-![safari-site-settings](https://d2beiqkhq929f0.cloudfront.net/public_assets/assets/000/099/699/original/camera_safari_step2.png?1733846169)
+![safari-site-settings](https://d2beiqkhq929f0.cloudfront.net/public_assets/assets/000/099/815/original/chrome_camera_share_s2.png?1733907392)
 
 --
 
@@ -35,19 +35,3 @@ Select Privacy & Security in the sidebar. Select Camera on the right and enable 
 
 
 ![safari-site-settings](https://d2beiqkhq929f0.cloudfront.net/public_assets/assets/000/099/701/original/camera_system_step2.png?1733846340)
-
----
-
-### Troubleshooting
-
-#### Camera Access
-   - Check System Preferences
-   - Verify Safari settings
-   - Reset permissions
-   - Update macOS
-
-#### Video Quality
-   - Check internet connection
-   - Verify camera settings
-   - Update Safari
-   - Reset camera
