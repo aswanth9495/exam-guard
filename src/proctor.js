@@ -19,18 +19,11 @@ import {
   requestFullScreen,
 } from './utils/fullScreenBlocker';
 import { sendCompatibilityEvents } from './utils/compatibility';
-// import {
-//   hideCompatibilityModal,
-//   setupCompatibilityCheckModal,
-//   showCompatibilityCheckModal,
-// } from './utils/compatibilityModal';
 import { checkBandwidth } from './utils/network';
 import {
-  // screenshareClickHandler,
   screenshareRequestHandler,
   isScreenShareValid,
   screenshareCleanup,
-  // setScreenShareQueueManager,
 } from './utils/screenshotV2';
 import detectBrowserBlur from './utils/violations/browserBlur';
 import detectCopyPasteCut from './utils/violations/copyPasteCut';
@@ -60,9 +53,6 @@ import {
 } from './utils/webcam';
 
 import './assets/styles/alert.scss';
-import './assets/styles/fullScreenBlocker.scss';
-import './assets/styles/compatibility-modal.scss';
-import './assets/styles/webcam-blocker.scss';
 import { checkMobilePairingStatus } from './utils/mobilePairing';
 import { getBrowserInfo } from './utils/browser';
 import { getIndexDbBufferInstance } from './utils/indexDbBuffer';
@@ -99,7 +89,7 @@ export default class Proctor {
       showAlert: enableAllAlerts,
       frequency: 10000,
       maxFrequency: 60000,
-      cpuThreshold: 30, // Common CPU threshold in case of network latency test
+      cpuThreshold: 30,
       disqualificationTimeout: 45000,
       memoryLimit: 200,
       showTimer: true,
@@ -341,23 +331,8 @@ export default class Proctor {
         networkCheckInterval: 5000,
       },
     );
-    // setScreenShareQueueManager(this.queueManager);
-    // setupCompatibilityCheckModal(
-    //   () => {
-    //     this.runCompatibilityChecks(
-    //       this.handleCompatibilitySuccess.bind(this),
-    //       this.handleCompatibilityFailure.bind(this),
-    //     );
-    //     if (this.proctoringInitialised && !isFullScreen()) {
-    //       requestFullScreen();
-    //     }
-    //   },
-    //   { ...this.compatibilityCheckConfig, mockModeEnabled },
-    // );
-
-    // if (this.screenshotConfig.enabled) {
-    //   this.handleScreenshareClick();
-    // }
+    this.screenshotIntervalId = null;
+    this.snapshotIntervalId = null;
   }
 
   async initializeProctoring() {
@@ -466,8 +441,6 @@ export default class Proctor {
   }
 
   runAdaptiveCompatibilityChecks() {
-    clearInterval(this.compatibilityCheckInterval);
-
     const start = performance.now();
     // MB (adjust this as per your requirement)
     const { memoryLimit } = this.compatibilityCheckConfig;
@@ -476,8 +449,6 @@ export default class Proctor {
     const memoryUsage = window.performance && window.performance.memory
       ? window.performance.memory.usedJSHeapSize / 1024 / 1024 // in MB
       : 0; // If memory data is not available, assume 0 (safe fallback)
-
-    console.log('%c%s', 'color: #ff2525', 'Memory Usage (in MB):', memoryUsage);
 
     if (memoryUsage < memoryLimit) {
       // Run compatibility checks (e.g., webcam, network speed, etc.)
@@ -759,12 +730,13 @@ export default class Proctor {
   }
 
   handleWebcamEnabled() {
-    setupSnapshotCapture({
-      onSnapshotSuccess: this.handleSnapshotSuccess.bind(this),
-      onSnapshotFailure: this.handleSnapshotFailure.bind(this),
-      frequency: this.snapshotConfig.frequency,
-      resizeDimensions: this.snapshotConfig.resizeTo,
-    });
+    if (this.proctoringInitialised) {
+      this.snapshotIntervalId = setupSnapshotCapture({
+        onSnapshotFailure: this.handleSnapshotFailure.bind(this),
+        frequency: this.snapshotConfig.frequency,
+        resizeDimensions: this.snapshotConfig.resizeTo,
+      });
+    }
 
     this.callbacks.onWebcamEnabled();
   }
@@ -787,20 +759,8 @@ export default class Proctor {
     this.callbacks.onScreenshotSuccess({ blob });
   }
 
-  handleSnapshotSuccess({ blob }) {
-    this.callbacks.onSnapshotSuccess({ blob });
-  }
-
-  // handleScreenshareClick() {
-  //   screenshareClickHandler.bind(this)({
-  //     onClick: () => {
-  //       screenshareRequestHandler.bind(this)();
-  //     },
-  //   });
-  // }
-
-  async handleScreenshareRequest() {
-    await screenshareRequestHandler.bind(this)();
+  async handleScreenshareRequest({ disableScreenshot } = {}) {
+    await screenshareRequestHandler.bind(this)({ disableScreenshot });
   }
 
   handleWebcamRequest() {
@@ -986,6 +946,7 @@ export default class Proctor {
     this.stopCompatibilityChecks();
     screenshareCleanup();
     this.queueManager.cleanup();
+    clearInterval(this.snapshotIntervalId);
   }
 
   handleCleanup() {

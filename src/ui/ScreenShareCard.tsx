@@ -14,10 +14,13 @@ export default function ScreenShareCard() {
   const screenShareState = useAppSelector((state) =>
     selectSubStep(state, 'screenShare', 'screenShare'),
   );
+  const { enableProctoring } = useAppSelector((state) => state.workflow);
 
   const handleShare = async () => {
     try {
-      await proctor?.handleScreenshareRequest();
+      await proctor?.handleScreenshareRequest({ 
+        disableScreenshot: !enableProctoring,
+       });
     } catch (error) {
       console.error('Error initiating screen share:', error);
     }

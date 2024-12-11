@@ -19,7 +19,7 @@ import Orientation from './Orientation';
 import Pairing from './Pairing';
 import StepHeader from '@/ui/StepHeader';
 import SwitchPhoneModal from './SwitchPhoneModal';
-import { useGetPollingDataQuery } from '@/services/mobilePairingService';
+import mobilePairingService, { useGetPollingDataQuery } from '@/services/mobilePairingService';
 import { selectProctor } from '@/store/features/assessmentInfoSlice';
 
 const MobileCameraStep = () => {
@@ -29,13 +29,14 @@ const MobileCameraStep = () => {
   } = useAppSelector((state) => (
     selectStep(state, 'mobileCameraShare')
   ));
+  const { modalOpen } = useAppSelector((state) => state.workflow);
 
   const [isSwitchModalOpen, setSwitchModalOpen] = useState(false);
   const { enableProctoring } = useAppSelector((state) => state.workflow);
   const proctor = useAppSelector((state) => selectProctor(state));
   const pollingPayload = proctor?.mobilePairingConfig?.defaultPayload || {};
   const pollingEndpoint = proctor?.mobilePairingConfig?.endpoint || {};
-  const { data, refetch } = useGetPollingDataQuery({
+  const { data } = useGetPollingDataQuery({
     endpoint: pollingEndpoint,
     payload: pollingPayload,
   });
@@ -44,17 +45,18 @@ const MobileCameraStep = () => {
     (step) => step.status === 'completed',
   );
 
-  useEffect(() => {
-  // Refetch data on page load
-    refetch();
-  }, [refetch]);
-
   useEffect(() => () => {
-    dispatch(setStepSetupMode({
-      step: 'mobileCameraShare',
-      setupMode: false,
-    }));
+    dispatch(mobilePairingService.util.resetApiState());
   }, [dispatch]);
+
+  useEffect(() => {
+    if (!modalOpen) {
+      dispatch(setStepSetupMode({
+        step: 'mobileCameraShare',
+        setupMode: false,
+      }));
+    }
+  }, [modalOpen, dispatch]);
 
   useEffect(() => {
     /* If data.success then go to the last step */

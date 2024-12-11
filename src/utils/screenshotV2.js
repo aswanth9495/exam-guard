@@ -306,44 +306,6 @@ export async function isScreenShareValid({ onSuccess, onFailure }) {
   return [success, error];
 }
 
-// async function setupScreenshotCaptureFromScreenShare({
-//   onScreenShareEnabled,
-//   onScreenShareFailure,
-//   onScreenShareEnd,
-//   onScreenshotSuccess,
-//   onScreenshotFailure,
-//   frequency,
-//   resizeDimensions,
-// }) {
-//   const [success] = await isScreenShareValid({});
-//   console.error('isScreenShareValid', success);
-//   if (success) return;
-
-//   try {
-//     const resp = await screenShareMonitor.requestScreenShare({
-//       onSuccess: onScreenShareEnabled,
-//       onFailure: onScreenShareFailure,
-//       onEnd: onScreenShareEnd,
-//     });
-
-//     if (!resp) return;
-//     if (!screenShareMonitor.isScreenShareValid()) {
-//       throw Error('Screenshare not valid');
-//     }
-
-//     onScreenShareEnabled?.();
-
-//     screenShareMonitor.startScreenshotCapture({
-//       onSuccess: onScreenshotSuccess,
-//       onFailure: onScreenshotFailure,
-//       interval: frequency,
-//       resizeDimensions,
-//     });
-//   } catch (error) {
-//     onScreenShareFailure?.();
-//   }
-// }
-
 async function setupScreenshotCaptureFromScreenShareNew({
   onScreenShareEnabled,
   onScreenShareFailure,
@@ -352,12 +314,12 @@ async function setupScreenshotCaptureFromScreenShareNew({
   onScreenshotFailure,
   frequency,
   resizeDimensions,
+  disableScreenshot,
 }) {
   const [success] = await isScreenShareValid({});
   if (success) return;
 
   try {
-    console.log('requesting screen share');
     const resp = await screenShareMonitor.requestScreenShare({
       onSuccess: onScreenShareEnabled,
       onFailure: onScreenShareFailure,
@@ -374,18 +336,20 @@ async function setupScreenshotCaptureFromScreenShareNew({
 
     onScreenShareEnabled?.();
 
-    screenShareMonitor.startScreenshotCapture({
-      onSuccess: onScreenshotSuccess,
-      onFailure: onScreenshotFailure,
-      interval: frequency,
-      resizeDimensions,
-    });
+    if (!disableScreenshot) {
+      screenShareMonitor.startScreenshotCapture({
+        onSuccess: onScreenshotSuccess,
+        onFailure: onScreenshotFailure,
+        interval: frequency,
+        resizeDimensions,
+      });
+    }
   } catch (error) {
     onScreenShareFailure?.();
   }
 }
 
-export async function screenshareRequestHandler() {
+export async function screenshareRequestHandler({ disableScreenshot = false }) {
   // Update this to use the new setupScreenshotCaptureFromScreenShareNew
   await setupScreenshotCaptureFromScreenShareNew({
     onScreenShareEnabled: this.handleScreenShareSuccess.bind(this),
@@ -395,17 +359,9 @@ export async function screenshareRequestHandler() {
     onScreenshotFailure: this.handleScreenshotFailure.bind(this),
     frequency: this.screenshotConfig.frequency,
     resizeDimensions: this.screenshotConfig.resizeTo,
+    disableScreenshot,
   });
 }
-
-// export function screenshareClickHandler({ onClick }) {
-//   const fullscreenShareButton = document.getElementById(
-//     'fullscreen-share-button',
-//   );
-//   fullscreenShareButton.addEventListener('click', () => {
-//     onClick();
-//   });
-// }
 
 export function screenshareCleanup() {
   screenShareMonitor.stopScreenShare();

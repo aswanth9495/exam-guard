@@ -80,7 +80,7 @@ export interface ProctorConfig {
 export interface Proctor {
   initializeProctoring(): Promise<void>;
   enableFullScreen(): void;
-  handleScreenshareRequest(): Promise<void>;
+  handleScreenshareRequest({ disableScreenshot }: { disableScreenshot: boolean }): Promise<void>;
   handleCompatibilityChecks({ forceRun }: { forceRun: boolean }): void;
   handleWebcamRequest(): Promise<void>;
   handleScreenshareStop(): void;
