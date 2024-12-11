@@ -458,10 +458,9 @@ export default class Proctor {
   }
 
   startCompatibilityChecks() {
-    console.log('%c⧭', 'color: #731d6d', 'Starting Comp checks');
     if (!this.compatibilityCheckConfig.enable) return;
 
-    this.compatibilityCheckInterval = setInterval(() => {
+    this.compatibilityCheckInterval = setTimeout(() => {
       this.runAdaptiveCompatibilityChecks();
     }, this.compatibilityCheckConfig.frequency);
   }
@@ -511,7 +510,7 @@ export default class Proctor {
       : this.compatibilityCheckConfig.maxFrequency;
 
     // Set up a new interval with the updated frequency
-    this.compatibilityCheckInterval = setInterval(() => {
+    this.compatibilityCheckInterval = setTimeout(() => {
       this.runAdaptiveCompatibilityChecks();
     }, delay);
   }
