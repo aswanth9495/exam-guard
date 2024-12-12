@@ -348,10 +348,24 @@ export default class Proctor {
         csrfToken: this.headerOptions.csrfToken,
       },
     });
+
+    this.networkCheckInterval = null;
+    this.lastNetworkCheckResult = null;
+    this.NETWORK_CHECK_FREQUENCY = 30000; // 30 seconds
+    this.webcamStatus = {
+      isEnabled: false,
+      error: null,
+    };
   }
 
   async initializeProctoring() {
     this.proctoringInitialised = true;
+
+    // TODO: Enable network check once confident
+    // Start periodic network checks if needed for screenshots or snapshots
+    // if (this.screenshotConfig.enabled || this.snapshotConfig.enabled) {
+    //   this.startPeriodicNetworkCheck();
+    // }
 
     if (this.screenshotConfig.enabled) {
       await this.handleScreenshareRequest();
@@ -572,16 +586,12 @@ export default class Proctor {
     // Webcam check
     if (compatibilityChecks.webcam) {
       const webcamCheck = new Promise((resolve, reject) => {
-        detectWebcam({
-          onWebcamDisabled: () => {
-            // eslint-disable-next-line prefer-promise-reject-errors
-            reject('webcam');
-          },
-          onWebcamEnabled: () => {
-            passedChecks.webcam = true; // Update passed checks
-            resolve('webcam');
-          },
-        });
+        if (this.webcamStatus.isEnabled) {
+          passedChecks.webcam = true;
+          resolve('webcam');
+        } else {
+          reject('webcam');
+        }
       });
       compatibilityPromises.push(webcamCheck);
     }
@@ -601,17 +611,34 @@ export default class Proctor {
 
     // Network speed check
     if (compatibilityChecks.networkSpeed) {
-      const networkCheck = checkBandwidth()
-        .then((isLowBandwidth) => {
-          if (isLowBandwidth) {
-            // eslint-disable-next-line prefer-promise-reject-errors
-            return Promise.reject('network_speed');
-          }
-          passedChecks.networkSpeed = true; // Update passed checks
-          return 'network_speed';
-        })
-        // eslint-disable-next-line prefer-promise-reject-errors
-        .catch(() => Promise.reject('network_speed'));
+      const networkCheck = new Promise((resolve, reject) => {
+        // Use the stored network check result if available
+        // if (this.lastNetworkCheckResult !== null) {
+        //   if (this.lastNetworkCheckResult) {
+        //     passedChecks.networkSpeed = true;
+        //     resolve('network_speed');
+        //   } else {
+        //     reject('network_speed');
+        //   }
+        // } else {
+        //   // Fall back to running a check if no stored result
+        //   checkBandwidth()
+        //     .then((isLowBandwidth) => {
+        //       if (isLowBandwidth) {
+        //         reject('network_speed');
+        //       } else {
+        //         passedChecks.networkSpeed = true;
+        //         resolve('network_speed');
+        //       }
+        //     })
+        //     .catch(() => reject('network_speed'));
+        // }
+        if (compatibilityChecks.networkSpeed) {
+          resolve('network_speed');
+        } else {
+          reject('network_speed');
+        }
+      });
 
       compatibilityPromises.push(networkCheck);
     }
@@ -712,6 +739,10 @@ export default class Proctor {
   }
 
   handleWebcamDisabled({ error }) {
+    this.webcamStatus = {
+      isEnabled: false,
+      error,
+    };
     this.callbacks.onWebcamDisabled({ error });
   }
 
@@ -720,6 +751,9 @@ export default class Proctor {
   }
 
   handleWebcamEnabled() {
+    this.webcamStatus.isEnabled = true;
+    this.webcamStatus.error = null;
+
     if (this.proctoringInitialised) {
       this.snapshotIntervalId = setupSnapshotCapture({
         onSnapshotFailure: this.handleSnapshotFailure.bind(this),
@@ -902,6 +936,11 @@ export default class Proctor {
     screenshareCleanup();
     this.queueManager.cleanup();
     clearInterval(this.snapshotIntervalId);
+
+    if (this.networkCheckInterval) {
+      clearInterval(this.networkCheckInterval);
+      this.networkCheckInterval = null;
+    }
   }
 
   handleCleanup() {
@@ -924,6 +963,27 @@ export default class Proctor {
         break;
       default:
         break;
+    }
+  }
+
+  startPeriodicNetworkCheck() {
+    // Run initial check
+    this.runNetworkCheck();
+
+    // Set up interval
+    this.networkCheckInterval = setInterval(() => {
+      this.runNetworkCheck();
+    }, this.NETWORK_CHECK_FREQUENCY);
+  }
+
+  async runNetworkCheck() {
+    try {
+      const isLowBandwidth = await checkBandwidth();
+      this.lastNetworkCheckResult = !isLowBandwidth; // true if network is good
+      console.log('Network check result:', this.lastNetworkCheckResult);
+    } catch (error) {
+      this.lastNetworkCheckResult = false;
+      console.warn('Network check failed:', error);
     }
   }
 }
