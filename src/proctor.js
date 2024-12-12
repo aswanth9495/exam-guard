@@ -1,4 +1,5 @@
 /* eslint-disable prefer-promise-reject-errors */
+import 'remote-web-worker';
 import { setupAlert, showViolationWarning, closeModal } from './utils/alert';
 import {
   DEFAULT_SCREENSHOT_RESIZE_OPTIONS,
@@ -70,9 +71,9 @@ export default class Proctor {
     callbacks = {},
     enableAllAlerts = false,
     headerOptions = {},
-    // mockModeEnabled = false,
     mobilePairingConfig = {},
     qrCodeConfig = {},
+    workerConfig = {},
   }) {
     this.baseUrl = baseUrl;
     this.eventsConfig = {
@@ -334,7 +335,18 @@ export default class Proctor {
     );
     this.screenshotIntervalId = null;
     this.snapshotIntervalId = null;
-    this.violationWorker = new ViolationWorker();
+
+    this.workerConfig = {
+      violationWorkerUrl: null,
+      compatibilityWorkerUrl: null,
+      ...workerConfig,
+    };
+
+    // Initialize workers based on config
+    this.violationWorker = this.workerConfig.violationWorkerUrl
+      ? new Worker(this.workerConfig.violationWorkerUrl, { type: 'classic' })
+      : new ViolationWorker();
+
     this.violationWorker.addEventListener('message', this.handleWorkerMessage.bind(this));
 
     // Initialize worker with config
@@ -356,7 +368,11 @@ export default class Proctor {
       isEnabled: false,
       error: null,
     };
-    this.compatibilityWorker = new CompatibilityWorker();
+
+    // Initialize compatibility worker based on config
+    this.compatibilityWorker = this.workerConfig.compatibilityWorkerUrl
+      ? new Worker(this.workerConfig.compatibilityWorkerUrl, { type: 'classic' })
+      : new CompatibilityWorker();
 
     // Initialize worker with config
     this.compatibilityWorker.postMessage({
