@@ -16,8 +16,13 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.worker\.js$/, // Match worker files
-        use: { loader: 'worker-loader' },
+        test: /\.worker\.js$/,
+        use: {
+          loader: 'worker-loader',
+          options: {
+            filename: '[name].js',
+          },
+        },
       },
       {
         test: /\.(ts|tsx)$/,
@@ -97,13 +102,6 @@ module.exports = {
       {
         test: /\.css$/,
         use: ['style-loader', 'css-loader', 'postcss-loader'],
-      },
-      {
-        test: /\.(woff|woff2|eot|ttf|otf)$/,
-        type: 'asset/resource',
-        generator: {
-          filename: 'fonts/[name][hash][ext]',
-        },
       },
       {
         test: /\.md$/,
