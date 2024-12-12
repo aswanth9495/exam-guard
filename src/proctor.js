@@ -56,6 +56,7 @@ import './assets/styles/alert.scss';
 import { checkMobilePairingStatus } from './utils/mobilePairing';
 import { getBrowserInfo } from './utils/browser';
 import { getIndexDbBufferInstance } from './utils/indexDbBuffer';
+import ViolationWorker from './workers/violation.worker';
 
 export default class Proctor {
   constructor({
@@ -333,6 +334,20 @@ export default class Proctor {
     );
     this.screenshotIntervalId = null;
     this.snapshotIntervalId = null;
+    this.violationWorker = new ViolationWorker();
+    this.violationWorker.addEventListener('message', this.handleWorkerMessage.bind(this));
+
+    // Initialize worker with config
+    this.violationWorker.postMessage({
+      type: 'INIT',
+      data: {
+        baseUrl: this.baseUrl,
+        endpoint: this.eventsConfig.endpoint,
+        maxEventsBeforeSend: this.eventsConfig.maxEventsBeforeSend,
+        contentType: this.headerOptions.contentType,
+        csrfToken: this.headerOptions.csrfToken,
+      },
+    });
   }
 
   async initializeProctoring() {
@@ -487,14 +502,15 @@ export default class Proctor {
   }
 
   handleCompatibilitySuccess(passedChecks) {
-    console.log('%c⧭', 'color: #006dcc', 'Compatibility Passed, checks: ', passedChecks);
+    this.callbacks.onCompatibilityCheckSuccess({ passedChecks });
+
+    if (!this.proctoringInitialised) return;
     sendCompatibilityEvents(
       passedChecks,
       this.compatibilityCheckConfig.baseUrl,
       this.compatibilityCheckConfig.endpoint,
       this.compatibilityCheckConfig.defaultPayload,
     );
-    this.callbacks.onCompatibilityCheckSuccess({ passedChecks });
   }
 
   handleCompatibilityFailure(passedChecks) {
@@ -525,7 +541,7 @@ export default class Proctor {
   }
 
   runCompatibilityChecks(onSuccess, onFailure) {
-    console.log('%c⧭', 'color: #807160', 'RUNNING COMPATIBILITY CHECKS');
+    console.log('%c⧭', 'color: #006dcc', 'RUNNING COMPATIBILITY CHECKS');
     const compatibilityChecks = {
       screenshare: this.screenshotConfig.enabled,
       webcam: this.snapshotConfig.enabled,
@@ -675,7 +691,7 @@ export default class Proctor {
     }
 
     // Wait for all compatibility checks to complete
-    Promise.allSettled(compatibilityPromises)
+    Promise.all(compatibilityPromises)
       .then((results) => {
         // If any check fails, handle failure and return the updated object
         const failedCheck = results.find(
@@ -683,42 +699,16 @@ export default class Proctor {
         );
 
         if (failedCheck) {
-          if (this.compatibilityCheckConfig.showAlert) {
-            /* TODO: Remove the code to show comp modal  */
-            // showCompatibilityCheckModal(
-            //   passedChecks,
-            //   compatibilityChecks,
-            //   () => {
-            //     this.disqualifyUser();
-            //   },
-            //   this.proctoringInitialised
-            //     && this.compatibilityCheckConfig.showTimer,
-            // );
-          }
           onFailure?.(passedChecks);
         } else {
-          /* TODO: Remove the code to hide comp modal  */
-          // hideCompatibilityModal();
           closeModal();
           this.failedCompatibilityChecks = false;
           onSuccess?.(passedChecks);
         }
       })
       .catch(() => {
-        /* TODO: Remove the code to show comp modal  */
-        // showCompatibilityCheckModal(
-        //   passedChecks,
-        //   compatibilityChecks,
-        //   () => {
-        //     this.disqualifyUser();
-        //   },
-        //   this.proctoringInitialised,
-        // );
-        // Handle any failure in individual checks
         onFailure?.(passedChecks);
       });
-
-    // console.table(passedChecks);
   }
 
   handleWebcamDisabled({ error }) {
@@ -836,11 +826,7 @@ export default class Proctor {
     dispatchViolationEvent(type, violation);
     dispatchGenericViolationEvent(violation);
 
-    if (
-      forceDisqualify
-      || this.getViolationsCountForDisqualify()
-      >= this.disqualificationConfig.eventCountThreshold
-    ) {
+    if (forceDisqualify) {
       this.disqualifyUser();
     }
   }
@@ -861,46 +847,14 @@ export default class Proctor {
   }
 
   recordViolation(violation) {
-    this.violationEvents.push(violation);
-    // Push the violation to the recordedViolationEvents array
-    this.recordedViolationEvents.push({
-      event_type: violation.event_type,
-      event_value: violation.event_value,
-      timestamp: violation.timestamp,
+    this.violationWorker.postMessage({
+      type: 'RECORD_VIOLATION',
+      data: violation,
     });
-
-    // Check if the max threshold is exceeded
-    if (
-      this.recordedViolationEvents.length
-      >= this.eventsConfig.maxEventsBeforeSend
-    ) {
-      this.sendEvents(); // Send the batch of events when threshold is reached
-    }
   }
 
   sendEvents() {
-    if (!this.baseUrl || !this.eventsConfig.endpoint) return;
-    if (this.recordedViolationEvents.length === 0) return;
-
-    const url = new URL(this.eventsConfig.endpoint, this.baseUrl).toString();
-    const payload = new URLSearchParams({
-      events: JSON.stringify(this.recordedViolationEvents),
-    });
-
-    fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': this.headerOptions.contentType,
-        'X-CSRF-TOKEN': this.headerOptions.csrfToken,
-      },
-      body: payload.toString(),
-    })
-      .then(() => {
-        this.recordedViolationEvents = [];
-      })
-      .catch((error) => {
-        console.error('Failed to send event:', error);
-      });
+    this.violationWorker.postMessage({ type: 'SEND_EVENTS' });
   }
 
   handleWindowUnload() {
@@ -942,7 +896,8 @@ export default class Proctor {
   }
 
   _cleanup() {
-    this.sendEvents();
+    this.violationWorker.postMessage({ type: 'CLEANUP' });
+    this.violationWorker.terminate();
     this.stopCompatibilityChecks();
     screenshareCleanup();
     this.queueManager.cleanup();
@@ -952,5 +907,23 @@ export default class Proctor {
   handleCleanup() {
     console.log('cleanup');
     this._cleanup();
+  }
+
+  handleWorkerMessage(event) {
+    const { type, data } = event.data;
+
+    switch (type) {
+      case 'VIOLATION_UPDATE':
+        // Update local violations array
+        this.violationEvents = data.violations;
+
+        // Check for disqualification
+        if (data.violationCount >= this.disqualificationConfig.eventCountThreshold) {
+          this.disqualifyUser();
+        }
+        break;
+      default:
+        break;
+    }
   }
 }

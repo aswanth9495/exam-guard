@@ -15,7 +15,7 @@ const Modal = React.forwardRef<
       <div
         ref={ref} // Ensure the ref is attached here
         className={cn(
-          'fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50',
+          'fixed inset-0 bg-black/50 flex items-center justify-center z-50',
           containerClassName
         )}
         {...props}

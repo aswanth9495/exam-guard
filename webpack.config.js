@@ -16,6 +16,10 @@ module.exports = {
   module: {
     rules: [
       {
+        test: /\.worker\.js$/, // Match worker files
+        use: { loader: 'worker-loader' },
+      },
+      {
         test: /\.(ts|tsx)$/,
         exclude: /node_modules/,
         use: 'ts-loader',

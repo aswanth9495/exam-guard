@@ -1,6 +1,6 @@
 {
   "name": "exam-guard",
-  "version": "6.5.9",
+  "version": "6.6.7",
   "description": "AI proctoring tool",
   "main": "dist/proctor.js",
   "files": [
@@ -111,6 +111,7 @@
     "typescript": "^5.6.3",
     "webpack": "^5.94.0",
     "webpack-cli": "^5.1.4",
-    "webpack-dev-server": "^5.1.0"
+    "webpack-dev-server": "^5.1.0",
+    "worker-loader": "^3.0.8"
   }
 }
