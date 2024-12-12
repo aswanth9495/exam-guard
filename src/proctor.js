@@ -18,7 +18,6 @@ import {
   isFullScreen,
   requestFullScreen,
 } from './utils/fullScreenBlocker';
-import { sendCompatibilityEvents } from './utils/compatibility';
 import { checkBandwidth } from './utils/network';
 import {
   screenshareRequestHandler,
@@ -57,6 +56,7 @@ import { checkMobilePairingStatus } from './utils/mobilePairing';
 import { getBrowserInfo } from './utils/browser';
 import { getIndexDbBufferInstance } from './utils/indexDbBuffer';
 import ViolationWorker from './workers/violation.worker';
+import CompatibilityWorker from './workers/compatibility.worker';
 
 export default class Proctor {
   constructor({
@@ -356,6 +356,17 @@ export default class Proctor {
       isEnabled: false,
       error: null,
     };
+    this.compatibilityWorker = new CompatibilityWorker();
+
+    // Initialize worker with config
+    this.compatibilityWorker.postMessage({
+      type: 'INIT',
+      data: {
+        baseUrl: this.baseUrl,
+        frequency: this.compatibilityCheckConfig.frequency,
+        maxFrequency: this.compatibilityCheckConfig.maxFrequency,
+      },
+    });
   }
 
   async initializeProctoring() {
@@ -519,23 +530,31 @@ export default class Proctor {
     this.callbacks.onCompatibilityCheckSuccess({ passedChecks });
 
     if (!this.proctoringInitialised) return;
-    sendCompatibilityEvents(
-      passedChecks,
-      this.compatibilityCheckConfig.baseUrl,
-      this.compatibilityCheckConfig.endpoint,
-      this.compatibilityCheckConfig.defaultPayload,
-    );
+
+    this.compatibilityWorker.postMessage({
+      type: 'SEND_COMPATIBILITY_EVENT',
+      data: {
+        checks: passedChecks,
+        baseUrl: this.compatibilityCheckConfig.baseUrl,
+        endpoint: this.compatibilityCheckConfig.endpoint,
+        payload: this.compatibilityCheckConfig.defaultPayload,
+      },
+    });
   }
 
   handleCompatibilityFailure(passedChecks) {
     console.log('%c⧭', 'color: #d90000', 'Compatibility Failed, checks: ', passedChecks);
-    sendCompatibilityEvents(
-      passedChecks,
-      this.compatibilityCheckConfig.baseUrl,
-      this.compatibilityCheckConfig.endpoint,
-      this.compatibilityCheckConfig.defaultPayload,
-    );
     this.callbacks.onCompatibilityCheckFail({ passedChecks });
+    if (!this.proctoringInitialised) return;
+    this.compatibilityWorker.postMessage({
+      type: 'SEND_COMPATIBILITY_EVENT',
+      data: {
+        checks: passedChecks,
+        baseUrl: this.compatibilityCheckConfig.baseUrl,
+        endpoint: this.compatibilityCheckConfig.endpoint,
+        payload: this.compatibilityCheckConfig.defaultPayload,
+      },
+    });
   }
 
   stopCompatibilityChecks() {
@@ -941,6 +960,8 @@ export default class Proctor {
       clearInterval(this.networkCheckInterval);
       this.networkCheckInterval = null;
     }
+    this.compatibilityWorker.postMessage({ type: 'CLEANUP' });
+    this.compatibilityWorker.terminate();
   }
 
   handleCleanup() {
