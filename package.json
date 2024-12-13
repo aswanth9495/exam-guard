@@ -1,6 +1,6 @@
 {
   "name": "exam-guard",
-  "version": "6.6.7",
+  "version": "6.7.2",
   "description": "AI proctoring tool",
   "main": "dist/proctor.js",
   "files": [
@@ -59,6 +59,7 @@
     "react-markdown": "^9.0.1",
     "react-redux": "^9.1.2",
     "redux": "^5.0.1",
+    "remote-web-worker": "^0.0.9",
     "tailwind-merge": "^2.5.4",
     "tailwindcss-animate": "^1.0.7"
   },
