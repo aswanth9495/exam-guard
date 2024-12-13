@@ -57,7 +57,7 @@ const ScreenShareStep = () => {
     <>
       <StepHeader
         stepNumber='1'
-        title='Test your Screen Share Permissions'
+        title='Enable Screen Share Permissions'
         status={status}
       />
       <div className='mt-16'>

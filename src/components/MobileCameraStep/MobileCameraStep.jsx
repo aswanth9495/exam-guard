@@ -72,7 +72,6 @@ const MobileCameraStep = () => {
       <StepHeader
         stepNumber='3'
         title='Mobile Camera Pairing Permissions'
-        description='Test if screen share permissions are enabled. If not, follow the instructions below to enable them'
         status={status}
       />
       <Tabs activeTab={activeSubStep} className='mt-20'>
