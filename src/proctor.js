@@ -319,6 +319,7 @@ export default class Proctor {
     this.startCompatibilityChecks = this.startCompatibilityChecks.bind(this);
     this.runAdaptiveCompatibilityChecks = this.runAdaptiveCompatibilityChecks.bind(this);
     this.initialFullScreen = false;
+    window.isUserDisqualified = false;
     setupAlert();
     if (this.snapshotConfig.enabled) {
       setupWebcam();
@@ -872,6 +873,7 @@ export default class Proctor {
   disqualifyUser() {
     if (!this.disqualificationConfig.enabled) return;
 
+    window.isUserDisqualified = true;
     this.sendEvents(); // To send any events before disqualifying the user
     // Show disqualification warning before calling the disqualified callback
     if (this.disqualificationConfig.showAlert) {
