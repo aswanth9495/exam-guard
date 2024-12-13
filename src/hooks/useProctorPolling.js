@@ -12,7 +12,7 @@ const useProctorPolling = ({
   onSnapshotSuccess,
   onSnapshotFailure,
   onDataUpdate,
-}, pollingInterval = null) => {
+}, pollingInterval = 5000) => {
   const proctor = useSelector((state) => selectProctor(state));
   const pollingPayload = proctor?.mobilePairingConfig?.defaultPayload || {};
   const pollingEndpoint = proctor?.mobilePairingConfig?.endpoint || {};
