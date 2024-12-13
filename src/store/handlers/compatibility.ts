@@ -92,7 +92,7 @@ export default class CompatibilityHandlers {
   }) => {
     let hasSetActiveStep = false;
     const hasSetActiveSubStepPerStep: Record<string, boolean> = {};
-    const modalOpen = store.getState().workflow.modalOpen;
+    const modalOpen = false;
 
     this.CHECK_ORDER.forEach((check) => {
       if (!(check in errorCode.passedChecks)) return;

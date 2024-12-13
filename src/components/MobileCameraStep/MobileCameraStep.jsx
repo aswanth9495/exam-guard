@@ -19,7 +19,14 @@ import Pairing from './Pairing';
 import StepHeader from '@/ui/StepHeader';
 import SwitchPhoneModal from './SwitchPhoneModal';
 
+// At the top of MobileCameraStep.jsx
+const MemoizedPairing = React.memo(Pairing);
+const MemoizedOrientation = React.memo(Orientation);
+const MemoizedMobileCompatibility = React.memo(MobileCompatibility);
+const MemoizedSwitchPhoneModal = React.memo(SwitchPhoneModal);
+
 const MobileCameraStep = () => {
+  console.log('MobileCameraStep component rendered');
   const dispatch = useAppDispatch();
   const {
     acknowledged, subSteps, activeSubStep,
@@ -75,7 +82,7 @@ const MobileCameraStep = () => {
           isDisabled
           isCompleted={subSteps[PAIRING_STEPS.pairing].status === 'completed'}
         >
-          <Pairing />
+          <MemoizedPairing />
         </Tab>
         <Tab
           label='Camera Orientation'
@@ -85,7 +92,7 @@ const MobileCameraStep = () => {
             subSteps[PAIRING_STEPS.orientation].status === 'completed'
           }
         >
-          <Orientation
+          <MemoizedOrientation
             setSwitchModalOpen={setSwitchModalOpen}
           />
         </Tab>
@@ -97,7 +104,7 @@ const MobileCameraStep = () => {
             subSteps[PAIRING_STEPS.mobileCompatibility].status === 'completed'
           }
         >
-          <MobileCompatibility />
+          <MemoizedMobileCompatibility />
         </Tab>
       </Tabs>
       {!enableProctoring
@@ -143,7 +150,7 @@ const MobileCameraStep = () => {
           </Button>)}
         </div>
       )}
-      <SwitchPhoneModal
+      <MemoizedSwitchPhoneModal
         isOpen={isSwitchModalOpen}
         onClose={handleModalClose}
       />

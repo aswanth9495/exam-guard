@@ -59,7 +59,7 @@ const WebcamVideo = memo(({ isVisible, onStreamReady }: {
   return (
     <video
       ref={videoRef}
-      id="webcam"
+      id="webcam-video"
       className={`w-full h-full object-cover rounded-lg ${
         isVisible ? 'block' : 'hidden'
       }`}
@@ -104,13 +104,14 @@ export default function CameraSelector() {
 
   // Cleanup function to stop all tracks
   const cleanup = useCallback(() => {
-    if (mediaStreamRef.current && !enableProctoring) {
+    if (mediaStreamRef.current) {
       mediaStreamRef.current.getTracks().forEach(track => {
         track.stop();
         track.enabled = false;
       });
       mediaStreamRef.current = null;
     }
+
   }, [enableProctoring]);
 
   const initializeCamera = useCallback(async () => {
@@ -126,7 +127,6 @@ export default function CameraSelector() {
         }
       });
 
-      console.log('stream', stream.getVideoTracks()[0].getSettings());
       // Apply additional optimizations to tracks
       stream.getTracks().forEach(track => {
         if (track.kind === 'video') {
@@ -164,7 +164,7 @@ export default function CameraSelector() {
       }
 
       // Connect stream to video element
-      const videoElement = document.getElementById('webcam') as HTMLVideoElement;
+      const videoElement = document.getElementById('webcam-video') as HTMLVideoElement;
       if (videoElement) {
         videoElement.srcObject = stream;
       }
