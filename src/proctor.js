@@ -621,12 +621,15 @@ export default class Proctor {
     // Webcam check
     if (compatibilityChecks.webcam) {
       const webcamCheck = new Promise((resolve, reject) => {
-        if (this.webcamStatus.isEnabled) {
-          resolve('webcam');
-        } else {
-          passedChecks.webcam = false;
-          reject('webcam');
-        }
+        detectWebcam({
+          onWebcamEnabled: () => resolve('webcam'),
+          onWebcamDisabled: () => {
+            passedChecks.webcam = false;
+            reject('webcam');
+          },
+          optional: this.snapshotConfig.optional,
+          deviceId: this.snapshotConfig.deviceId,
+        });
       });
       compatibilityPromises.push(webcamCheck);
     }
@@ -726,7 +729,7 @@ export default class Proctor {
     }
 
     // Wait for all compatibility checks to complete
-    Promise.all(compatibilityPromises)
+    Promise.allSettled(compatibilityPromises)
       .then((results) => {
         // If any check fails, handle failure and return the updated object
         const failedCheck = results.find(
@@ -747,10 +750,6 @@ export default class Proctor {
   }
 
   handleWebcamDisabled({ error }) {
-    this.webcamStatus = {
-      isEnabled: false,
-      error,
-    };
     this.callbacks.onWebcamDisabled({ error });
   }
 
@@ -759,9 +758,6 @@ export default class Proctor {
   }
 
   handleWebcamEnabled() {
-    this.webcamStatus.isEnabled = true;
-    this.webcamStatus.error = null;
-
     if (this.proctoringInitialised) {
       this.snapshotIntervalId = setupSnapshotCapture({
         onSnapshotFailure: this.handleSnapshotFailure.bind(this),

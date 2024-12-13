@@ -7,7 +7,6 @@ import { evaluateParentStepStatus } from '@/utils/evaluateParentStepStatus';
 import {
   nextStep,
   selectStep,
-  setActiveSubStep,
   setStepAcknowledged,
   setStepSetupMode,
 } from '@/store/features/workflowSlice';
@@ -19,13 +18,11 @@ import Orientation from './Orientation';
 import Pairing from './Pairing';
 import StepHeader from '@/ui/StepHeader';
 import SwitchPhoneModal from './SwitchPhoneModal';
-import mobilePairingService, { useGetPollingDataQuery } from '@/services/mobilePairingService';
-import { selectProctor } from '@/store/features/assessmentInfoSlice';
 
 const MobileCameraStep = () => {
   const dispatch = useAppDispatch();
   const {
-    acknowledged, subSteps, activeSubStep, setupMode,
+    acknowledged, subSteps, activeSubStep,
   } = useAppSelector((state) => (
     selectStep(state, 'mobileCameraShare')
   ));
@@ -33,23 +30,12 @@ const MobileCameraStep = () => {
 
   const [isSwitchModalOpen, setSwitchModalOpen] = useState(false);
   const { enableProctoring } = useAppSelector((state) => state.workflow);
-  const proctor = useAppSelector((state) => selectProctor(state));
-  const pollingPayload = proctor?.mobilePairingConfig?.defaultPayload || {};
-  const pollingEndpoint = proctor?.mobilePairingConfig?.endpoint || {};
-  const { data } = useGetPollingDataQuery({
-    endpoint: pollingEndpoint,
-    payload: pollingPayload,
-  });
 
   const areAllSubstepsCompleted = Object.values(subSteps).every(
     (step) => step.status === 'completed',
   );
 
   useEffect(() => () => {
-    dispatch(mobilePairingService.util.resetApiState());
-  }, [dispatch]);
-
-  useEffect(() => {
     if (!modalOpen) {
       dispatch(setStepSetupMode({
         step: 'mobileCameraShare',
@@ -57,16 +43,6 @@ const MobileCameraStep = () => {
       }));
     }
   }, [modalOpen, dispatch]);
-
-  useEffect(() => {
-    /* If data.success then go to the last step */
-    if (data?.success && enableProctoring && !setupMode) {
-      dispatch(setActiveSubStep({
-        step: 'mobileCameraShare',
-        subStep: PAIRING_STEPS.mobileCompatibility,
-      }));
-    }
-  }, [data, dispatch, enableProctoring, setupMode]);
 
   const status = evaluateParentStepStatus(Object.values(subSteps));
   const canProceed = enableProctoring || (acknowledged && areAllSubstepsCompleted);

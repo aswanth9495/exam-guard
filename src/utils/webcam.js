@@ -5,6 +5,20 @@ import { getIndexDbBufferInstance } from './indexDbBuffer';
 // Track active stream globally
 let activeStream = null;
 
+const LOW_QUALITY_CONSTRAINTS = {
+  video: {
+    width: { max: 640 }, // Won't exceed 320
+    height: { max: 320 }, // Won't exceed 240
+    frameRate: { max: 15 }, // Reduced from typical 30fps
+    facingMode: 'user',
+    // Advanced constraints for supported browsers
+    advanced: [
+      { aspectRatio: 4 / 3 },
+      { resizeMode: 'crop-and-scale' }, // Helps with performance
+    ],
+  },
+};
+
 export function getVideoElement() {
   const videoElement = document.getElementById('webcam');
   return videoElement;
@@ -193,7 +207,11 @@ export function detectWebcam({
 
   navigator.mediaDevices
     .getUserMedia({
-      video: deviceId ? { deviceId: { exact: deviceId } } : true,
+      ...LOW_QUALITY_CONSTRAINTS,
+      video: {
+        ...LOW_QUALITY_CONSTRAINTS.video,
+        deviceId: { exact: deviceId || undefined },
+      },
     })
     .then((stream) => {
       activeStream = stream; // Store stream globally

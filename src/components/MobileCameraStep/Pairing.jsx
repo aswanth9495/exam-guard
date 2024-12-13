@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useGetQrCodeQuery } from '@/services/mobilePairingService';
 import Loader from '@/ui/Loader';
 import useProctorPolling from '@/hooks/useProctorPolling';
-import { nextSubStep } from '@/store/features/workflowSlice';
+import { nextSubStep, setStepSetupMode } from '@/store/features/workflowSlice';
 import { selectProctor } from '@/store/features/assessmentInfoSlice';
 
 import styles from './MobileCameraStep.module.scss';
@@ -30,6 +30,10 @@ function Pairing({ className }) {
 
   const handleSetupSuccess = useCallback(() => {
     dispatch(nextSubStep());
+    dispatch(setStepSetupMode({
+      step: 'mobileCameraShare',
+      setupMode: true,
+    }));
   }, [dispatch]);
 
   const handleSetupFailure = useCallback(() => {

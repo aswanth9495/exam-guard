@@ -1,18 +1,16 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import classNames from 'classnames';
 
 import { useDispatch } from 'react-redux';
 import {
   ArrowRight,
 } from 'lucide-react';
-import ReferenceImage from '@/ui/ReferenceImage';
 import { Button } from '@/ui/Button';
 import { Checkbox } from '@/ui/Checkbox';
 import useProctorPolling from '@/hooks/useProctorPolling';
 import { MIN_SNAPSHOT_COUNT } from '@/utils/constants';
 
 import Loader from '@/ui/Loader';
-import ProgressBar from '@/ui/ProgressBar';
 import { nextSubStep, selectStep, setStepSetupMode } from '@/store/features/workflowSlice';
 
 import styles from './MobileCameraStep.module.scss';
@@ -33,7 +31,7 @@ function Orientation({
   const [snapshotCollected, setSnapshotCollected] = useState(false);
   const [snapShotCount, setSnapshotCount] = useState(0);
   const [previousSnapshot, setPreviousSnapshot] = useState(null);
-  const [countdown, setCountdown] = useState(5);
+  // const [countdown, setCountdown] = useState(5);
   const { enableProctoring } = useAppSelector((state) => state.workflow);
 
   const collectSnapshots = useCallback((snapShotData) => {
@@ -61,19 +59,19 @@ function Orientation({
     dispatch(nextSubStep());
     dispatch(setStepSetupMode({
       step: 'mobileCameraShare',
-      setupMode: true,
+      setupMode: false,
     }));
   }, [dispatch]);
 
-  // Reset countdown when snapshots are fetched
-  useEffect(() => {
-    setCountdown(5); // Reset countdown to 5 seconds
-    const interval = setInterval(() => {
-      setCountdown((prev) => (prev > 0 ? prev - 1 : 0));
-    }, 1000);
+  // TODO: Uncomment this for the countdown
+  // useEffect(() => {
+  //   setCountdown(5); // Reset countdown to 5 seconds
+  //   const interval = setInterval(() => {
+  //     setCountdown((prev) => (prev > 0 ? prev - 1 : 0));
+  //   }, 1000);
 
-    return () => clearInterval(interval);
-  }, [previousSnapshot]); // Dependency on snapshot updates
+  //   return () => clearInterval(interval);
+  // }, [previousSnapshot]); // Dependency on snapshot updates
 
   useProctorPolling({
     onSnapshotSuccess: handleSnapshotSuccess,
@@ -111,7 +109,7 @@ function Orientation({
           </div>
          <div className="flex flex-col text-center mt-4">
             <div className="text-xs text-gray-500 mt-2">
-              Auto fetching image in {countdown} seconds...
+              Auto fetching image...
             </div>
           </div>
         </section>

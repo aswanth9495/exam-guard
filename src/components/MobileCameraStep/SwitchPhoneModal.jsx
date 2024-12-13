@@ -1,14 +1,14 @@
 import React, { useCallback } from 'react';
 
 import { X } from 'lucide-react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector, batch } from 'react-redux';
 import { Modal } from '@/ui/Modal';
 
 import switchPhone from '@/assets/images/switchPhone.svg';
 import { Button } from '@/ui/Button';
 import mobilePairingService, { useSendProctorEventMutation } from '@/services/mobilePairingService';
 import { selectProctor } from '@/store/features/assessmentInfoSlice';
-import { resetStep, setStepSetupMode } from '@/store/features/workflowSlice';
+import { resetStep, setStepLocked, setStepSetupMode } from '@/store/features/workflowSlice';
 
 function SwitchPhoneModal({ isOpen, onClose }) {
   const dispatch = useDispatch();
@@ -31,14 +31,20 @@ function SwitchPhoneModal({ isOpen, onClose }) {
         });
 
         if (response.data.success) {
-          dispatch(resetStep({
-            step: 'mobileCameraShare',
-          }));
-          dispatch(mobilePairingService.util.resetApiState());
-          dispatch(setStepSetupMode({
-            step: 'mobileCameraShare',
-            setupMode: true,
-          }));
+          batch(() => {
+            dispatch(resetStep({
+              step: 'mobileCameraShare',
+            }));
+            dispatch(setStepLocked({
+              step: 'mobileCameraShare',
+              locked: false,
+            }));
+            dispatch(mobilePairingService.util.resetApiState());
+            dispatch(setStepSetupMode({
+              step: 'mobileCameraShare',
+              setupMode: true,
+            }));
+          });
           onClose?.();
         }
       } catch (e) {

@@ -93,22 +93,25 @@ export default function CameraSelector() {
     selectSubStep(state, 'cameraShare', 'cameraShare')
   );
 
+  const { enableProctoring } = useAppSelector((state) => state.workflow);
+
   const [selectedCamera, setSelectedCamera] = useState<string>('');
   const [cameras, setCameras] = useState<Array<{ id: string; label: string }>>([]);
   
+
   // Use ref to store mediaStream to properly cleanup
   const mediaStreamRef = useRef<MediaStream | null>(null);
 
   // Cleanup function to stop all tracks
   const cleanup = useCallback(() => {
-    if (mediaStreamRef.current) {
+    if (mediaStreamRef.current && !enableProctoring) {
       mediaStreamRef.current.getTracks().forEach(track => {
         track.stop();
         track.enabled = false;
       });
       mediaStreamRef.current = null;
     }
-  }, []);
+  }, [enableProctoring]);
 
   const initializeCamera = useCallback(async () => {
     try {
@@ -195,7 +198,7 @@ export default function CameraSelector() {
       cleanup();
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [initializeCamera, cleanup]);
+  }, [initializeCamera]);
 
   const handleCameraChange = useCallback(async (cameraId: string) => {
     setSelectedCamera(cameraId);
