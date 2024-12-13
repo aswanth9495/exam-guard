@@ -7,9 +7,9 @@ let activeStream = null;
 
 const LOW_QUALITY_CONSTRAINTS = {
   video: {
-    width: { max: 640 }, // Won't exceed 320
-    height: { max: 320 }, // Won't exceed 240
-    frameRate: { max: 15 }, // Reduced from typical 30fps
+    width: { max: 640 },
+    height: { max: 480 },
+    frameRate: { max: 4 }, // Reduced from typical 30fps
     facingMode: 'user',
     // Advanced constraints for supported browsers
     advanced: [

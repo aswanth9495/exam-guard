@@ -1,6 +1,6 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
-
+import { isEqual } from 'lodash'; // Use lodash for deep comparison
 import { useGetPollingDataQuery } from '@/services/mobilePairingService'; // Adjust path as needed
 import { selectProctor } from '@/store/features/assessmentInfoSlice';
 
@@ -12,57 +12,62 @@ const useProctorPolling = ({
   onSnapshotSuccess,
   onSnapshotFailure,
   onDataUpdate,
-}, pollingInterval = 5000) => {
+}, pollingInterval = null) => {
   const proctor = useSelector((state) => selectProctor(state));
   const pollingPayload = proctor?.mobilePairingConfig?.defaultPayload || {};
   const pollingEndpoint = proctor?.mobilePairingConfig?.endpoint || {};
-  // `pollingInterval` specifies how often to fetch data
-  const { data, isFetching, refetch } = useGetPollingDataQuery({
+
+  const { data } = useGetPollingDataQuery({
     endpoint: pollingEndpoint,
     payload: pollingPayload,
-  }, {
-    pollingInterval,
-  });
+  }, { pollingInterval });
+
+  const previousDataRef = useRef(null);
 
   useEffect(() => {
-    if (data) {
-      onDataUpdate?.(data);
-      const secondaryCameraChecks = data.checks?.secondary_camera.checks;
-      Object.keys(secondaryCameraChecks).map((check) => {
-        const checkData = secondaryCameraChecks[check];
-        switch (check) {
-          case 'setup':
-            if (checkData?.success) {
-              onSetupSuccess?.(checkData);
-            } else {
-              onSetupFailure?.(checkData);
-            }
-            break;
-          case 'snapshot':
-            if (checkData?.success) {
-              onSnapshotSuccess?.(checkData);
-            } else {
-              onSnapshotFailure?.(checkData);
-            }
-            break;
-          case 'battery':
-            if (checkData?.success) {
-              onBatteryNormal?.(checkData, data);
-            } else {
-              onBatteryLow?.(checkData, data);
-            }
-            break;
-          default:
-            break;
-        }
-        return null;
-      });
-    }
-  }, [data, onBatteryLow, onBatteryNormal,
-    onDataUpdate, onSetupFailure, onSetupSuccess,
-    onSnapshotFailure, onSnapshotSuccess]);
+    if (!data) return;
 
-  return { data, isFetching, refetch };
+    // Compare new data with the previous data
+    if (isEqual(previousDataRef.current, data)) {
+      // No changes in data; skip processing
+      return;
+    }
+
+    // Store the current data for future comparison
+    previousDataRef.current = data;
+
+    // Call the onDataUpdate callback
+    onDataUpdate?.(data);
+
+    // Process secondary camera checks
+    const secondaryCameraChecks = data.checks?.secondary_camera.checks || {};
+    Object.keys(secondaryCameraChecks).forEach((check) => {
+      const checkData = secondaryCameraChecks[check];
+      switch (check) {
+        case 'setup':
+          // eslint-disable-next-line no-unused-expressions
+          checkData?.success
+            ? onSetupSuccess?.(checkData)
+            : onSetupFailure?.(checkData);
+          break;
+        case 'snapshot':
+          // eslint-disable-next-line no-unused-expressions
+          checkData?.success
+            ? onSnapshotSuccess?.(checkData)
+            : onSnapshotFailure?.(checkData);
+          break;
+        case 'battery':
+          // eslint-disable-next-line no-unused-expressions
+          checkData?.success
+            ? onBatteryNormal?.(checkData, data)
+            : onBatteryLow?.(checkData, data);
+          break;
+        default:
+          break;
+      }
+    });
+  }, [data, onBatteryLow, onBatteryNormal, onDataUpdate,
+    onSetupFailure, onSetupSuccess, onSnapshotFailure, onSnapshotSuccess]);
 };
 
 export default useProctorPolling;

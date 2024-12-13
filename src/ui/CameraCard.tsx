@@ -10,9 +10,9 @@ import { selectProctor } from '@/store/features/assessmentInfoSlice';
 // Define optimal constraints for low resource usage
 const LOW_QUALITY_CONSTRAINTS = {
   video: {
-    width: { max: 320 },      // Won't exceed 320
-    height: { max: 240 },     // Won't exceed 240
-    frameRate: { max: 15 },   // Reduced from typical 30fps
+    width: { max: 160 },      // Won't exceed 320
+    height: { max: 120 },     // Won't exceed 240
+    frameRate: { max: 4 },   // Reduced from typical 30fps
     facingMode: 'user',
     // Advanced constraints for supported browsers
     advanced: [
@@ -124,29 +124,6 @@ export default function CameraSelector() {
         video: {
           ...LOW_QUALITY_CONSTRAINTS.video,
           deviceId: selectedCamera ? { exact: selectedCamera } : undefined
-        }
-      });
-
-      // Apply additional optimizations to tracks
-      stream.getTracks().forEach(track => {
-        if (track.kind === 'video') {
-          // Set lowest possible bitrate that maintains acceptable quality
-          const videoTrack = track as MediaStreamTrack;
-          if ('contentHint' in videoTrack) {
-            videoTrack.contentHint = 'detail'; // Optimize for detail over motion
-          }
-
-          // Get video track settings and constraints
-          const settings = track.getSettings();
-          const capabilities = track.getCapabilities();
-
-          // If supported, explicitly set to lowest acceptable values
-          if (capabilities.width && capabilities.height) {
-            track.applyConstraints({
-              width: { ideal: Math.min(settings.width || 640, capabilities.width.max || 640) },
-              height: { ideal: Math.min(settings.height || 480, capabilities.height.max || 480) }
-            }).catch(console.error);
-          }
         }
       });
 

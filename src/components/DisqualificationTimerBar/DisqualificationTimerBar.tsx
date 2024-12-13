@@ -20,7 +20,7 @@ const STEP_VS_MESSAGE_MAPPING = {
   },
   mobileCameraShare: {
     message: 'Disqualified in',
-    time: 90,
+    time: 120,
   },
   compatibilityChecks: {
     message: 'Disqualified in',
@@ -74,7 +74,7 @@ const DisqualificationTimerBar: React.FC<DisqualificationTimerBarProps> = ({
       </div>
       <div className='absolute top-0 left-0 h-full w-full bg-[#FFEBEF] rounded-t-2xl overflow-hidden'>
         <div
-          className='h-full bg-red-700 transition-all duration-1000 ease-linear animate-pulse'
+          className='h-full bg-red-700'
           style={{ width: `${100 - (timeLeft / time) * 100}%` }}
         />
       </div>
