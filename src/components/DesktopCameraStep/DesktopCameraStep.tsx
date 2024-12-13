@@ -58,6 +58,25 @@ const DesktopCameraStep = () => {
 
   const canProceed = enableProctoring || (acknowledged && areAllSubstepsCompleted);
 
+  const renderGuideModal = useMemo(() => (
+    <GuideModal
+      open={showGuideModal}
+      onOpenChange={setShowGuideModal}
+      isError={cameraState.status === 'error'}
+      title="It looks like you're having trouble accessing your camera"
+    >
+      <div className='space-y-6'>
+        <p className='text-base-500 text-sm'>
+          Refer to the image below for steps to troubleshoot and grant camera
+          permissions
+        </p>
+        <div className='aspect-[16/9] w-full bg-muted rounded-lg overflow-y-auto p-8 shadow-sm'>
+          <CameraShareGuide browserName={browserInfo?.name} osName={osInfo?.osName} />
+        </div>
+      </div>
+    </GuideModal>
+  ), [showGuideModal, cameraState.status, browserInfo?.name, osInfo?.osName]);
+
   return (
     <>
       <StepHeader
@@ -113,22 +132,7 @@ const DesktopCameraStep = () => {
           )}
         </Button>
 
-      <GuideModal
-        open={showGuideModal}
-        onOpenChange={setShowGuideModal}
-        isError={cameraState.status === 'error'}
-        title="It looks like you're having trouble accessing your camera"
-      >
-        <div className='space-y-6'>
-          <p className='text-base-500 text-sm'>
-            Refer to the image below for steps to troubleshoot and grant camera
-            permissions
-          </p>
-          <div className='aspect-[16/9] w-full bg-muted rounded-lg overflow-y-auto p-8 shadow-sm'>
-            <CameraShareGuide browserName={browserInfo?.name} osName={osInfo?.osName} />
-          </div>
-        </div>
-      </GuideModal>
+        {showGuideModal && renderGuideModal}
       </div>
     </>
   );

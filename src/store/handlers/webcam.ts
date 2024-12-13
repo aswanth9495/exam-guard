@@ -27,14 +27,15 @@ export default class WebcamHandlers {
   }
 
   onWebcamDisabled() {
-    this.dispatch(
-      setSubStepError({
-        step: 'cameraShare',
-        subStep: 'cameraShare',
-        error: 'Failed to access camera',
-      })
-    );
-    this.dispatch(setActiveStep('cameraShare'));
+    // Do nothing
+    // this.dispatch(
+    //   setSubStepError({
+    //     step: 'cameraShare',
+    //     subStep: 'cameraShare',
+    //     error: 'Failed to access camera',
+    //   })
+    // );
+    // this.dispatch(setActiveStep('cameraShare'));
   }
 
   onSnapshotFailure() {

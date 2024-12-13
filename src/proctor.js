@@ -605,14 +605,14 @@ export default class Proctor {
 
     // Initialize object to store the result of passed checks
     const passedChecks = {
-      screenshare: false,
-      webcam: false,
-      mobileSnapshot: false,
-      mobileBattery: false,
-      mobileSetup: false,
-      browser: false,
-      networkSpeed: false,
-      fullscreen: false,
+      screenshare: true,
+      webcam: true,
+      mobileSnapshot: true,
+      mobileBattery: true,
+      mobileSetup: true,
+      browser: true,
+      networkSpeed: true,
+      fullscreen: true,
     };
 
     // Array to store all compatibility promises
@@ -622,9 +622,9 @@ export default class Proctor {
     if (compatibilityChecks.webcam) {
       const webcamCheck = new Promise((resolve, reject) => {
         if (this.webcamStatus.isEnabled) {
-          passedChecks.webcam = true;
           resolve('webcam');
         } else {
+          passedChecks.webcam = false;
           reject('webcam');
         }
       });
@@ -635,10 +635,9 @@ export default class Proctor {
     const browserCheck = new Promise((resolve, reject) => {
       const browserInfo = getBrowserInfo();
       if (!browserInfo.isSupported) {
-        // eslint-disable-next-line prefer-promise-reject-errors
+        passedChecks.browser = false;
         reject('browser');
       } else {
-        passedChecks.browser = true;
         resolve('browser');
       }
     });
@@ -647,34 +646,13 @@ export default class Proctor {
     // Network speed check
     if (compatibilityChecks.networkSpeed) {
       const networkCheck = new Promise((resolve, reject) => {
-        // Use the stored network check result if available
-        // if (this.lastNetworkCheckResult !== null) {
-        //   if (this.lastNetworkCheckResult) {
-        //     passedChecks.networkSpeed = true;
-        //     resolve('network_speed');
-        //   } else {
-        //     reject('network_speed');
-        //   }
-        // } else {
-        //   // Fall back to running a check if no stored result
-        //   checkBandwidth()
-        //     .then((isLowBandwidth) => {
-        //       if (isLowBandwidth) {
-        //         reject('network_speed');
-        //       } else {
-        //         passedChecks.networkSpeed = true;
-        //         resolve('network_speed');
-        //       }
-        //     })
-        //     .catch(() => reject('network_speed'));
-        // }
         if (compatibilityChecks.networkSpeed) {
           resolve('network_speed');
         } else {
+          passedChecks.networkSpeed = false;
           reject('network_speed');
         }
       });
-
       compatibilityPromises.push(networkCheck);
     }
 
@@ -682,10 +660,9 @@ export default class Proctor {
     if (compatibilityChecks.fullscreen) {
       const fullScreenCheck = new Promise((resolve, reject) => {
         if (!isFullScreen()) {
-          // eslint-disable-next-line prefer-promise-reject-errors
+          passedChecks.fullscreen = false;
           reject('fullscreen');
         } else {
-          passedChecks.fullscreen = true; // Update passed checks
           resolve('fullscreen');
         }
       });
@@ -696,11 +673,10 @@ export default class Proctor {
       const screenshareCheck = new Promise((resolve, reject) => {
         isScreenShareValid({
           onSuccess: () => {
-            passedChecks.screenshare = true;
             resolve('screenshare');
           },
           onFailure: (error) => {
-            // eslint-disable-next-line prefer-promise-reject-errors
+            passedChecks.screenshare = false;
             reject('screenshare');
             console.warn(error);
           },
@@ -716,9 +692,6 @@ export default class Proctor {
         this.checkMobileCompatiblity({
           onSuccess: (data) => {
             if (data.success) {
-              passedChecks.mobileBattery = true;
-              passedChecks.mobileSnapshot = true;
-              passedChecks.mobileSetup = true;
               resolve({ success: true, checks: passedChecks });
             } else {
               const secondaryCameraChecks = data.checks?.secondary_camera.checks;
@@ -726,13 +699,13 @@ export default class Proctor {
                 const checkData = secondaryCameraChecks[check];
                 switch (check) {
                   case 'setup':
-                    passedChecks.mobileSetup = checkData?.success || false;
+                    if (!checkData?.success) passedChecks.mobileSetup = false;
                     break;
                   case 'snapshot':
-                    passedChecks.mobileSnapshot = checkData?.success || false;
+                    if (!checkData?.success) passedChecks.mobileSnapshot = false;
                     break;
                   case 'battery':
-                    passedChecks.mobileBattery = checkData?.success || false;
+                    if (!checkData?.success) passedChecks.mobileBattery = false;
                     break;
                   default:
                     break;
