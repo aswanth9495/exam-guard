@@ -1,6 +1,7 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, {
+  useCallback, useMemo, useRef, useState,
+} from 'react';
 import classNames from 'classnames';
-
 import { Copy } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useGetQrCodeQuery } from '@/services/mobilePairingService';
@@ -11,21 +12,24 @@ import { selectProctor } from '@/store/features/assessmentInfoSlice';
 
 import styles from './MobileCameraStep.module.scss';
 
-function Pairing({ className }) {
+const Pairing = React.memo(({ className }) => {
   const dispatch = useDispatch();
   const [copySuccess, setCopySuccess] = useState(false);
   const copyLinkBoxRef = useRef(null);
-  const proctor = useSelector((state) => selectProctor(state));
-  const qrCodePayload = proctor?.qrCodeConfig?.defaultPayload || {};
-  const qrCodeEndpoint = proctor?.qrCodeConfig?.endpoint;
+  const proctor = useSelector(selectProctor);
+
+  const qrCodeConfig = useMemo(() => ({
+    payload: proctor?.qrCodeConfig?.defaultPayload || {},
+    endpoint: proctor?.qrCodeConfig?.endpoint,
+  }), [proctor?.qrCodeConfig]);
 
   const {
     data,
     isFetching: isQrCodeLoading,
     isError: qrCodeError,
   } = useGetQrCodeQuery({
-    endpoint: qrCodeEndpoint,
-    payload: qrCodePayload,
+    endpoint: qrCodeConfig.endpoint,
+    payload: qrCodeConfig.payload,
   });
 
   const handleSetupSuccess = useCallback(() => {
@@ -40,12 +44,14 @@ function Pairing({ className }) {
     // Do nothing
   }, []);
 
-  useProctorPolling({
+  const pollingCallbacks = useMemo(() => ({
     onSetupSuccess: handleSetupSuccess,
     onSetupFailure: handleSetupFailure,
-  });
+  }), [handleSetupSuccess, handleSetupFailure]);
 
-  const handleCopyClick = () => {
+  useProctorPolling(pollingCallbacks, 5000);
+
+  const handleCopyClick = useCallback(() => {
     const linkToCopy = copyLinkBoxRef.current ? copyLinkBoxRef.current.textContent : '';
 
     if (linkToCopy) {
@@ -56,19 +62,24 @@ function Pairing({ className }) {
         },
         (err) => {
           console.error('Error copying text: ', err);
-          setCopySuccess(false); // Handle failure (optional)
+          setCopySuccess(false);
         },
       );
     }
-  };
+  }, []);
+
+  const qrCodeImage = useMemo(() => {
+    if (isQrCodeLoading || qrCodeError || !data?.qrcode) {
+      return <Loader size='md' />;
+    }
+    return <img src={`data:image/svg+xml;charset=utf-8,${encodeURIComponent(data?.qrcode)}`} alt="qr-code" />;
+  }, [data?.qrcode, isQrCodeLoading, qrCodeError]);
 
   return (
     <div className={classNames({ [className]: className })}>
       <div className={styles.pairingContainer}>
         <section className={styles.qrCodeContainer}>
-          {/* QR Code */}
-          {isQrCodeLoading || qrCodeError || !data?.qrcode ? <Loader size='md' />
-            : <img src={`data:image/svg+xml;charset=utf-8,${encodeURIComponent(data?.qrcode)}`} alt="qr-code"></img>}
+          {qrCodeImage}
         </section>
         <div className={styles.divider}>
           <div className={styles.dividerLine}></div>
@@ -119,6 +130,8 @@ function Pairing({ className }) {
         </section>
     </div>
   );
-}
+});
+
+Pairing.displayName = 'Pairing';
 
 export default Pairing;

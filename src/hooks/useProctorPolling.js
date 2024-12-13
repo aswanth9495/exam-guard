@@ -1,7 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
-import { isEqual } from 'lodash'; // Use lodash for deep comparison
-import { useGetPollingDataQuery } from '@/services/mobilePairingService'; // Adjust path as needed
+import { useGetPollingDataQuery } from '@/services/mobilePairingService';
 import { selectProctor } from '@/store/features/assessmentInfoSlice';
 
 const useProctorPolling = ({
@@ -20,54 +19,82 @@ const useProctorPolling = ({
   const { data } = useGetPollingDataQuery({
     endpoint: pollingEndpoint,
     payload: pollingPayload,
-  }, { pollingInterval });
+  }, {
+    pollingInterval,
+    // Skip polling if no endpoint or payload
+    skip: !pollingEndpoint || !pollingPayload,
+    selectFromResult: ({ data: resultData }) => ({
+      data: resultData,
+    }),
+  });
 
-  const previousDataRef = useRef(null);
+  const callbacksRef = useRef({
+    onSetupSuccess,
+    onSetupFailure,
+    onBatteryLow,
+    onBatteryNormal,
+    onSnapshotSuccess,
+    onSnapshotFailure,
+    onDataUpdate,
+  });
+
+  // Update callbacks ref when they change
+  useEffect(() => {
+    callbacksRef.current = {
+      onSetupSuccess,
+      onSetupFailure,
+      onBatteryLow,
+      onBatteryNormal,
+      onSnapshotSuccess,
+      onSnapshotFailure,
+      onDataUpdate,
+    };
+  }, [
+    onSetupSuccess,
+    onSetupFailure,
+    onBatteryLow,
+    onBatteryNormal,
+    onSnapshotSuccess,
+    onSnapshotFailure,
+    onDataUpdate,
+  ]);
 
   useEffect(() => {
     if (!data) return;
 
-    // Compare new data with the previous data
-    if (isEqual(previousDataRef.current, data)) {
-      // No changes in data; skip processing
-      return;
-    }
-
-    // Store the current data for future comparison
-    previousDataRef.current = data;
-
     // Call the onDataUpdate callback
-    onDataUpdate?.(data);
+    callbacksRef.current.onDataUpdate?.(data);
 
     // Process secondary camera checks
     const secondaryCameraChecks = data.checks?.secondary_camera.checks || {};
     Object.keys(secondaryCameraChecks).forEach((check) => {
       const checkData = secondaryCameraChecks[check];
+      const callbacks = callbacksRef.current;
+
       switch (check) {
         case 'setup':
           // eslint-disable-next-line no-unused-expressions
           checkData?.success
-            ? onSetupSuccess?.(checkData)
-            : onSetupFailure?.(checkData);
+            ? callbacks.onSetupSuccess?.(checkData)
+            : callbacks.onSetupFailure?.(checkData);
           break;
         case 'snapshot':
           // eslint-disable-next-line no-unused-expressions
           checkData?.success
-            ? onSnapshotSuccess?.(checkData)
-            : onSnapshotFailure?.(checkData);
+            ? callbacks.onSnapshotSuccess?.(checkData)
+            : callbacks.onSnapshotFailure?.(checkData);
           break;
         case 'battery':
           // eslint-disable-next-line no-unused-expressions
           checkData?.success
-            ? onBatteryNormal?.(checkData, data)
-            : onBatteryLow?.(checkData, data);
+            ? callbacks.onBatteryNormal?.(checkData, data)
+            : callbacks.onBatteryLow?.(checkData, data);
           break;
         default:
           break;
       }
     });
-  }, [data, onBatteryLow, onBatteryNormal, onDataUpdate,
-    onSetupFailure, onSetupSuccess, onSnapshotFailure, onSnapshotSuccess]);
+  }, [data]);
 };
 
 export default useProctorPolling;
