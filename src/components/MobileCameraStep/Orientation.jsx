@@ -138,7 +138,7 @@ function Orientation({
             checked={isChecked}
             onCheckedChange={(checked) => setIsChecked(checked)}
           />
-          <label htmlFor="confirm" className="text-xs text-gray-600">
+          <label htmlFor="confirm" className="text-sm text-gray-600">
             By clicking on this, you confirm that your mobile phone is paired
             and will remain charged during the test. If disconnected, you'll
             need to reconnect before being able to continue with the test.

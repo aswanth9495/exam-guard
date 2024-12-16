@@ -110,7 +110,7 @@ const DesktopCameraStep = () => {
               checked={acknowledged}
               onCheckedChange={handleCheckboxChange}
             />
-            <label htmlFor='confirm' className='text-xs text-gray-600'>
+            <label htmlFor='confirm' className='text-sm text-gray-600'>
               By clicking, you confirm that all your compatibility checks have
               been successful. Failure to maintain them during the test may
               result in disqualification.

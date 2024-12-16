@@ -89,7 +89,7 @@ const ScreenShareStep = () => {
               checked={acknowledged}
               onCheckedChange={handleCheckboxChange}
             />
-            <label htmlFor='confirm' className='text-xs text-base-200'>
+            <label htmlFor='confirm' className='text-sm text-base-200'>
               By clicking on this, you confirm that you have shared your entire
               screen and it will stay connected throughout the test. Failure to
               do so may result in disqualification
