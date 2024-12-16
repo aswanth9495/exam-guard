@@ -10,11 +10,12 @@ import { selectProctor } from '@/store/features/assessmentInfoSlice';
 // Define optimal constraints for low resource usage
 const LOW_QUALITY_CONSTRAINTS = {
   video: {
-    width: { max: 160 },      // Won't exceed 320
-    height: { max: 120 },     // Won't exceed 240
-    frameRate: { max: 4 },   // Reduced from typical 30fps
+    width: { ideal: 160 },     // Using ideal instead of max
+    height: { ideal: 120 },    // Using ideal instead of max
+    frameRate: {
+      ideal: 4    // Still keep ideal for browsers that respect it
+    },  
     facingMode: 'user',
-    // Advanced constraints for supported browsers
     advanced: [
       { aspectRatio: 4/3 },
       { resizeMode: 'crop-and-scale' },  // Helps with performance
@@ -118,6 +119,16 @@ export default function CameraSelector() {
     try {
       cleanup(); // Clean up previous stream
 
+      // First check if we have permissions
+      let hasPermission = false;
+      try {
+        const permissionStatus = await navigator.permissions.query({ name: 'camera' as PermissionName });
+        hasPermission = permissionStatus.state === 'granted';
+      } catch (e) {
+        // Firefox doesn't support permission query for camera, will handle in getUserMedia
+        console.log('Permission query not supported, proceeding with getUserMedia');
+      }
+
       // Get camera with optimized constraints
       const stream = await navigator.mediaDevices.getUserMedia({
         ...LOW_QUALITY_CONSTRAINTS,
@@ -146,12 +157,24 @@ export default function CameraSelector() {
         videoElement.srcObject = stream;
       }
 
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Camera initialization error:', error);
+      let errorMessage = 'Camera permission denied';
+      
+      // Provide more specific error messages
+      if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+        errorMessage = 'Camera access was denied. Please allow camera access in your browser settings.';
+      } else if (error.name === 'NotFoundError') {
+        errorMessage = 'No camera device found. Please connect a camera and try again.';
+      } else if (error.name === 'NotReadableError') {
+        errorMessage = 'Camera is in use by another application. Please close other apps using the camera.';
+      }
+
       dispatch(
         setSubStepError({
           step: 'cameraShare',
           subStep: 'cameraShare',
-          error: 'Camera permission denied',
+          error: errorMessage,
         })
       );
     }
