@@ -476,11 +476,13 @@ export default class Proctor {
 
     // Setup webcam if snapshots are enabled
     if (this.snapshotConfig.enabled) {
+      // Get the stored device ID from localStorage
+      const storedDeviceId = localStorage.getItem('selectedWebcamDeviceId');
       detectWebcam({
         onWebcamEnabled: this.handleWebcamEnabled.bind(this),
         onWebcamDisabled: this.handleWebcamDisabled.bind(this),
         optional: this.snapshotConfig.optional,
-        deviceId: this.snapshotConfig.deviceId,
+        deviceId: storedDeviceId || this.snapshotConfig.deviceId,
       });
     }
 
@@ -622,6 +624,8 @@ export default class Proctor {
     // Webcam check
     if (compatibilityChecks.webcam) {
       const webcamCheck = new Promise((resolve, reject) => {
+        // Get the stored device ID from localStorage
+        const storedDeviceId = localStorage.getItem('selectedWebcamDeviceId');
         detectWebcam({
           onWebcamEnabled: () => resolve('webcam'),
           onWebcamDisabled: () => {
@@ -629,7 +633,7 @@ export default class Proctor {
             reject('webcam');
           },
           optional: this.snapshotConfig.optional,
-          deviceId: this.snapshotConfig.deviceId,
+          deviceId: storedDeviceId || this.snapshotConfig.deviceId,
         });
       });
       compatibilityPromises.push(webcamCheck);
@@ -793,11 +797,13 @@ export default class Proctor {
   }
 
   handleWebcamRequest() {
+    // Get the stored device ID from localStorage
+    const storedDeviceId = localStorage.getItem('selectedWebcamDeviceId');
     detectWebcam({
       onWebcamEnabled: this.handleWebcamEnabled.bind(this),
       onWebcamDisabled: this.handleWebcamDisabled.bind(this),
       optional: this.snapshotConfig.optional,
-      deviceId: this.snapshotConfig.deviceId,
+      deviceId: storedDeviceId || this.snapshotConfig.deviceId,
     });
   }
 
@@ -807,6 +813,8 @@ export default class Proctor {
 
   setWebcamDevice(deviceId) {
     this.snapshotConfig.deviceId = deviceId;
+    // Store the selected device ID in localStorage
+    localStorage.setItem('selectedWebcamDeviceId', deviceId);
   }
 
   handleScreenshotFailure() {
