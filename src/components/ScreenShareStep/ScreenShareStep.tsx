@@ -82,36 +82,59 @@ const ScreenShareStep = () => {
           screen sharing setup guide
         </p>
         {!enableProctoring && (
-          <div className='flex items-start mt-16 text-xs'>
-            <Checkbox
-              id='confirm'
-              className='mt-1 mr-4 h-6 w-6'
-              checked={acknowledged}
-              onCheckedChange={handleCheckboxChange}
-            />
-            <label htmlFor='confirm' className='text-sm text-base-200'>
-              By clicking on this, you confirm that you have shared your entire
-              screen and it will stay connected throughout the test. Failure to
-              do so may result in disqualification
-            </label>
-          </div>
+          <form 
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (canProceed) {
+                handleClick();
+              }
+            }}
+            noValidate={false}
+          >
+            <div className='flex items-start mt-16 text-xs'>
+              <Checkbox
+                id='confirm'
+                className='mt-1 mr-4 h-6 w-6'
+                checked={acknowledged}
+                onCheckedChange={handleCheckboxChange}
+                disabled={!areAllSubstepsCompleted}
+                role="checkbox"
+                required={areAllSubstepsCompleted}
+              />
+              <label htmlFor='confirm' className='text-sm text-base-200'>
+                By clicking on this, you confirm that you have shared your entire
+                screen and it will stay connected throughout the test. Failure to
+                do so may result in disqualification
+              </label>
+            </div>
+            <Button
+              type="submit"
+              className='mt-8 items-center'
+              variant='primary'
+              size='lg'
+              disabled={!areAllSubstepsCompleted}
+            >
+              {enableProctoring ? (
+                'Confirm Settings'
+              ) : (
+                <>
+                  Proceed to next step
+                  <ArrowRight className='w-6 h-6' />
+                </>
+              )}
+            </Button>
+          </form>
         )}
-        <Button
-          className='mt-8 items-center'
-          variant='primary'
-          disabled={!canProceed}
-          onClick={handleClick}
-          size='lg'
-        >
-          {enableProctoring ? (
-            'Confirm Settings'
-          ) : (
-            <>
-              Proceed to next step
-              <ArrowRight className='w-6 h-6' />
-            </>
-          )}
-        </Button>
+        {enableProctoring && (
+          <Button
+            className='mt-8 items-center'
+            variant='primary'
+            onClick={handleClick}
+            size='lg'
+          >
+            Confirm Settings
+          </Button>
+        )}
 
         <GuideModal
           open={showGuideModal}

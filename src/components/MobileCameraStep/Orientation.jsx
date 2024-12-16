@@ -131,35 +131,50 @@ function Orientation({
         </section>
       </div>
       <div className="mt-16">
-        <div className="flex items-start gap-2 mt-6 text-sm">
-          <Checkbox
-            id="confirm"
-            className='mr-2 mt-1 h-6 w-6'
-            checked={isChecked}
-            onCheckedChange={(checked) => setIsChecked(checked)}
-          />
-          <label htmlFor="confirm" className="text-sm text-gray-600">
-            By clicking on this, you confirm that your mobile phone is paired
-            and will remain charged during the test. If disconnected, you'll
-            need to reconnect before being able to continue with the test.
-          </label>
-        </div>
-        <Button
-          className="mt-8 items-center py-8 px-10"
-          variant="primary"
-          disabled={!isChecked || !snapshotCollected}
-          onClick={handleProceed}
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (isChecked && snapshotCollected) {
+              handleProceed();
+            }
+          }}
         >
-          Proceed to next step
-          <ArrowRight className="w-6 h-6" />
-        </Button>
-        <Button
-          className='mt-8 items-center py-8 px-10 ml-6'
-          variant='outline'
-          onClick={() => setSwitchModalOpen(true)}
-        >
-          Scan QR Code again
-        </Button>
+          <div className="flex items-start gap-2 mt-6 text-sm">
+            <Checkbox
+              id="confirm"
+              className='mr-2 mt-1 h-6 w-6'
+              checked={isChecked}
+              onCheckedChange={(checked) => setIsChecked(checked)}
+              disabled={!snapshotCollected}
+              role="checkbox"
+              required={snapshotCollected}
+            />
+            <label htmlFor="confirm" className="text-sm text-gray-600">
+              By clicking on this, you confirm that your mobile phone is paired
+              and will remain charged during the test. If disconnected, you&apos;ll
+              need to reconnect before being able to continue with the test.
+            </label>
+          </div>
+          <div className="flex items-center">
+            <Button
+              type="submit"
+              className="mt-8 items-center py-8 px-10"
+              variant="primary"
+              disabled={!snapshotCollected}
+            >
+              Proceed to next step
+              <ArrowRight className="w-6 h-6" />
+            </Button>
+            <Button
+              className='mt-8 items-center py-8 px-10 ml-6'
+              variant='outline'
+              onClick={() => setSwitchModalOpen(true)}
+              type="button"
+            >
+              Scan QR Code again
+            </Button>
+          </div>
+        </form>
       </div>
     </div>
   );
