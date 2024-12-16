@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import classNames from 'classnames';
 
 import { useDispatch } from 'react-redux';
@@ -31,7 +31,7 @@ function Orientation({
   const [snapshotCollected, setSnapshotCollected] = useState(false);
   const [snapShotCount, setSnapshotCount] = useState(0);
   const [previousSnapshot, setPreviousSnapshot] = useState(null);
-  // const [countdown, setCountdown] = useState(5);
+  const [countdown, setCountdown] = useState(5);
   const { enableProctoring } = useAppSelector((state) => state.workflow);
 
   const collectSnapshots = useCallback((snapShotData) => {
@@ -63,15 +63,14 @@ function Orientation({
     }));
   }, [dispatch]);
 
-  // TODO: Uncomment this for the countdown
-  // useEffect(() => {
-  //   setCountdown(5); // Reset countdown to 5 seconds
-  //   const interval = setInterval(() => {
-  //     setCountdown((prev) => (prev > 0 ? prev - 1 : 0));
-  //   }, 1000);
+  useEffect(() => {
+    setCountdown(5); // Reset countdown to 5 seconds
+    const interval = setInterval(() => {
+      setCountdown((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
 
-  //   return () => clearInterval(interval);
-  // }, [previousSnapshot]); // Dependency on snapshot updates
+    return () => clearInterval(interval);
+  }, [previousSnapshot]); // Dependency on snapshot updates
 
   useProctorPolling({
     onSnapshotSuccess: handleSnapshotSuccess,
@@ -85,8 +84,7 @@ function Orientation({
   return (
     <div className="flex flex-col">
       <section className="py-4 px-10 text-xs text-center bg-[#E6F2FF] absolute top-0 left-0 w-full font-bold">
-        {snapShotCount === MIN_SNAPSHOT_COUNT ? 'Snapshots Collected !'
-          : 'Capturing 3 Mandatory snapshots in progress...' }
+        Auto fetching next snapshot in <time>{countdown}</time> seconds...
       </section>
       <div className={classNames(
         styles.orientationContainer,
@@ -125,7 +123,13 @@ function Orientation({
           </div>
          <div className="flex flex-col text-center mt-4">
             <div className="text-xs text-gray-500 mt-2">
-              Auto fetching image...
+            {snapShotCount === MIN_SNAPSHOT_COUNT ? (<>Snapshot covering you and your workspace?
+            {' '}
+            <b>If yes, proceed. If not, adjust and confirm with next snapshot</b></>)
+              : (<><b>Capturing 3 mandatory snaps</b>
+                ...adjust your phone to capture both hands, workspace and your head
+              </>
+              )}
             </div>
           </div>
         </section>
