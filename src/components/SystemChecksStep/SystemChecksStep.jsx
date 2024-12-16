@@ -62,7 +62,7 @@ const SystemChecksStep = () => {
           <div className='flex items-start mt-16 text-xs'>
             <Checkbox
               id='confirm'
-              className='mt-1.5 mr-4 h-4 w-4'
+              className='mt-1 mr-4 h-6 w-6'
               checked={acknowledged}
               onCheckedChange={handleCheckboxChange}
             />

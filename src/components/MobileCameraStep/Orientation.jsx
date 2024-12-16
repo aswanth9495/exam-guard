@@ -93,6 +93,22 @@ function Orientation({
         'mt-10',
         { [className]: className },
       )}>
+        <section className={styles.referenceImageContainer}>
+          <Carousel items={[
+            {
+              image: 'https://d2beiqkhq929f0.cloudfront.net/public_assets/assets/000/099/601/original/Dec_10_Screenshot_Rounded_Corner.png?1733823148',
+              text: 'Position phone against a strong surface',
+            },
+            {
+              image: 'https://d2beiqkhq929f0.cloudfront.net/public_assets/assets/000/099/593/original/Iterations_Image_4936.png?1733821016',
+              text: 'Adjust and verify your phone basis snapshot',
+            },
+            {
+              image: 'https://d2beiqkhq929f0.cloudfront.net/public_assets/assets/000/099/594/original/IMG_4940_1.png?1733821035',
+              text: 'Once ready, click on proceed',
+            },
+          ]}/>
+        </section>
         <section className={styles.snapshotPreviewContainer}>
           {/* Snapshot section */}
           <div className={styles.snapshotPreview}>
@@ -113,28 +129,12 @@ function Orientation({
             </div>
           </div>
         </section>
-        <section className={styles.referenceImageContainer}>
-          <Carousel items={[
-            {
-              image: 'https://d2beiqkhq929f0.cloudfront.net/public_assets/assets/000/099/601/original/Dec_10_Screenshot_Rounded_Corner.png?1733823148',
-              text: 'Position phone against a strong surface',
-            },
-            {
-              image: 'https://d2beiqkhq929f0.cloudfront.net/public_assets/assets/000/099/593/original/Iterations_Image_4936.png?1733821016',
-              text: 'Adjust and verify your phone basis snapshot',
-            },
-            {
-              image: 'https://d2beiqkhq929f0.cloudfront.net/public_assets/assets/000/099/594/original/IMG_4940_1.png?1733821035',
-              text: 'Once ready, click on proceed',
-            },
-          ]}/>
-        </section>
       </div>
       <div className="mt-16">
         <div className="flex items-start gap-2 mt-6 text-sm">
           <Checkbox
             id="confirm"
-            className='mr-2 h-5 w-5'
+            className='mr-2 mt-1 h-6 w-6'
             checked={isChecked}
             onCheckedChange={(checked) => setIsChecked(checked)}
           />
