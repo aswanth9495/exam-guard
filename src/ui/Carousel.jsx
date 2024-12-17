@@ -48,6 +48,7 @@ const Carousel = ({ items, interval = 5000 }) => {
           onClick={prevSlide}
           className="absolute left-4 top-1/2 -translate-y-1/2 bg-white bg-opacity-50 text-gray-800 p-2 rounded-full hover:bg-opacity-75 transition-all z-10"
           aria-label="Previous slide"
+          type='button'
         >
           <ChevronLeft size={24} />
         </button>
@@ -55,6 +56,7 @@ const Carousel = ({ items, interval = 5000 }) => {
           onClick={nextSlide}
           className="absolute right-4 top-1/2 -translate-y-1/2 bg-white bg-opacity-50 text-gray-800 p-2 rounded-full hover:bg-opacity-75 transition-all z-10"
           aria-label="Next slide"
+          type='button'
         >
           <ChevronRight size={24} />
         </button>

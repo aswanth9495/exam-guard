@@ -30,7 +30,30 @@
   color: var(--foreground);
   font-family: SourceSansPro, sans-serif !important;
   font-size: 10px;
+
+  body {
+    div,
+    span,
+    li,
+    a,
+    b,
+    tr,
+    td,
+    p,
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    label {
+      font-family: SourceSansPro, sans-serif !important;
+    }
+  }
 }
+
+
+
 
 .proctor-library-root * {
   margin: 0;
