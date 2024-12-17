@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/ui/Dialog';
 import { getBrowserInfo } from '@/utils/browser';
 import styles from './GuideModal.module.scss';
@@ -14,31 +14,18 @@ interface GuideModalProps {
 export default function GuideModal({
   open,
   onOpenChange,
-  isError = false,
   title,
   children,
 }: GuideModalProps) {
-  const [userDismissed, setUserDismissed] = useState(false);
 
   const browserInfo: any = useMemo(() => getBrowserInfo(), []);
 
-  useEffect(() => {
-    if (!isError) {
-      setUserDismissed(false);
-    }
-  }, [isError]);
-
   const handleOpenChange = (newOpen: boolean) => {
-    if (!newOpen) {
-      setUserDismissed(true);
-    }
     onOpenChange(newOpen);
   };
 
-  const shouldShow = isError ? open && !userDismissed : open;
-
   return (
-    <Dialog open={shouldShow} onOpenChange={handleOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent
         className={`max-w-[90%] max-h-[95%] p-12 z-[100] bg-white ${styles.dialogContent} overflow-y-auto`}
       >

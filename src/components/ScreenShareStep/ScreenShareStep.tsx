@@ -135,7 +135,6 @@ const ScreenShareStep = () => {
             Confirm Settings
           </Button>
         )}
-
         <GuideModal
           open={showGuideModal}
           onOpenChange={setShowGuideModal}
