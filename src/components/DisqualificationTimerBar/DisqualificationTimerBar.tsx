@@ -7,6 +7,7 @@ import { useAppSelector } from '@/hooks/reduxhooks';
 interface DisqualificationTimerBarProps {
   activeStep: WorkflowStepKey;
   modalOpen: boolean;
+  failingSteps: WorkflowStepKey[];
 }
 
 const STEP_VS_MESSAGE_MAPPING = {
@@ -31,18 +32,24 @@ const STEP_VS_MESSAGE_MAPPING = {
 const DisqualificationTimerBar: React.FC<DisqualificationTimerBarProps> = ({
   activeStep,
   modalOpen,
+  failingSteps,
 }) => {
-  const { message, time } = useMemo(
-    () => STEP_VS_MESSAGE_MAPPING[activeStep],
-    [activeStep]
-  );
+  const getMaxTime = useMemo(() => {
+    if (!failingSteps.length) return STEP_VS_MESSAGE_MAPPING[activeStep].time;
+    
+    return Math.max(
+      ...failingSteps.map(step => STEP_VS_MESSAGE_MAPPING[step].time)
+    );
+  }, [failingSteps, activeStep]);
+
+  const message = STEP_VS_MESSAGE_MAPPING[activeStep].message;
   const proctor = useAppSelector(selectProctor);
 
-  const [timeLeft, setTimeLeft] = useState(time);
+  const [timeLeft, setTimeLeft] = useState(getMaxTime);
 
   useEffect(() => {
-    setTimeLeft(time);
-  }, [modalOpen, time]);
+    setTimeLeft(getMaxTime);
+  }, [modalOpen, getMaxTime]);
 
   useEffect(() => {
     if (timeLeft <= 0) {
@@ -75,7 +82,7 @@ const DisqualificationTimerBar: React.FC<DisqualificationTimerBarProps> = ({
       <div className='absolute top-0 left-0 h-full w-full bg-[#FFEBEF] rounded-t-2xl overflow-hidden'>
         <div
           className='h-full bg-red-700 transition-all duration-1000 ease-linear'
-          style={{ width: `${100 - (timeLeft / time) * 100}%` }}
+          style={{ width: `${100 - (timeLeft / getMaxTime) * 100}%` }}
         />
       </div>
     </div>

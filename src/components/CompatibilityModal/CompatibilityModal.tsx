@@ -10,6 +10,7 @@ import {
 import { Modal } from '@/ui/Modal';
 import { Step, WorkflowStepKey } from '@/types/workflowTypes';
 import { useAppSelector } from '@/hooks/reduxhooks';
+import { evaluateParentStepStatus } from '@/utils/evaluateParentStepStatus';
 import CompatibilityModalHeader from '@/components/CompatibilityModalHeader';
 import CompatibilityModalStepsScreen from '@/components/CompatibilityModalStepsScreen';
 import DesktopCameraStep from '@/components/DesktopCameraStep';
@@ -62,6 +63,15 @@ export default function CompatibilityModal() {
       },
       {} as Record<string, Step>,
     );
+  }, [steps]);
+
+  const failingSteps = useMemo(() => {
+    return Object.entries(steps).reduce((acc, [key, stepState]) => {
+      if (stepState.enabled && evaluateParentStepStatus(Object.values(stepState.subSteps)) === 'error') {
+        acc.push(key as WorkflowStepKey);
+      }
+      return acc;
+    }, [] as WorkflowStepKey[]);
   }, [steps]);
 
   const [initialStep, setInitialStep] = useState(activeStep);
@@ -118,6 +128,7 @@ export default function CompatibilityModal() {
             <DisqualificationTimerBar
               activeStep={initialStep}
               modalOpen={localModalOpen}
+              failingSteps={failingSteps}
             />
           )}
           <div className='grow flex flex-row items-center overflow-hidden'>
