@@ -82,11 +82,6 @@ const workflowSlice = createSlice({
         if (state.steps[nextStepKey].locked) {
           state.steps[nextStepKey].locked = false;
         }
-        if (state.steps[nextStepKey].subSteps) {
-          const subSteps = Object.keys(state.steps[nextStepKey].subSteps)
-          const firstSubStepKey = subSteps[0];
-          state.steps[nextStepKey].subSteps[firstSubStepKey].status = 'pending';
-        }
         state.activeStep = nextStepKey;
       } else {
         state.modalOpen = false;
