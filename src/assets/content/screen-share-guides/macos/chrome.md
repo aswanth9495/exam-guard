@@ -1,31 +1,27 @@
-# Screen Sharing Guide for Chrome on macOS
+# Screen Sharing Troubleshooting Guide for macOS
 
-## Initial Setup
-1. Open System Preferences (Apple menu > System Preferences)
-2. Click on "Security & Privacy"
-3. Select the "Privacy" tab
-4. Scroll to "Screen Recording"
-5. Click the lock to make changes
-6. Check Chrome in the list
-7. Restart Chrome
+1. Check System Privacy Settings
+   • Open System Preferences > Security & Privacy > Privacy
+   • Select "Screen Recording" from the left sidebar
+   • Ensure your browser is checked/enabled in the list
+   • If not listed, add your browser by clicking the "+" button
+   
+2. Browser-Specific Steps
+   a) Update Your Browser
+      • Click on browser menu > About [Browser Name]
+      • Install any available updates
+      • Restart browser after updating
+   
+   b) Clear Browser Data
+      • Open browser settings/preferences
+      • Navigate to Privacy/Security section
+      • Find "Clear browsing data" option
+      • Select cache and cookies
+      • Click "Clear data"
+      
+3. General Fixes
+   • Restart your browser
+   • Restart your Mac
+   • If issues persist, try uninstalling and reinstalling your browser
 
-## How to Share Your Screen
-1. Click the "Share Screen" button in your exam interface
-2. In Chrome's screen selector, choose:
-   - Your Entire Screen
-   - Application Window
-   - Chrome Tab
-3. Click "Share" to begin
-
-## Troubleshooting
-### If screen sharing isn't working:
-1. Verify system permissions:
-   - Recheck Screen Recording permissions
-   - Make sure Chrome is allowed
-2. Check Chrome permissions:
-   - Click lock icon in address bar
-   - Click "Site Settings"
-   - Ensure screen sharing is allowed
-3. Update Chrome:
-   - Click Menu (⋮) > Help > About Google Chrome
-   - Install any available updates 
+Note: You may need to grant screen recording permissions again after clearing browser data or reinstalling.
